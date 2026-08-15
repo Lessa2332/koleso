@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Golden Wheel · SmartLessa</title>
     
-    <!-- Виправлений CSP -->
     <meta http-equiv="Content-Security-Policy" content="
         default-src 'self';
         script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://cdn.skypack.dev https://storage.googleapis.com https://unpkg.com;
@@ -34,7 +33,6 @@
             position: fixed;
         }
 
-        /* Камера як фон */
         #video {
             position: fixed;
             inset: 0;
@@ -45,7 +43,6 @@
             transform: scaleX(-1);
         }
 
-        /* Canvas для Three.js */
         #canvas {
             position: fixed;
             inset: 0;
@@ -55,7 +52,6 @@
             pointer-events: none;
         }
 
-        /* UI поверх усього */
         .ui-overlay {
             position: fixed;
             z-index: 10;
@@ -63,7 +59,6 @@
         }
         .ui-overlay * { pointer-events: auto; }
 
-        /* Верхня панель */
         .top-bar {
             top: 0;
             left: 0;
@@ -125,6 +120,7 @@
             font-size: 1.3rem;
             opacity: 0.2;
             transition: all 0.4s cubic-bezier(.68,-0.55,.27,1.55);
+            cursor: pointer;
         }
 
         .star-icon.earned {
@@ -133,7 +129,6 @@
             transform: scale(1.2);
         }
 
-        /* Колесо і буква в центрі */
         .wheel-container {
             position: fixed;
             top: 50%;
@@ -143,26 +138,6 @@
             width: min(70vh, 70vw, 500px);
             aspect-ratio: 1/1;
             pointer-events: none;
-        }
-
-        .wheel-ring {
-            position: absolute;
-            inset: 0;
-            border-radius: 50%;
-            border: 4px solid rgba(212,175,55,0.15);
-            box-shadow: 0 0 60px rgba(212,175,55,0.05), inset 0 0 60px rgba(212,175,55,0.02);
-            animation: spin 20s linear infinite;
-        }
-
-        .wheel-ring:nth-child(2) {
-            border-color: rgba(212,175,55,0.05);
-            inset: 10%;
-            animation-duration: 30s;
-            animation-direction: reverse;
-        }
-
-        @keyframes spin {
-            to { transform: rotate(360deg); }
         }
 
         .letter-display {
@@ -190,7 +165,6 @@
             100% { transform: translate(-50%, -50%) scale(1); text-shadow: 0 0 20px rgba(212,175,55,0.2); }
         }
 
-        /* Бабл з кількістю пальців */
         #hand-bubble {
             position: fixed;
             z-index: 20;
@@ -216,7 +190,6 @@
             border-color: #fff;
         }
 
-        /* Нижня панель */
         .bottom-bar {
             bottom: 0;
             left: 0;
@@ -335,7 +308,6 @@
             font-weight: 500;
         }
 
-        /* Стартовий екран */
         #start-screen {
             position: fixed;
             inset: 0;
@@ -397,7 +369,6 @@
             line-height: 1.6;
         }
 
-        /* Адаптив */
         @media (max-width: 480px) {
             #hand-bubble { width: 44px; height: 44px; font-size: 1.2rem; }
             .top-bar { padding-top: 8px; }
@@ -415,29 +386,19 @@
             .status-text { font-size: 0.75rem; }
             .gesture-hint { font-size: 0.6rem; }
         }
-
-        @media (min-width: 768px) and (max-width: 1024px) {
-            .wheel-container { width: min(60vh, 60vw, 450px); }
-        }
     </style>
 </head>
 <body>
 
-    <!-- Відео та Canvas для Three.js -->
     <video id="video" autoplay playsinline muted></video>
     <canvas id="canvas"></canvas>
 
-    <!-- Бабл з кількістю пальців -->
     <div id="hand-bubble">0</div>
 
-    <!-- Колесо і буква в центрі -->
     <div class="wheel-container">
-        <div class="wheel-ring"></div>
-        <div class="wheel-ring"></div>
         <div class="letter-display" id="letterDisplay">А</div>
     </div>
 
-    <!-- UI поверх -->
     <div class="ui-overlay top-bar">
         <div class="alphabet-selector" id="alphabetSelector">
             <button class="alphabet-btn active" data-alphabet="uk">UA</button>
@@ -477,7 +438,6 @@
         </div>
     </div>
 
-    <!-- Стартовий екран -->
     <div id="start-screen">
         <div class="icon">✦</div>
         <h1>Golden <span>Wheel</span></h1>
@@ -489,14 +449,8 @@
         </div>
     </div>
 
-    <script type="importmap">
-    {
-        "imports": {
-            "three": "https://unpkg.com/three@0.158.0/build/three.module.js",
-            "@mediapipe/tasks-vision": "https://cdn.skypack.dev/@mediapipe/tasks-vision@0.10.3"
-        }
-    }
-    </script>
+    <!-- MediaPipe -->
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.3/wasm/vision_bundle.js" crossorigin="anonymous"></script>
 
     <script>
     (function() {
@@ -517,16 +471,11 @@
         let animationId = null;
         let score = 0;
         const totalLessons = 5;
-        let isProcessing = false;
 
-        // Для розпізнавання жестів
         let countBuffer = [];
         let handLandmarker = null;
-        let cameraStarted = false;
 
-        // DOM елементи
         const video = document.getElementById('video');
-        const canvas = document.getElementById('canvas');
         const letterDisplay = document.getElementById('letterDisplay');
         const statusText = document.getElementById('statusText');
         const handBubble = document.getElementById('hand-bubble');
@@ -536,78 +485,7 @@
         const alphabetBtns = document.querySelectorAll('.alphabet-btn');
         const starIcons = document.querySelectorAll('.star-icon');
 
-        // ---- Three.js сцена (тільки декоративне кільце) ----
-        let scene, camera3d, renderer, ring, masterGroup;
-
-        function setupScene() {
-            scene = new THREE.Scene();
-            camera3d = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
-            renderer = new THREE.WebGLRenderer({ 
-                canvas: canvas, 
-                alpha: true, 
-                antialias: true 
-            });
-            renderer.setSize(window.innerWidth, window.innerHeight);
-            renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-
-            masterGroup = new THREE.Group();
-            
-            ring = new THREE.Mesh(
-                new THREE.TorusGeometry(0.5, 0.035, 16, 100),
-                new THREE.MeshStandardMaterial({ 
-                    color: 0xd4af37, 
-                    emissive: 0xd4af37, 
-                    emissiveIntensity: 0.5,
-                    transparent: true,
-                    opacity: 0.6
-                })
-            );
-            masterGroup.add(ring);
-
-            const ring2 = new THREE.Mesh(
-                new THREE.TorusGeometry(0.58, 0.015, 16, 100),
-                new THREE.MeshStandardMaterial({ 
-                    color: 0xf5e7c8, 
-                    emissive: 0xd4af37, 
-                    emissiveIntensity: 0.2,
-                    transparent: true,
-                    opacity: 0.3
-                })
-            );
-            masterGroup.add(ring2);
-
-            scene.add(masterGroup);
-            scene.add(new THREE.AmbientLight(0xffffff, 1.5));
-            scene.add(new THREE.DirectionalLight(0xffffff, 0.8));
-
-            camera3d.position.z = 3;
-        }
-
-        function animateScene() {
-            requestAnimationFrame(animateScene);
-            
-            if (handLandmarker && video.readyState >= 2) {
-                try {
-                    const res = handLandmarker.detectForVideo(video, performance.now());
-                    if (res.landmarks && res.landmarks.length > 0) {
-                        const hand = res.landmarks[0];
-                        const wrist = hand[0];
-                        
-                        masterGroup.position.set(
-                            (0.5 - wrist.x) * 3.2,
-                            (0.5 - wrist.y) * 2.6,
-                            0
-                        );
-                        masterGroup.visible = true;
-                        ring.rotation.x += 0.02;
-                        ring.rotation.z += 0.01;
-                    } else {
-                        masterGroup.visible = false;
-                    }
-                } catch(e) {}
-            }
-            renderer.render(scene, camera3d);
-        }
+        let wheelAngle = 0;
 
         // ---- РОЗПІЗНАВАННЯ ПАЛЬЦІВ ----
         function countFingers(landmarks) {
@@ -616,10 +494,10 @@
             const getDist = (p1, p2) => Math.hypot(p1.x - p2.x, p1.y - p2.y);
 
             const fingers = [
-                { tip: 8, mid: 6 },  // Вказівний
-                { tip: 12, mid: 10 }, // Середній
-                { tip: 16, mid: 14 }, // Безіменний
-                { tip: 20, mid: 18 }  // Мізинець
+                { tip: 8, mid: 6 },
+                { tip: 12, mid: 10 },
+                { tip: 16, mid: 14 },
+                { tip: 20, mid: 18 }
             ];
 
             fingers.forEach(f => {
@@ -631,7 +509,6 @@
             return count;
         }
 
-        // ---- ВИЗНАЧЕННЯ ЖЕСТУ ----
         function detectGesture(hand) {
             const raw = countFingers(hand);
             
@@ -652,17 +529,16 @@
             return 'none';
         }
 
-        // ---- ОБЕРТАННЯ КОЛЕСА ----
+        // ---- ОБЕРТАННЯ ----
         function spinLoop() {
             if (!isSpinning || spinDirection === 0) {
                 isSpinning = false;
                 return;
             }
 
-            const speed = 0.035;
+            const speed = 0.04;
             const delta = spinDirection === -1 ? -speed : speed;
             
-            // Оновлюємо літеру (візуально)
             const total = letters.length;
             if (total > 0) {
                 const angle = (wheelAngle || 0) + delta;
@@ -676,8 +552,6 @@
 
             animationId = requestAnimationFrame(spinLoop);
         }
-
-        let wheelAngle = 0;
 
         function startSpin(direction) {
             if (direction === 0) { stopSpin(); return; }
@@ -706,10 +580,7 @@
             statusText.innerHTML = `⏸️ літера <strong>${currentLetter}</strong> · назви слово!`;
         }
 
-        // ---- ОБРОБКА ЖЕСТІВ ----
         function handleGesture(gesture) {
-            if (isProcessing) return;
-
             if (gesture === 'left') {
                 startSpin(-1);
             } else if (gesture === 'right') {
@@ -739,6 +610,7 @@
                 return true;
             } catch(e) {
                 console.error('AI init error:', e);
+                statusText.innerHTML = '❌ Помилка AI: ' + e.message;
                 return false;
             }
         }
@@ -759,6 +631,7 @@
                 return true;
             } catch(e) {
                 console.error('Camera error:', e);
+                statusText.innerHTML = '❌ Помилка камери. Використовуйте клавіатуру: ← → Пробіл';
                 return false;
             }
         }
@@ -830,17 +703,7 @@
             else if (e.key === ' ' || e.key === 'Space') {
                 e.preventDefault();
                 if (isSpinning) { stopSpin(); }
-                // Збільшуємо зірку при натисканні пробілу (для вчителя)
                 earnStar();
-            }
-        });
-
-        // ---- РОЗМІР ЕКРАНУ ----
-        window.addEventListener('resize', () => {
-            if (renderer) {
-                renderer.setSize(window.innerWidth, window.innerHeight);
-                camera3d.aspect = window.innerWidth / window.innerHeight;
-                camera3d.updateProjectionMatrix();
             }
         });
 
@@ -852,12 +715,8 @@
             const cameraOk = await startCamera();
             if (!cameraOk) {
                 startBtn.textContent = '❌ Помилка камери';
-                statusText.innerHTML = '❌ Помилка камери. Використовуйте клавіатуру: ← → Пробіл';
                 return;
             }
-
-            setupScene();
-            animateScene();
 
             const aiOk = await initAI();
             if (!aiOk) {
@@ -881,7 +740,6 @@
 
         spinBtn.addEventListener('click', pickRandomLetter);
 
-        // Для вчителя: клік на зірку = +1 зірка
         starIcons.forEach((star, i) => {
             star.addEventListener('click', () => {
                 if (i === score && score < totalLessons) {
@@ -894,7 +752,6 @@
             });
         });
 
-        // ---- ВІДНОВЛЕННЯ ПІСЛЯ ЗГОРТАННЯ ----
         document.addEventListener('visibilitychange', () => {
             if (document.hidden && isSpinning) {
                 stopSpin();
