@@ -5,17 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Golden Wheel · SmartLessa</title>
     
-    <meta http-equiv="Content-Security-Policy" content="
-        default-src 'self';
-        script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://storage.googleapis.com https://unpkg.com;
-        style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
-        font-src 'self' https://fonts.gstatic.com;
-        img-src 'self' data: blob:;
-        media-src 'self' blob:;
-        connect-src 'self' https://cdn.jsdelivr.net https://storage.googleapis.com;
-        frame-src 'none';
-    ">
-    
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     
     <style>
@@ -437,7 +426,7 @@
         </div>
     </div>
 
-    <!-- Правильний імпорт MediaPipe через CDN -->
+    <!-- ПРАВИЛЬНИЙ ІМПОРТ MEDIAPIPE -->
     <script type="importmap">
     {
         "imports": {
@@ -449,7 +438,6 @@
     <script type="module">
         import { FilesetResolver, HandLandmarker } from "@mediapipe/tasks-vision";
 
-        // ---- КОНФІГУРАЦІЯ ----
         const ALPHABETS = {
             uk: 'АБВГҐДЕЄЖЗИІЇЙКЛМНОПРСТУФХЦЧШЩЬЮЯ'.split(''),
             en: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split(''),
@@ -457,7 +445,6 @@
             pl: 'AĄBCĆDEĘFGHIJKLŁMNŃOÓPRSŚTUWYZŹŻ'.split('')
         };
 
-        // ---- СТАН ----
         let currentAlphabet = 'uk';
         let letters = ALPHABETS['uk'];
         let currentLetter = 'А';
@@ -466,10 +453,9 @@
         let animationId = null;
         let score = 0;
         const totalLessons = 5;
-
         let countBuffer = [];
         let handLandmarker = null;
-        let recognitionRunning = false;
+        let wheelAngle = 0;
 
         const video = document.getElementById('video');
         const letterDisplay = document.getElementById('letterDisplay');
@@ -481,44 +467,35 @@
         const alphabetBtns = document.querySelectorAll('.alphabet-btn');
         const starIcons = document.querySelectorAll('.star-icon');
 
-        let wheelAngle = 0;
-
         // ---- РОЗПІЗНАВАННЯ ПАЛЬЦІВ ----
         function countFingers(landmarks) {
             let count = 0;
             const wrist = landmarks[0];
             const getDist = (p1, p2) => Math.hypot(p1.x - p2.x, p1.y - p2.y);
-
             const fingers = [
                 { tip: 8, mid: 6 },
                 { tip: 12, mid: 10 },
                 { tip: 16, mid: 14 },
                 { tip: 20, mid: 18 }
             ];
-
             fingers.forEach(f => {
                 if (getDist(landmarks[f.tip], wrist) > getDist(landmarks[f.mid], wrist)) count++;
             });
-
             if (getDist(landmarks[4], landmarks[5]) > 0.08) count++;
-
             return count;
         }
 
         function detectGesture(hand) {
             const raw = countFingers(hand);
-            
             countBuffer.push(raw);
             if (countBuffer.length > 15) countBuffer.shift();
             const smooth = Math.round(countBuffer.reduce((a, b) => a + b, 0) / countBuffer.length);
-
             const wrist = hand[0];
             handBubble.style.display = 'flex';
             handBubble.style.left = `${(1 - wrist.x) * 100}%`;
             handBubble.style.top = `${wrist.y * 100}%`;
             handBubble.textContent = smooth;
             handBubble.classList.remove('correct');
-
             if (smooth === 5) return 'stop';
             if (smooth === 1) return 'left';
             if (smooth === 2) return 'right';
@@ -531,10 +508,8 @@
                 isSpinning = false;
                 return;
             }
-
             const speed = 0.04;
             const delta = spinDirection === -1 ? -speed : speed;
-            
             const total = letters.length;
             if (total > 0) {
                 const angle = (wheelAngle || 0) + delta;
@@ -545,16 +520,13 @@
                 letterDisplay.textContent = currentLetter;
                 wheelAngle = angle;
             }
-
             animationId = requestAnimationFrame(spinLoop);
         }
 
         function startSpin(direction) {
             if (direction === 0) { stopSpin(); return; }
             if (isSpinning && spinDirection === direction) return;
-
             if (animationId) { cancelAnimationFrame(animationId); animationId = null; }
-
             spinDirection = direction;
             isSpinning = true;
             statusText.innerHTML = direction === -1 ? '🔄 вліво...' : '🔄 вправо...';
@@ -564,32 +536,23 @@
         function stopSpin() {
             isSpinning = false;
             spinDirection = 0;
-            if (animationId) {
-                cancelAnimationFrame(animationId);
-                animationId = null;
-            }
-            
+            if (animationId) { cancelAnimationFrame(animationId); animationId = null; }
             letterDisplay.classList.remove('pulse');
             void letterDisplay.offsetWidth;
             letterDisplay.classList.add('pulse');
-            
             statusText.innerHTML = `⏸️ літера <strong>${currentLetter}</strong> · назви слово!`;
         }
 
         function handleGesture(gesture) {
-            if (gesture === 'left') {
-                startSpin(-1);
-            } else if (gesture === 'right') {
-                startSpin(1);
-            } else if (gesture === 'stop') {
-                if (isSpinning) {
-                    stopSpin();
-                }
+            if (gesture === 'left') { startSpin(-1); }
+            else if (gesture === 'right') { startSpin(1); }
+            else if (gesture === 'stop') {
+                if (isSpinning) { stopSpin(); }
                 handBubble.classList.add('correct');
             }
         }
 
-        // ---- ІНІЦІАЛІЗАЦІЯ AI ----
+        // ---- ІНІЦІАЛІЗАЦІЯ ----
         async function initAI() {
             try {
                 const vision = await FilesetResolver.forVisionTasks(
@@ -605,70 +568,44 @@
                 });
                 return true;
             } catch(e) {
-                console.error('AI init error:', e);
-                statusText.innerHTML = '❌ Помилка AI: ' + e.message;
+                console.error('AI error:', e);
+                statusText.innerHTML = '❌ Помилка AI. Використовуйте клавіатуру: ← → Пробіл';
                 return false;
             }
         }
 
-        // ---- ЗАПУСК КАМЕРИ ----
         async function startCamera() {
             try {
                 const stream = await navigator.mediaDevices.getUserMedia({
-                    video: { 
-                        facingMode: "user",
-                        width: { ideal: 640 },
-                        height: { ideal: 480 }
-                    },
+                    video: { facingMode: "user", width: { ideal: 640 }, height: { ideal: 480 } },
                     audio: false
                 });
                 video.srcObject = stream;
                 await video.play();
                 return true;
             } catch(e) {
-                console.error('Camera error:', e);
                 statusText.innerHTML = '❌ Помилка камери. Використовуйте клавіатуру: ← → Пробіл';
                 return false;
             }
         }
 
-        // ---- ЦИКЛ РОЗПІЗНАВАННЯ ----
         function recognitionLoop() {
             if (!handLandmarker || !video || video.readyState < 2) {
                 requestAnimationFrame(recognitionLoop);
                 return;
             }
-
             try {
                 const results = handLandmarker.detectForVideo(video, performance.now());
                 if (results.landmarks && results.landmarks.length > 0) {
-                    const hand = results.landmarks[0];
-                    const gesture = detectGesture(hand);
-                    handleGesture(gesture);
+                    handleGesture(detectGesture(results.landmarks[0]));
                 } else {
                     handBubble.style.display = 'none';
                 }
             } catch(e) {}
-
             requestAnimationFrame(recognitionLoop);
         }
 
         // ---- ФУНКЦІЇ ГРИ ----
-        function setAlphabet(key) {
-            if (key === currentAlphabet) return;
-            if (!ALPHABETS[key]) return;
-
-            stopSpin();
-            currentAlphabet = key;
-            letters = ALPHABETS[key];
-            
-            alphabetBtns.forEach(btn => {
-                btn.classList.toggle('active', btn.dataset.alphabet === key);
-            });
-
-            pickRandomLetter();
-        }
-
         function pickRandomLetter() {
             stopSpin();
             const letter = letters[Math.floor(Math.random() * letters.length)];
@@ -680,6 +617,18 @@
             letterDisplay.classList.remove('pulse');
             void letterDisplay.offsetWidth;
             letterDisplay.classList.add('pulse');
+        }
+
+        function setAlphabet(key) {
+            if (key === currentAlphabet) return;
+            if (!ALPHABETS[key]) return;
+            stopSpin();
+            currentAlphabet = key;
+            letters = ALPHABETS[key];
+            alphabetBtns.forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.alphabet === key);
+            });
+            pickRandomLetter();
         }
 
         function earnStar() {
@@ -710,15 +659,21 @@
 
             const cameraOk = await startCamera();
             if (!cameraOk) {
-                startBtn.textContent = '❌ Помилка камери';
+                startBtn.textContent = '▶ Почати (без камери)';
                 startBtn.disabled = false;
+                startScreen.style.display = 'none';
+                pickRandomLetter();
+                statusText.innerHTML = '⌨️ Використовуй ← → Пробіл';
                 return;
             }
 
             const aiOk = await initAI();
             if (!aiOk) {
-                startBtn.textContent = '❌ Помилка AI';
+                startBtn.textContent = '▶ Почати (без камери)';
                 startBtn.disabled = false;
+                startScreen.style.display = 'none';
+                pickRandomLetter();
+                statusText.innerHTML = '⌨️ Використовуй ← → Пробіл';
                 return;
             }
 
@@ -728,7 +683,7 @@
             recognitionLoop();
         });
 
-        // ---- ПОДІЇ UI ----
+        // ---- ПОДІЇ ----
         alphabetBtns.forEach(btn => {
             btn.addEventListener('click', () => {
                 const key = btn.dataset.alphabet;
@@ -751,9 +706,7 @@
         });
 
         document.addEventListener('visibilitychange', () => {
-            if (document.hidden && isSpinning) {
-                stopSpin();
-            }
+            if (document.hidden && isSpinning) { stopSpin(); }
         });
 
         console.log('✦ Golden Wheel · SmartLessa v2.0');
