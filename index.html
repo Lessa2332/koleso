@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Golden Wheel · SmartLessa</title>
     
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; user-select: none; }
@@ -118,29 +118,45 @@
             pointer-events: none;
         }
 
-        .letter-display {
+        /* --- НАПІВПРОЗОРИЙ ФОН ДЛЯ БУКВИ --- */
+        .letter-wrapper {
             position: absolute;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            font-size: clamp(6rem, 15vh, 12rem);
-            font-weight: 700;
+            width: 70%;
+            aspect-ratio: 1/1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            background: radial-gradient(circle at center, rgba(11,14,20,0.7) 30%, rgba(11,14,20,0.3) 70%, transparent 100%);
+            backdrop-filter: blur(4px);
+            -webkit-backdrop-filter: blur(4px);
+            border: 1px solid rgba(212,175,55,0.08);
+            box-shadow: 0 0 60px rgba(0,0,0,0.3), inset 0 0 60px rgba(212,175,55,0.02);
+            transition: all 0.3s ease;
+        }
+
+        .letter-wrapper.pulse {
+            animation: pulseWrapper 0.4s ease 2;
+        }
+
+        @keyframes pulseWrapper {
+            0% { transform: translate(-50%, -50%) scale(1); box-shadow: 0 0 40px rgba(212,175,55,0.05); }
+            50% { transform: translate(-50%, -50%) scale(1.08); box-shadow: 0 0 80px rgba(212,175,55,0.15); }
+            100% { transform: translate(-50%, -50%) scale(1); box-shadow: 0 0 40px rgba(212,175,55,0.05); }
+        }
+
+        .letter-display {
+            font-size: clamp(5rem, 13vh, 10rem);
+            font-weight: 800;
             color: #f5e7c8;
-            text-shadow: 0 0 60px rgba(212,175,55,0.3), 0 4px 30px rgba(0,0,0,0.8);
+            text-shadow: 0 0 40px rgba(212,175,55,0.2), 0 4px 20px rgba(0,0,0,0.8);
             letter-spacing: 4px;
-            transition: transform 0.15s ease;
             line-height: 1;
             text-align: center;
-        }
-
-        .letter-display.pulse {
-            animation: pulseGold 0.4s ease 2;
-        }
-
-        @keyframes pulseGold {
-            0% { transform: translate(-50%, -50%) scale(1); text-shadow: 0 0 20px rgba(212,175,55,0.2); }
-            50% { transform: translate(-50%, -50%) scale(1.15); text-shadow: 0 0 80px rgba(212,175,55,0.5); }
-            100% { transform: translate(-50%, -50%) scale(1); text-shadow: 0 0 20px rgba(212,175,55,0.2); }
+            font-family: 'Inter', sans-serif;
         }
 
         #hand-bubble {
@@ -353,16 +369,24 @@
             .alphabet-btn { font-size: 0.6rem; padding: 3px 8px; }
             .star-icon { font-size: 1rem; }
             .action-btn { padding: 8px 16px; font-size: 0.7rem; }
+            .letter-wrapper { width: 80%; }
+            .letter-display { font-size: clamp(3.5rem, 10vh, 6rem); }
         }
 
         @media (orientation: landscape) and (max-height: 500px) {
             .wheel-container { width: min(50vh, 50vw, 350px); }
-            .letter-display { font-size: clamp(3rem, 10vh, 6rem); }
+            .letter-wrapper { width: 75%; }
+            .letter-display { font-size: clamp(2.5rem, 8vh, 4.5rem); }
             #hand-bubble { width: 36px; height: 36px; font-size: 1rem; }
             .bottom-bar { padding-bottom: 8px; }
             .status-box { padding: 6px 12px; }
             .status-text { font-size: 0.75rem; }
             .gesture-hint { font-size: 0.6rem; }
+        }
+
+        @media (min-width: 1200px) {
+            .letter-wrapper { width: 65%; }
+            .letter-display { font-size: clamp(8rem, 16vh, 14rem); }
         }
     </style>
 </head>
@@ -373,7 +397,10 @@
     <div id="hand-bubble">0</div>
 
     <div class="wheel-container">
-        <div class="letter-display" id="letterDisplay">А</div>
+        <!-- Напівпрозорий фон для букви -->
+        <div class="letter-wrapper" id="letterWrapper">
+            <div class="letter-display" id="letterDisplay">А</div>
+        </div>
     </div>
 
     <div class="ui-overlay top-bar">
@@ -426,7 +453,7 @@
         </div>
     </div>
 
-    <!-- MediaPipe через старий CDN (як у вашому робочому файлі) -->
+    <!-- MediaPipe через CDN -->
     <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands@0.4.1675469240/hands.js" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils@0.3.1675466862/camera_utils.js" crossorigin="anonymous"></script>
 
@@ -454,6 +481,7 @@
 
         const video = document.getElementById('video');
         const letterDisplay = document.getElementById('letterDisplay');
+        const letterWrapper = document.getElementById('letterWrapper');
         const statusText = document.getElementById('statusText');
         const handBubble = document.getElementById('hand-bubble');
         const spinBtn = document.getElementById('spinBtn');
@@ -462,7 +490,7 @@
         const alphabetBtns = document.querySelectorAll('.alphabet-btn');
         const starIcons = document.querySelectorAll('.star-icon');
 
-        // ---- РОЗПІЗНАВАННЯ ПАЛЬЦІВ (як у вашому робочому файлі) ----
+        // ---- РОЗПІЗНАВАННЯ ПАЛЬЦІВ ----
         function countFingers(landmarks) {
             let count = 0;
             const wrist = landmarks[0];
@@ -534,9 +562,9 @@
             isSpinning = false;
             spinDirection = 0;
             if (animationId) { cancelAnimationFrame(animationId); animationId = null; }
-            letterDisplay.classList.remove('pulse');
-            void letterDisplay.offsetWidth;
-            letterDisplay.classList.add('pulse');
+            letterWrapper.classList.remove('pulse');
+            void letterWrapper.offsetWidth;
+            letterWrapper.classList.add('pulse');
             statusText.innerHTML = `⏸️ літера <strong>${currentLetter}</strong> · назви слово!`;
         }
 
@@ -555,10 +583,6 @@
                 if (isSpinning) { stopSpin(); }
                 handBubble.classList.add('correct');
                 lastGesture = 'stop';
-            } else {
-                if (isSpinning && spinDirection !== 0 && lastGesture !== 'none') {
-                    // продовжуємо обертання
-                }
             }
         }
 
@@ -616,9 +640,9 @@
             currentLetter = letter;
             letterDisplay.textContent = currentLetter;
             statusText.innerHTML = `🎯 літера <strong>${currentLetter}</strong> · назви слово!`;
-            letterDisplay.classList.remove('pulse');
-            void letterDisplay.offsetWidth;
-            letterDisplay.classList.add('pulse');
+            letterWrapper.classList.remove('pulse');
+            void letterWrapper.offsetWidth;
+            letterWrapper.classList.add('pulse');
         }
 
         function setAlphabet(key) {
@@ -659,7 +683,6 @@
             startBtn.textContent = 'Завантаження...';
             startBtn.disabled = true;
             
-            // Запускаємо відео
             navigator.mediaDevices.getUserMedia({
                 video: { facingMode: "user", width: { ideal: 640 }, height: { ideal: 480 } },
                 audio: false
