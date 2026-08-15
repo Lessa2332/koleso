@@ -426,18 +426,12 @@
         </div>
     </div>
 
-    <!-- ПРАВИЛЬНИЙ ІМПОРТ MEDIAPIPE -->
-    <script type="importmap">
-    {
-        "imports": {
-            "@mediapipe/tasks-vision": "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.3/wasm/vision_bundle.mjs"
-        }
-    }
-    </script>
+    <!-- MediaPipe через старий CDN (як у вашому робочому файлі) -->
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands@0.4.1675469240/hands.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils@0.3.1675466862/camera_utils.js" crossorigin="anonymous"></script>
 
-    <script type="module">
-        import { FilesetResolver, HandLandmarker } from "@mediapipe/tasks-vision";
-
+    <script>
+        // ---- КОНФІГУРАЦІЯ ----
         const ALPHABETS = {
             uk: 'АБВГҐДЕЄЖЗИІЇЙКЛМНОПРСТУФХЦЧШЩЬЮЯ'.split(''),
             en: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split(''),
@@ -454,8 +448,9 @@
         let score = 0;
         const totalLessons = 5;
         let countBuffer = [];
-        let handLandmarker = null;
         let wheelAngle = 0;
+        let gestureCooldown = 0;
+        let lastGesture = 'none';
 
         const video = document.getElementById('video');
         const letterDisplay = document.getElementById('letterDisplay');
@@ -467,7 +462,7 @@
         const alphabetBtns = document.querySelectorAll('.alphabet-btn');
         const starIcons = document.querySelectorAll('.star-icon');
 
-        // ---- РОЗПІЗНАВАННЯ ПАЛЬЦІВ ----
+        // ---- РОЗПІЗНАВАННЯ ПАЛЬЦІВ (як у вашому робочому файлі) ----
         function countFingers(landmarks) {
             let count = 0;
             const wrist = landmarks[0];
@@ -485,17 +480,19 @@
             return count;
         }
 
-        function detectGesture(hand) {
-            const raw = countFingers(hand);
+        function detectGesture(landmarks) {
+            const raw = countFingers(landmarks);
             countBuffer.push(raw);
             if (countBuffer.length > 15) countBuffer.shift();
             const smooth = Math.round(countBuffer.reduce((a, b) => a + b, 0) / countBuffer.length);
-            const wrist = hand[0];
+            const wrist = landmarks[0];
+            
             handBubble.style.display = 'flex';
             handBubble.style.left = `${(1 - wrist.x) * 100}%`;
             handBubble.style.top = `${wrist.y * 100}%`;
             handBubble.textContent = smooth;
             handBubble.classList.remove('correct');
+            
             if (smooth === 5) return 'stop';
             if (smooth === 1) return 'left';
             if (smooth === 2) return 'right';
@@ -544,65 +541,70 @@
         }
 
         function handleGesture(gesture) {
-            if (gesture === 'left') { startSpin(-1); }
-            else if (gesture === 'right') { startSpin(1); }
-            else if (gesture === 'stop') {
+            const now = Date.now();
+            if (now - gestureCooldown < 200) return;
+            gestureCooldown = now;
+
+            if (gesture === 'left') {
+                startSpin(-1);
+                lastGesture = 'left';
+            } else if (gesture === 'right') {
+                startSpin(1);
+                lastGesture = 'right';
+            } else if (gesture === 'stop') {
                 if (isSpinning) { stopSpin(); }
                 handBubble.classList.add('correct');
+                lastGesture = 'stop';
+            } else {
+                if (isSpinning && spinDirection !== 0 && lastGesture !== 'none') {
+                    // продовжуємо обертання
+                }
             }
         }
 
-        // ---- ІНІЦІАЛІЗАЦІЯ ----
-        async function initAI() {
-            try {
-                const vision = await FilesetResolver.forVisionTasks(
-                    "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.3/wasm"
-                );
-                handLandmarker = await HandLandmarker.createFromOptions(vision, {
-                    baseOptions: {
-                        modelAssetPath: "https://storage.googleapis.com/mediapipe-models/hand_landmarker/hand_landmarker/float16/1/hand_landmarker.task",
-                        delegate: "GPU"
-                    },
-                    runningMode: "VIDEO",
-                    numHands: 1
-                });
-                return true;
-            } catch(e) {
-                console.error('AI error:', e);
-                statusText.innerHTML = '❌ Помилка AI. Використовуйте клавіатуру: ← → Пробіл';
-                return false;
-            }
-        }
+        // ---- MediaPipe Hands ----
+        function initGestureDetection() {
+            const hands = new Hands({
+                locateFile: (file) => {
+                    return `https://cdn.jsdelivr.net/npm/@mediapipe/hands@0.4.1675469240/${file}`;
+                }
+            });
 
-        async function startCamera() {
-            try {
-                const stream = await navigator.mediaDevices.getUserMedia({
-                    video: { facingMode: "user", width: { ideal: 640 }, height: { ideal: 480 } },
-                    audio: false
-                });
-                video.srcObject = stream;
-                await video.play();
-                return true;
-            } catch(e) {
-                statusText.innerHTML = '❌ Помилка камери. Використовуйте клавіатуру: ← → Пробіл';
-                return false;
-            }
-        }
+            hands.setOptions({
+                maxNumHands: 1,
+                modelComplexity: 1,
+                minDetectionConfidence: 0.7,
+                minTrackingConfidence: 0.6
+            });
 
-        function recognitionLoop() {
-            if (!handLandmarker || !video || video.readyState < 2) {
-                requestAnimationFrame(recognitionLoop);
-                return;
-            }
-            try {
-                const results = handLandmarker.detectForVideo(video, performance.now());
-                if (results.landmarks && results.landmarks.length > 0) {
-                    handleGesture(detectGesture(results.landmarks[0]));
+            hands.onResults((results) => {
+                if (results.multiHandLandmarks && results.multiHandLandmarks.length > 0) {
+                    const landmarks = results.multiHandLandmarks[0];
+                    const gesture = detectGesture(landmarks);
+                    handleGesture(gesture);
                 } else {
                     handBubble.style.display = 'none';
                 }
-            } catch(e) {}
-            requestAnimationFrame(recognitionLoop);
+            });
+
+            const camera = new Camera(video, {
+                onFrame: async () => {
+                    await hands.send({image: video});
+                },
+                width: 640,
+                height: 480
+            });
+
+            camera.start().then(() => {
+                document.querySelector('#start-screen').style.display = 'none';
+                statusText.innerHTML = '👆 покажи пальчики перед камерою';
+                pickRandomLetter();
+            }).catch((err) => {
+                console.error('Camera error:', err);
+                statusText.innerHTML = '❌ Помилка камери. Використовуйте клавіатуру: ← → Пробіл';
+                document.querySelector('#start-screen').style.display = 'none';
+                pickRandomLetter();
+            });
         }
 
         // ---- ФУНКЦІЇ ГРИ ----
@@ -653,34 +655,27 @@
         });
 
         // ---- СТАРТ ----
-        startBtn.addEventListener('click', async () => {
+        startBtn.addEventListener('click', () => {
             startBtn.textContent = 'Завантаження...';
             startBtn.disabled = true;
-
-            const cameraOk = await startCamera();
-            if (!cameraOk) {
-                startBtn.textContent = '▶ Почати (без камери)';
-                startBtn.disabled = false;
+            
+            // Запускаємо відео
+            navigator.mediaDevices.getUserMedia({
+                video: { facingMode: "user", width: { ideal: 640 }, height: { ideal: 480 } },
+                audio: false
+            }).then(stream => {
+                video.srcObject = stream;
+                return video.play();
+            }).then(() => {
+                initGestureDetection();
+            }).catch((err) => {
+                console.error('Camera error:', err);
+                statusText.innerHTML = '❌ Помилка камери. Використовуйте клавіатуру: ← → Пробіл';
                 startScreen.style.display = 'none';
                 pickRandomLetter();
-                statusText.innerHTML = '⌨️ Використовуй ← → Пробіл';
-                return;
-            }
-
-            const aiOk = await initAI();
-            if (!aiOk) {
-                startBtn.textContent = '▶ Почати (без камери)';
+                startBtn.textContent = 'Почати';
                 startBtn.disabled = false;
-                startScreen.style.display = 'none';
-                pickRandomLetter();
-                statusText.innerHTML = '⌨️ Використовуй ← → Пробіл';
-                return;
-            }
-
-            startScreen.style.display = 'none';
-            pickRandomLetter();
-            statusText.innerHTML = '👆 покажи пальчики перед камерою';
-            recognitionLoop();
+            });
         });
 
         // ---- ПОДІЇ ----
