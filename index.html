@@ -437,11 +437,11 @@
         </div>
     </div>
 
-    <!-- MediaPipe via importmap -->
+    <!-- Правильний імпорт MediaPipe через CDN -->
     <script type="importmap">
     {
         "imports": {
-            "@mediapipe/tasks-vision": "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.3/wasm/vision_bundle.js"
+            "@mediapipe/tasks-vision": "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.3/wasm/vision_bundle.mjs"
         }
     }
     </script>
@@ -469,6 +469,7 @@
 
         let countBuffer = [];
         let handLandmarker = null;
+        let recognitionRunning = false;
 
         const video = document.getElementById('video');
         const letterDisplay = document.getElementById('letterDisplay');
@@ -710,12 +711,14 @@
             const cameraOk = await startCamera();
             if (!cameraOk) {
                 startBtn.textContent = '❌ Помилка камери';
+                startBtn.disabled = false;
                 return;
             }
 
             const aiOk = await initAI();
             if (!aiOk) {
                 startBtn.textContent = '❌ Помилка AI';
+                startBtn.disabled = false;
                 return;
             }
 
