@@ -386,6 +386,7 @@
             letter-spacing: 1px;
             border-radius: 32px;
             backdrop-filter: blur(4px);
+            z-index: 10;
         }
     </style>
 </head>
@@ -592,48 +593,53 @@
             ctx.fillText('▼', cx, 38);
         }
 
-        // ---- анімація колеса ----
+        // ---- анімація колеса (виправлено) ----
         let animationFrame = null;
+        
         function animateWheel() {
-            if (isSpinning) return;
-            const diff = targetAngle - wheelAngle;
-            if (Math.abs(diff) < 0.004) {
-                wheelAngle = targetAngle;
-                drawWheel(wheelAngle);
-                updateLetterFromAngle();
-                isSpinning = false;
-                if (animationFrame) {
-                    cancelAnimationFrame(animationFrame);
-                    animationFrame = null;
-                }
-                return;
-            }
-            const step = diff * 0.16;
-            wheelAngle += step;
-            drawWheel(wheelAngle);
-            updateLetterFromAngle();
-            animationFrame = requestAnimationFrame(animateWheel);
-        }
-
-        function spinWheel(delta) {
-            if (isSpinning) return;
+            // Якщо вже є анімація, не запускаємо нову
             if (animationFrame) {
                 cancelAnimationFrame(animationFrame);
                 animationFrame = null;
             }
+            
+            const diff = targetAngle - wheelAngle;
+            if (Math.abs(diff) < 0.002) {
+                wheelAngle = targetAngle;
+                drawWheel(wheelAngle);
+                updateLetterFromAngle();
+                isSpinning = false;
+                return;
+            }
+            
             isSpinning = true;
+            const step = diff * 0.15;
+            wheelAngle += step;
+            drawWheel(wheelAngle);
+            updateLetterFromAngle();
+            
+            animationFrame = requestAnimationFrame(animateWheel);
+        }
+
+        function spinWheel(delta) {
+            // Зупиняємо поточну анімацію
+            if (animationFrame) {
+                cancelAnimationFrame(animationFrame);
+                animationFrame = null;
+            }
+            
             targetAngle += delta;
+            isSpinning = true;
             animateWheel();
         }
 
         function pickRandomLetter() {
-            if (isSpinning) {
-                if (animationFrame) {
-                    cancelAnimationFrame(animationFrame);
-                    animationFrame = null;
-                }
-                isSpinning = false;
+            if (animationFrame) {
+                cancelAnimationFrame(animationFrame);
+                animationFrame = null;
             }
+            isSpinning = false;
+            
             const letter = letters[Math.floor(Math.random() * letters.length)];
             const idx = letters.indexOf(letter);
             if (idx === -1) return;
@@ -651,16 +657,15 @@
         }
 
         function gestureStop() {
-            if (isSpinning) {
-                if (animationFrame) {
-                    cancelAnimationFrame(animationFrame);
-                    animationFrame = null;
-                }
-                isSpinning = false;
-                targetAngle = wheelAngle;
-                drawWheel(wheelAngle);
-                updateLetterFromAngle();
+            if (animationFrame) {
+                cancelAnimationFrame(animationFrame);
+                animationFrame = null;
             }
+            isSpinning = false;
+            targetAngle = wheelAngle;
+            drawWheel(wheelAngle);
+            updateLetterFromAngle();
+            
             letterDisplay.classList.remove('pulse-letter');
             void letterDisplay.offsetWidth;
             letterDisplay.classList.add('pulse-letter');
@@ -672,6 +677,13 @@
         function setAlphabet(key) {
             if (key === currentAlphabet && letters.length > 0) return;
             if (!ALPHABETS[key]) return;
+            
+            if (animationFrame) {
+                cancelAnimationFrame(animationFrame);
+                animationFrame = null;
+            }
+            isSpinning = false;
+            
             currentAlphabet = key;
             letters = ALPHABETS[key];
             alphabetBtns.forEach(btn => {
@@ -730,7 +742,6 @@
                     const gesture = detectGesture(landmarks);
                     handleGesture(gesture);
                 } else {
-                    // рука не видна
                     document.querySelectorAll('.dot').forEach(d => d.className = 'dot');
                     gestureLabel.textContent = 'Руку не видно';
                 }
@@ -755,14 +766,6 @@
 
         // ---- розпізнавання жестів ----
         function detectGesture(landmarks) {
-            // ключові точки:
-            // 4 – кінчик великого пальця
-            // 8 – кінчик вказівного
-            // 12 – кінчик середнього
-            // 16 – кінчик безіменного
-            // 20 – кінчик мізинця
-            // 0 – основа долоні
-
             const thumbTip = landmarks[4];
             const indexTip = landmarks[8];
             const middleTip = landmarks[12];
@@ -770,18 +773,15 @@
             const pinkyTip = landmarks[20];
             const wrist = landmarks[0];
 
-            // Відстані від кінчиків до основи долоні
             const distThumb = Math.hypot(thumbTip.x - wrist.x, thumbTip.y - wrist.y);
             const distIndex = Math.hypot(indexTip.x - wrist.x, indexTip.y - wrist.y);
             const distMiddle = Math.hypot(middleTip.x - wrist.x, middleTip.y - wrist.y);
             const distRing = Math.hypot(ringTip.x - wrist.x, ringTip.y - wrist.y);
             const distPinky = Math.hypot(pinkyTip.x - wrist.x, pinkyTip.y - wrist.y);
 
-            // Середня відстань для нормалізації
             const avgDist = (distIndex + distMiddle + distRing + distPinky) / 4;
 
-            // --- Жест "відкрита долоня" (STOP) ---
-            // всі пальці випрямлені
+            // Відкрита долоня (STOP)
             const fingersExtended = distIndex > avgDist * 0.6 && distMiddle > avgDist * 0.6 &&
                                     distRing > avgDist * 0.6 && distPinky > avgDist * 0.6 &&
                                     distThumb > avgDist * 0.4;
@@ -790,7 +790,7 @@
                 return 'stop';
             }
 
-            // --- Жест "вказівний + середній" (V) -> RIGHT ---
+            // Два пальці (V) -> RIGHT
             const indexAndMiddle = distIndex > avgDist * 0.6 && distMiddle > avgDist * 0.6 &&
                                    distRing < avgDist * 0.4 && distPinky < avgDist * 0.4;
 
@@ -798,7 +798,7 @@
                 return 'right';
             }
 
-            // --- Жест "вказівний" (L) -> LEFT ---
+            // Один палець (вказівний) -> LEFT
             const indexOnly = distIndex > avgDist * 0.6 &&
                               distMiddle < avgDist * 0.4 && distRing < avgDist * 0.4 && distPinky < avgDist * 0.4;
 
@@ -806,13 +806,13 @@
                 return 'left';
             }
 
-            // --- Жест "куля" (вказівний + великий) -> LEFT (альтернатива) ---
+            // Жест "куля" (вказівний + великий) -> LEFT
             const thumbIndexTouch = Math.hypot(thumbTip.x - indexTip.x, thumbTip.y - indexTip.y) < 0.05;
             if (thumbIndexTouch && distIndex > avgDist * 0.5) {
                 return 'left';
             }
 
-            // --- Жест "OK" (великий + вказівний кільце) -> RIGHT (альтернатива) ---
+            // Жест "OK" -> RIGHT
             const thumbIndexCircle = Math.hypot(thumbTip.x - indexTip.x, thumbTip.y - indexTip.y) < 0.04;
             if (thumbIndexCircle && distRing > avgDist * 0.5) {
                 return 'right';
@@ -824,22 +824,21 @@
         // ---- обробка жестів з дебаунсом ----
         function handleGesture(gesture) {
             const now = Date.now();
-            if (now - gestureCooldown < 300) return;
+            if (now - gestureCooldown < 200) return;
             gestureCooldown = now;
 
-            // оновлюємо індикатори
             document.querySelectorAll('.dot').forEach(d => d.className = 'dot');
 
             if (gesture === 'left') {
                 dotLeft.className = 'dot active-left';
                 gestureLabel.textContent = '👈 Лівий жест';
-                spinWheel(-0.55);
+                spinWheel(-0.6);
                 feedbackEl.innerHTML = 'лівий жест · обертання';
                 lastGesture = 'left';
             } else if (gesture === 'right') {
                 dotRight.className = 'dot active-right';
                 gestureLabel.textContent = '👉 Правий жест';
-                spinWheel(0.55);
+                spinWheel(0.6);
                 feedbackEl.innerHTML = 'правий жест · обертання';
                 lastGesture = 'right';
             } else if (gesture === 'stop') {
@@ -849,17 +848,16 @@
                 lastGesture = 'stop';
             } else {
                 gestureLabel.textContent = '🤷 Невідомий жест';
-                // показуємо останній відомий жест
                 if (lastGesture === 'left') dotLeft.className = 'dot active-left';
                 else if (lastGesture === 'right') dotRight.className = 'dot active-right';
                 else if (lastGesture === 'stop') dotStop.className = 'dot active-stop';
             }
         }
 
-        // ---- клавіатура (дубль) ----
+        // ---- клавіатура ----
         document.addEventListener('keydown', (e) => {
-            if (e.key === 'ArrowLeft') { e.preventDefault(); spinWheel(-0.55); }
-            else if (e.key === 'ArrowRight') { e.preventDefault(); spinWheel(0.55); }
+            if (e.key === 'ArrowLeft') { e.preventDefault(); spinWheel(-0.6); }
+            else if (e.key === 'ArrowRight') { e.preventDefault(); spinWheel(0.6); }
             else if (e.key === ' ' || e.key === 'Space') { e.preventDefault(); gestureStop(); }
             else if (e.key === 'Enter' && document.activeElement === wordInput) {
                 e.preventDefault();
@@ -898,7 +896,6 @@
                 if (e.key === 'Enter') { e.preventDefault(); checkWord(); }
             });
 
-            // запускаємо розпізнавання жестів
             initGestureDetection();
         }
 
