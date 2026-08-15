@@ -122,7 +122,6 @@
             gap: 16px;
         }
 
-        /* ---- Пояснення для вчителя ---- */
         .teacher-instruction {
             background: rgba(212, 175, 55, 0.06);
             border: 1px solid rgba(212, 175, 55, 0.12);
@@ -196,10 +195,6 @@
             color: #ccdbe9;
             font-size: 0.95rem;
             letter-spacing: 0.3px;
-        }
-
-        .gesture-status strong {
-            color: #f5e7c8;
         }
 
         .gesture-indicator {
@@ -392,7 +387,6 @@
             letter-spacing: 0.5px;
         }
 
-        /* ---- Футер з авторством ---- */
         .footer {
             margin-top: 28px;
             padding-top: 18px;
@@ -501,7 +495,6 @@
 
     <div class="main-layout">
         <div class="left-col">
-            <!-- Пояснення для вчителя -->
             <div class="teacher-instruction">
                 <strong>📖 Як грати:</strong>
                 <div style="margin-top: 4px; font-size: 0.9rem; color: #ccdbe9;">
@@ -576,7 +569,6 @@
         </div>
     </div>
 
-    <!-- Футер з авторством -->
     <div class="footer">
         <div class="brand">
             <span class="logo">✦ <span>Smart</span>Lessa</span>
@@ -588,13 +580,11 @@
     </div>
 </div>
 
-<!-- MediaPipe Hands -->
 <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands@0.4.1675469240/hands.js" crossorigin="anonymous"></script>
 <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils@0.3.1675466862/camera_utils.js" crossorigin="anonymous"></script>
 
 <script>
     (function() {
-        // ---- алфавіти ----
         const ALPHABETS = {
             uk: 'АБВГҐДЕЄЖЗИІЇЙКЛМНОПРСТУФХЦЧШЩЬЮЯ'.split(''),
             en: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split(''),
@@ -609,10 +599,9 @@
         let wheelAngle = 0;
         let isSpinning = false;
         let spinDirection = 0;
-        let animationFrame = null;
+        let animationId = null;
         let gestureCooldown = 0;
         let lastGesture = 'none';
-        let currentGesture = 'none';
 
         const canvas = document.getElementById('wheelCanvas');
         const ctx = canvas.getContext('2d');
@@ -736,48 +725,48 @@
             ctx.fillText('▼', cx, 38);
         }
 
-        // ---- безперервне обертання ----
+        // ---- БЕЗПЕРЕРВНЕ ОБЕРТАННЯ (виправлено) ----
+        function spinLoop() {
+            if (!isSpinning || spinDirection === 0) {
+                isSpinning = false;
+                return;
+            }
+
+            const speed = 0.035;
+            const delta = spinDirection === -1 ? -speed : speed;
+            wheelAngle += delta;
+            drawWheel(wheelAngle);
+            updateLetterFromAngle();
+
+            animationId = requestAnimationFrame(spinLoop);
+        }
+
         function startContinuousSpin(direction) {
             if (direction === 0) {
                 stopSpin();
                 return;
             }
-            
+
             if (isSpinning && spinDirection === direction) return;
-            
-            if (animationFrame) {
-                cancelAnimationFrame(animationFrame);
-                animationFrame = null;
+
+            if (animationId) {
+                cancelAnimationFrame(animationId);
+                animationId = null;
             }
-            
+
             spinDirection = direction;
             isSpinning = true;
             feedbackEl.innerHTML = direction === -1 ? '🔄 обертання вліво...' : '🔄 обертання вправо...';
-            
-            function spinStep() {
-                if (!isSpinning || spinDirection === 0) {
-                    isSpinning = false;
-                    return;
-                }
-                
-                const speed = 0.04;
-                const delta = spinDirection === -1 ? -speed : speed;
-                wheelAngle += delta;
-                drawWheel(wheelAngle);
-                updateLetterFromAngle();
-                
-                animationFrame = requestAnimationFrame(spinStep);
-            }
-            
-            spinStep();
+
+            animationId = requestAnimationFrame(spinLoop);
         }
 
         function stopSpin() {
             isSpinning = false;
             spinDirection = 0;
-            if (animationFrame) {
-                cancelAnimationFrame(animationFrame);
-                animationFrame = null;
+            if (animationId) {
+                cancelAnimationFrame(animationId);
+                animationId = null;
             }
             drawWheel(wheelAngle);
             updateLetterFromAngle();
@@ -786,7 +775,7 @@
 
         function pickRandomLetter() {
             stopSpin();
-            
+
             const letter = letters[Math.floor(Math.random() * letters.length)];
             const idx = letters.indexOf(letter);
             if (idx === -1) return;
@@ -806,9 +795,9 @@
         function setAlphabet(key) {
             if (key === currentAlphabet && letters.length > 0) return;
             if (!ALPHABETS[key]) return;
-            
+
             stopSpin();
-            
+
             currentAlphabet = key;
             letters = ALPHABETS[key];
             alphabetBtns.forEach(btn => {
@@ -871,7 +860,6 @@
                     }
                     document.querySelectorAll('.dot').forEach(d => d.className = 'dot');
                     gestureLabel.textContent = '👋 Руку не видно';
-                    currentGesture = 'none';
                 }
             });
 
@@ -955,7 +943,6 @@
             if (now - gestureCooldown < 100) return;
             gestureCooldown = now;
 
-            currentGesture = gesture;
             document.querySelectorAll('.dot').forEach(d => d.className = 'dot');
 
             if (gesture === 'left') {
@@ -991,16 +978,16 @@
 
         // ---- клавіатура ----
         document.addEventListener('keydown', (e) => {
-            if (e.key === 'ArrowLeft') { 
-                e.preventDefault(); 
+            if (e.key === 'ArrowLeft') {
+                e.preventDefault();
                 startContinuousSpin(-1);
             }
-            else if (e.key === 'ArrowRight') { 
-                e.preventDefault(); 
+            else if (e.key === 'ArrowRight') {
+                e.preventDefault();
                 startContinuousSpin(1);
             }
-            else if (e.key === ' ' || e.key === 'Space') { 
-                e.preventDefault(); 
+            else if (e.key === ' ' || e.key === 'Space') {
+                e.preventDefault();
                 stopSpin();
                 letterDisplay.classList.remove('pulse-letter');
                 void letterDisplay.offsetWidth;
