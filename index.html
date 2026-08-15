@@ -7,15 +7,13 @@
     
     <meta http-equiv="Content-Security-Policy" content="
         default-src 'self';
-        script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://cdn.skypack.dev https://storage.googleapis.com https://unpkg.com;
+        script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://storage.googleapis.com https://unpkg.com;
         style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
         font-src 'self' https://fonts.gstatic.com;
         img-src 'self' data: blob:;
         media-src 'self' blob:;
         connect-src 'self' https://cdn.jsdelivr.net https://storage.googleapis.com;
         frame-src 'none';
-        base-uri 'self';
-        form-action 'self';
     ">
     
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -41,15 +39,6 @@
             object-fit: cover;
             z-index: 0;
             transform: scaleX(-1);
-        }
-
-        #canvas {
-            position: fixed;
-            inset: 0;
-            width: 100%;
-            height: 100%;
-            z-index: 1;
-            pointer-events: none;
         }
 
         .ui-overlay {
@@ -391,7 +380,6 @@
 <body>
 
     <video id="video" autoplay playsinline muted></video>
-    <canvas id="canvas"></canvas>
 
     <div id="hand-bubble">0</div>
 
@@ -449,11 +437,18 @@
         </div>
     </div>
 
-    <!-- MediaPipe -->
-    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.3/wasm/vision_bundle.js" crossorigin="anonymous"></script>
+    <!-- MediaPipe via importmap -->
+    <script type="importmap">
+    {
+        "imports": {
+            "@mediapipe/tasks-vision": "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.3/wasm/vision_bundle.js"
+        }
+    }
+    </script>
 
-    <script>
-    (function() {
+    <script type="module">
+        import { FilesetResolver, HandLandmarker } from "@mediapipe/tasks-vision";
+
         // ---- КОНФІГУРАЦІЯ ----
         const ALPHABETS = {
             uk: 'АБВГҐДЕЄЖЗИІЇЙКЛМНОПРСТУФХЦЧШЩЬЮЯ'.split(''),
@@ -761,7 +756,6 @@
         console.log('✦ Golden Wheel · SmartLessa v2.0');
         console.log('👤 Автор: Олеся Бохонок / SmartLessa');
         console.log('📷 Відео обробляється локально. Жодні дані не передаються.');
-    })();
     </script>
 </body>
 </html>
