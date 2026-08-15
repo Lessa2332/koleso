@@ -31,7 +31,7 @@
             backdrop-filter: blur(12px);
             -webkit-backdrop-filter: blur(12px);
             border-radius: 72px 72px 56px 56px;
-            padding: 32px 28px 40px;
+            padding: 32px 28px 28px;
             border: 1px solid rgba(212, 175, 55, 0.25);
             box-shadow: 0 30px 60px -12px rgba(0,0,0,0.8), 0 0 0 1px rgba(212, 175, 55, 0.08) inset;
         }
@@ -120,6 +120,53 @@
             display: flex;
             flex-direction: column;
             gap: 16px;
+        }
+
+        /* ---- Пояснення для вчителя ---- */
+        .teacher-instruction {
+            background: rgba(212, 175, 55, 0.06);
+            border: 1px solid rgba(212, 175, 55, 0.12);
+            border-radius: 24px;
+            padding: 16px 20px;
+            margin-bottom: 12px;
+            color: #b8c7d9;
+            font-size: 0.9rem;
+            line-height: 1.6;
+        }
+
+        .teacher-instruction strong {
+            color: #f5e7c8;
+        }
+
+        .teacher-instruction .gesture-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px 20px;
+            margin-top: 8px;
+        }
+
+        .teacher-instruction .gesture-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.9rem;
+            color: #ccdbe9;
+        }
+
+        .teacher-instruction .gesture-item .icon {
+            font-size: 1.5rem;
+            line-height: 1;
+        }
+
+        .teacher-instruction .gesture-item .badge {
+            background: rgba(212, 175, 55, 0.12);
+            padding: 2px 10px;
+            border-radius: 20px;
+            font-size: 0.7rem;
+            color: #d4af37;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            border: 1px solid rgba(212, 175, 55, 0.1);
         }
 
         .camera-box {
@@ -345,15 +392,52 @@
             letter-spacing: 0.5px;
         }
 
-        .spinning-indicator {
-            display: inline-block;
-            animation: spinPulse 0.8s ease-in-out infinite;
-            color: #d4af37;
+        /* ---- Футер з авторством ---- */
+        .footer {
+            margin-top: 28px;
+            padding-top: 18px;
+            border-top: 1px solid rgba(212, 175, 55, 0.08);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 8px 16px;
+            color: #6a7f94;
+            font-size: 0.8rem;
+            letter-spacing: 0.3px;
         }
 
-        @keyframes spinPulse {
-            0%, 100% { opacity: 0.4; }
-            50% { opacity: 1; }
+        .footer .author {
+            color: #b8c7d9;
+            font-weight: 400;
+        }
+
+        .footer .author strong {
+            color: #d4af37;
+            font-weight: 500;
+        }
+
+        .footer .version {
+            color: #4a5f74;
+            font-size: 0.7rem;
+            letter-spacing: 1px;
+        }
+
+        .footer .brand {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .footer .brand .logo {
+            color: #d4af37;
+            font-weight: 600;
+            font-size: 0.9rem;
+            letter-spacing: 1px;
+        }
+
+        .footer .brand .logo span {
+            color: #f5e7c8;
         }
 
         @media (max-width: 700px) {
@@ -364,12 +448,14 @@
             .camera-box {
                 max-height: 200px;
             }
-            .game-container { padding: 20px 14px 28px; border-radius: 48px; }
+            .game-container { padding: 20px 14px 24px; border-radius: 48px; }
             .header { flex-direction: column; align-items: center; }
             .header h1 { font-size: 1.6rem; }
             .alphabet-selector { justify-content: center; }
             .status-letter { font-size: 3.6rem; }
             .action-btn { max-width: 140px; font-size: 0.9rem; padding: 14px 18px; }
+            .footer { flex-direction: column; align-items: center; text-align: center; }
+            .teacher-instruction .gesture-list { flex-direction: column; gap: 6px; }
         }
 
         @media (max-width: 400px) {
@@ -415,6 +501,39 @@
 
     <div class="main-layout">
         <div class="left-col">
+            <!-- Пояснення для вчителя -->
+            <div class="teacher-instruction">
+                <strong>📖 Як грати:</strong>
+                <div style="margin-top: 4px; font-size: 0.9rem; color: #ccdbe9;">
+                    Покажи жест рукою перед камерою, щоб керувати колесом. Колесо обертається, поки ти тримаєш жест.
+                </div>
+                <div class="gesture-list">
+                    <div class="gesture-item">
+                        <span class="icon">☝️</span>
+                        <span>Вказівний палець</span>
+                        <span class="badge">Вліво</span>
+                    </div>
+                    <div class="gesture-item">
+                        <span class="icon">✌️</span>
+                        <span>Два пальці (V)</span>
+                        <span class="badge">Вправо</span>
+                    </div>
+                    <div class="gesture-item">
+                        <span class="icon">🖐️</span>
+                        <span>Відкрита долоня</span>
+                        <span class="badge">Стоп</span>
+                    </div>
+                    <div class="gesture-item">
+                        <span class="icon">⌨️</span>
+                        <span>Стрілки ← → · Пробіл</span>
+                        <span class="badge">Клавіатура</span>
+                    </div>
+                </div>
+                <div style="margin-top: 6px; font-size: 0.85rem; color: #97adc2;">
+                    💡 Коли колесо зупиниться — назви слово на літеру, що випала.
+                </div>
+            </div>
+
             <div class="wheel-wrapper">
                 <canvas id="wheelCanvas" width="600" height="600"></canvas>
             </div>
@@ -430,7 +549,7 @@
                 <button class="action-btn secondary" id="spinBtn">Нова літера</button>
             </div>
 
-            <div class="feedback-message" id="feedbackMessage">покажи жест рукою перед камерою</div>
+            <div class="feedback-message" id="feedbackMessage">👆 покажи жест рукою перед камерою</div>
         </div>
 
         <div class="right-col">
@@ -456,6 +575,17 @@
             </div>
         </div>
     </div>
+
+    <!-- Футер з авторством -->
+    <div class="footer">
+        <div class="brand">
+            <span class="logo">✦ <span>Smart</span>Lessa</span>
+        </div>
+        <div class="author">
+            Автор: <strong>Олеся Бохонок</strong> / SmartLessa
+        </div>
+        <div class="version">v1.0 · 2026</div>
+    </div>
 </div>
 
 <!-- MediaPipe Hands -->
@@ -478,7 +608,7 @@
         let currentLetter = 'А';
         let wheelAngle = 0;
         let isSpinning = false;
-        let spinDirection = 0; // 0 - стоп, 1 - вліво, 2 - вправо
+        let spinDirection = 0;
         let animationFrame = null;
         let gestureCooldown = 0;
         let lastGesture = 'none';
@@ -606,18 +736,15 @@
             ctx.fillText('▼', cx, 38);
         }
 
-        // ---- безперервна анімація обертання ----
+        // ---- безперервне обертання ----
         function startContinuousSpin(direction) {
-            // direction: -1 = вліво, 1 = вправо, 0 = стоп
             if (direction === 0) {
                 stopSpin();
                 return;
             }
             
-            // Якщо вже крутиться в тому ж напрямку, нічого не робимо
             if (isSpinning && spinDirection === direction) return;
             
-            // Зупиняємо попередню анімацію
             if (animationFrame) {
                 cancelAnimationFrame(animationFrame);
                 animationFrame = null;
@@ -633,7 +760,6 @@
                     return;
                 }
                 
-                // Швидкість обертання
                 const speed = 0.04;
                 const delta = spinDirection === -1 ? -speed : speed;
                 wheelAngle += delta;
@@ -653,7 +779,6 @@
                 cancelAnimationFrame(animationFrame);
                 animationFrame = null;
             }
-            // Показуємо поточну літеру без змін
             drawWheel(wheelAngle);
             updateLetterFromAngle();
             feedbackEl.innerHTML = `⏸️ стоп · літера <strong>${currentLetter}</strong> · назви слово`;
@@ -720,7 +845,7 @@
             }
         }
 
-        // ---- реальне розпізнавання жестів через MediaPipe ----
+        // ---- розпізнавання жестів через MediaPipe ----
         function initGestureDetection() {
             const hands = new Hands({
                 locateFile: (file) => {
@@ -741,7 +866,6 @@
                     const gesture = detectGesture(landmarks);
                     handleGesture(gesture);
                 } else {
-                    // Руку не видно - зупиняємо обертання
                     if (isSpinning) {
                         stopSpin();
                     }
@@ -848,7 +972,6 @@
                 dotStop.className = 'dot active-stop';
                 gestureLabel.textContent = '✋ Стоп!';
                 stopSpin();
-                // Пульс на літері
                 letterDisplay.classList.remove('pulse-letter');
                 void letterDisplay.offsetWidth;
                 letterDisplay.classList.add('pulse-letter');
@@ -857,7 +980,6 @@
                 lastGesture = 'stop';
             } else {
                 gestureLabel.textContent = '🤷 Невідомий жест';
-                // Якщо жест не розпізнано, але був активний - зупиняємо
                 if (isSpinning) {
                     stopSpin();
                 }
@@ -867,7 +989,7 @@
             }
         }
 
-        // ---- клавіатура (дубль для зручності) ----
+        // ---- клавіатура ----
         document.addEventListener('keydown', (e) => {
             if (e.key === 'ArrowLeft') { 
                 e.preventDefault(); 
