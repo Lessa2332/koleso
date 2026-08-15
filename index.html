@@ -1,0 +1,733 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>Golden Wheel · Alphabet</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      user-select: none;
+    }
+
+    body {
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: #0b0e14;
+      font-family: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
+      padding: 20px;
+      margin: 0;
+      background-image: radial-gradient(circle at 20% 30%, #1e252f 0%, #0a0d12 100%);
+    }
+
+    .game-container {
+      max-width: 780px;
+      width: 100%;
+      background: rgba(18, 24, 32, 0.75);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-radius: 72px 72px 56px 56px;
+      padding: 32px 28px 40px;
+      border: 1px solid rgba(212, 175, 55, 0.25);
+      box-shadow: 0 30px 60px -12px rgba(0,0,0,0.8), 0 0 0 1px rgba(212, 175, 55, 0.08) inset;
+      transition: box-shadow 0.3s;
+    }
+
+    .game-container:hover {
+      box-shadow: 0 40px 80px -12px #000000cc, 0 0 0 1px rgba(212, 175, 55, 0.2) inset;
+    }
+
+    /* header */
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      flex-wrap: wrap;
+      gap: 12px 8px;
+      margin-bottom: 24px;
+      border-bottom: 1px solid rgba(212, 175, 55, 0.15);
+      padding-bottom: 14px;
+    }
+
+    .header h1 {
+      font-weight: 400;
+      font-size: 1.9rem;
+      letter-spacing: 4px;
+      color: #e6dcc8;
+      text-shadow: 0 2px 12px rgba(0,0,0,0.6);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .header h1 span {
+      background: linear-gradient(135deg, #d4af37, #f5d98f);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      font-weight: 600;
+      letter-spacing: 2px;
+    }
+
+    .alphabet-selector {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+      gap: 8px;
+    }
+
+    .alphabet-btn {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(212, 175, 55, 0.2);
+      color: #b8c7d9;
+      padding: 8px 18px;
+      border-radius: 60px;
+      font-size: 0.9rem;
+      font-weight: 450;
+      letter-spacing: 0.6px;
+      cursor: pointer;
+      transition: all 0.2s;
+      backdrop-filter: blur(2px);
+      font-family: inherit;
+      text-transform: uppercase;
+    }
+
+    .alphabet-btn.active {
+      background: rgba(212, 175, 55, 0.18);
+      border-color: #d4af37;
+      color: #f5e7c8;
+      box-shadow: 0 0 18px rgba(212, 175, 55, 0.15);
+    }
+
+    .alphabet-btn:hover {
+      background: rgba(212, 175, 55, 0.08);
+      border-color: #d4af37aa;
+    }
+
+    .wheel-wrapper {
+      position: relative;
+      display: flex;
+      justify-content: center;
+      margin: 12px 0 18px 0;
+    }
+
+    canvas#wheelCanvas {
+      width: 100%;
+      aspect-ratio: 1/1;
+      max-width: 480px;
+      border-radius: 50%;
+      display: block;
+      margin: 0 auto;
+      background: radial-gradient(circle at 35% 30%, #252e3b, #12181f);
+      box-shadow: 0 20px 48px rgba(0,0,0,0.7), 0 0 0 2px rgba(212, 175, 55, 0.2), 0 0 0 6px rgba(212, 175, 55, 0.04);
+      touch-action: none;
+      cursor: grab;
+      transition: box-shadow 0.2s;
+    }
+
+    canvas#wheelCanvas:active {
+      cursor: grabbing;
+    }
+
+    .gesture-panel {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      align-items: center;
+      gap: 24px 40px;
+      background: rgba(0, 0, 0, 0.35);
+      border-radius: 80px;
+      padding: 14px 28px;
+      margin: 16px 0 14px 0;
+      border: 1px solid rgba(212, 175, 55, 0.12);
+      backdrop-filter: blur(4px);
+    }
+
+    .gesture-badge {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      color: #ccdbe9;
+      font-weight: 400;
+      font-size: 1rem;
+      letter-spacing: 0.3px;
+    }
+
+    .gesture-badge .key-icon {
+      display: inline-flex;
+      justify-content: center;
+      align-items: center;
+      background: rgba(212, 175, 55, 0.08);
+      border: 1px solid rgba(212, 175, 55, 0.2);
+      border-radius: 40px;
+      padding: 4px 12px;
+      font-size: 0.8rem;
+      color: #d4af37;
+      font-weight: 500;
+      letter-spacing: 0.5px;
+    }
+
+    .status-area {
+      background: rgba(0, 0, 0, 0.3);
+      border-radius: 80px;
+      padding: 16px 24px;
+      margin: 14px 0 18px 0;
+      text-align: center;
+      border-left: 2px solid #d4af37;
+      border-right: 2px solid #d4af37;
+      min-height: 80px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .status-letter {
+      font-size: 4.6rem;
+      font-weight: 500;
+      letter-spacing: 8px;
+      color: #f5e7c8;
+      text-shadow: 0 0 30px rgba(212, 175, 55, 0.25), 0 4px 12px black;
+      line-height: 1.1;
+      transition: transform 0.15s ease;
+    }
+
+    .status-hint {
+      font-size: 1rem;
+      color: #97adc2;
+      margin-top: 6px;
+      letter-spacing: 0.6px;
+    }
+
+    .word-input-area {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 14px;
+      margin-top: 6px;
+    }
+
+    #wordInput {
+      flex: 2 1 200px;
+      padding: 16px 24px;
+      border-radius: 60px;
+      border: 1px solid rgba(212, 175, 55, 0.2);
+      background: rgba(10, 16, 24, 0.7);
+      backdrop-filter: blur(4px);
+      color: #edf2f7;
+      font-size: 1.05rem;
+      outline: none;
+      transition: 0.2s;
+      font-family: inherit;
+      min-width: 150px;
+      letter-spacing: 0.3px;
+    }
+
+    #wordInput:focus {
+      border-color: #d4af37;
+      box-shadow: 0 0 24px rgba(212, 175, 55, 0.12);
+      background: rgba(14, 22, 34, 0.8);
+    }
+
+    #wordInput::placeholder {
+      color: #6e859c;
+      font-weight: 300;
+      letter-spacing: 0.4px;
+    }
+
+    .action-btn {
+      background: linear-gradient(145deg, #d4af37, #b38f2c);
+      border: none;
+      color: #0b0e14;
+      font-weight: 600;
+      padding: 16px 32px;
+      border-radius: 60px;
+      font-size: 1rem;
+      letter-spacing: 1px;
+      box-shadow: 0 6px 0 #7a621f, 0 8px 24px rgba(0,0,0,0.4);
+      cursor: pointer;
+      transition: 0.08s linear;
+      flex: 1 0 auto;
+      max-width: 170px;
+      font-family: inherit;
+      text-transform: uppercase;
+    }
+
+    .action-btn:active {
+      transform: translateY(5px);
+      box-shadow: 0 1px 0 #5f4b18, 0 8px 24px rgba(0,0,0,0.5);
+    }
+
+    .action-btn.secondary {
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(212, 175, 55, 0.25);
+      color: #d4c5aa;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+      backdrop-filter: blur(4px);
+      text-shadow: 0 1px 2px black;
+    }
+
+    .action-btn.secondary:active {
+      transform: translateY(4px);
+      box-shadow: 0 0 0 1px #d4af37, 0 8px 24px rgba(0,0,0,0.5);
+    }
+
+    .feedback-message {
+      margin-top: 20px;
+      padding: 12px 18px;
+      border-radius: 60px;
+      background: rgba(0, 0, 0, 0.25);
+      color: #b4c9db;
+      font-size: 0.95rem;
+      text-align: center;
+      min-height: 48px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 1px solid rgba(212, 175, 55, 0.05);
+      letter-spacing: 0.3px;
+      backdrop-filter: blur(2px);
+    }
+
+    .feedback-message strong {
+      color: #f5e7c8;
+      font-weight: 500;
+      letter-spacing: 0.5px;
+    }
+
+    /* адаптив */
+    @media (max-width: 560px) {
+      .game-container { padding: 20px 14px 28px; border-radius: 48px; }
+      .header { flex-direction: column; align-items: center; }
+      .header h1 { font-size: 1.6rem; }
+      .alphabet-selector { justify-content: center; }
+      .alphabet-btn { font-size: 0.8rem; padding: 6px 14px; }
+      .status-letter { font-size: 3.6rem; }
+      .gesture-panel { gap: 12px 18px; padding: 12px 16px; }
+      .action-btn { max-width: 140px; font-size: 0.9rem; padding: 14px 18px; }
+    }
+
+    @media (max-width: 400px) {
+      .status-letter { font-size: 2.8rem; }
+      .gesture-badge { font-size: 0.85rem; }
+    }
+
+    /* мікро-анімація пульсації для літери */
+    .pulse-letter {
+      animation: pulseGold 0.4s ease 2;
+    }
+    @keyframes pulseGold {
+      0% { transform: scale(1); text-shadow: 0 0 20px rgba(212,175,55,0.2); }
+      50% { transform: scale(1.12); text-shadow: 0 0 48px rgba(212,175,55,0.5); }
+      100% { transform: scale(1); text-shadow: 0 0 20px rgba(212,175,55,0.2); }
+    }
+  </style>
+</head>
+<body>
+<div class="game-container">
+  <div class="header">
+    <h1><span>✦</span> Golden <span>Wheel</span></h1>
+    <div class="alphabet-selector" id="alphabetSelector">
+      <button class="alphabet-btn active" data-alphabet="uk">UA</button>
+      <button class="alphabet-btn" data-alphabet="en">EN</button>
+      <button class="alphabet-btn" data-alphabet="de">DE</button>
+      <button class="alphabet-btn" data-alphabet="pl">PL</button>
+    </div>
+  </div>
+
+  <div class="wheel-wrapper">
+    <canvas id="wheelCanvas" width="600" height="600"></canvas>
+  </div>
+
+  <div class="gesture-panel">
+    <div class="gesture-badge"><span class="key-icon">◀</span> Лівий жест</div>
+    <div class="gesture-badge"><span class="key-icon">▶</span> Правий жест</div>
+    <div class="gesture-badge"><span class="key-icon">●</span> Стоп · літера</div>
+  </div>
+
+  <div class="status-area">
+    <div class="status-letter" id="letterDisplay">А</div>
+    <div class="status-hint" id="hintDisplay">назви слово на літеру</div>
+  </div>
+
+  <div class="word-input-area">
+    <input type="text" id="wordInput" placeholder="Слово..." autocomplete="off" spellcheck="false">
+    <button class="action-btn" id="checkWordBtn">Перевірити</button>
+    <button class="action-btn secondary" id="spinBtn">Нова літера</button>
+  </div>
+
+  <div class="feedback-message" id="feedbackMessage">обертай колесо жестами або натисни «Нова літера»</div>
+</div>
+
+<script>
+  (function() {
+    // ---- алфавіти ----
+    const ALPHABETS = {
+      uk: 'АБВГҐДЕЄЖЗИІЇЙКЛМНОПРСТУФХЦЧШЩЬЮЯ'.split(''),
+      en: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split(''),
+      de: 'ABCDEFGHIJKLMNOPQRSTUVWXYZÄÖÜß'.split(''),
+      pl: 'AĄBCĆDEĘFGHIJKLŁMNŃOÓPRSŚTUWYZŹŻ'.split('')
+    };
+
+    // ---- стан ----
+    let currentAlphabet = 'uk';
+    let letters = ALPHABETS['uk'];
+    let currentLetter = 'А';
+    let wheelAngle = 0;
+    let targetAngle = 0;
+    let isSpinning = false;
+
+    const canvas = document.getElementById('wheelCanvas');
+    const ctx = canvas.getContext('2d');
+    const letterDisplay = document.getElementById('letterDisplay');
+    const hintDisplay = document.getElementById('hintDisplay');
+    const feedbackEl = document.getElementById('feedbackMessage');
+    const wordInput = document.getElementById('wordInput');
+    const checkBtn = document.getElementById('checkWordBtn');
+    const spinBtn = document.getElementById('spinBtn');
+    const alphabetBtns = document.querySelectorAll('.alphabet-btn');
+
+    function getLetters() {
+      return ALPHABETS[currentAlphabet] || ALPHABETS['uk'];
+    }
+
+    function getLetterByAngle(angle) {
+      const total = letters.length;
+      if (total === 0) return '?';
+      let a = ((angle % (2 * Math.PI)) + 2 * Math.PI) % (2 * Math.PI);
+      let idx = Math.floor((a / (2 * Math.PI)) * total);
+      if (idx >= total) idx = total - 1;
+      return letters[idx] || '?';
+    }
+
+    function updateLetterFromAngle() {
+      const letter = getLetterByAngle(wheelAngle);
+      currentLetter = letter;
+      letterDisplay.textContent = letter;
+    }
+
+    // ---- малювання колеса (золотий стиль) ----
+    function drawWheel(angle) {
+      const w = canvas.width, h = canvas.height;
+      const cx = w/2, cy = h/2;
+      const radius = Math.min(w, h) * 0.42;
+      const total = letters.length;
+
+      ctx.clearRect(0, 0, w, h);
+
+      if (total === 0) {
+        ctx.fillStyle = '#b8c7d9';
+        ctx.font = 'bold 48px Inter, sans-serif';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText('—', cx, cy);
+        return;
+      }
+
+      const step = (2 * Math.PI) / total;
+
+      for (let i = 0; i < total; i++) {
+        const start = i * step + angle;
+        const end = start + step;
+        const letter = letters[i];
+
+        // золота палітра: насичені темно-золоті тони
+        const hue = (i * 28 + 35) % 360;
+        const lightness = 38 + (i % 5) * 4;
+        ctx.beginPath();
+        ctx.moveTo(cx, cy);
+        ctx.arc(cx, cy, radius, start, end);
+        ctx.closePath();
+        ctx.fillStyle = `hsl(${hue}, 70%, ${lightness}%)`;
+        ctx.fill();
+        ctx.strokeStyle = 'rgba(212, 175, 55, 0.25)';
+        ctx.lineWidth = 1.2;
+        ctx.stroke();
+
+        // літера в секторі
+        const mid = start + step/2;
+        const tr = radius * 0.72;
+        const x = cx + Math.cos(mid) * tr;
+        const y = cy + Math.sin(mid) * tr;
+
+        ctx.save();
+        ctx.translate(x, y);
+        ctx.rotate(mid + (mid > Math.PI/2 ? Math.PI : 0));
+        ctx.font = `bold ${radius * 0.22}px "Inter", "Segoe UI", sans-serif`;
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.shadowColor = 'rgba(0,0,0,0.7)';
+        ctx.shadowBlur = 12;
+        ctx.fillStyle = '#f5edd6';
+        ctx.fillText(letter, 0, 0);
+        ctx.restore();
+      }
+
+      // центральне коло — золоте
+      const grad = ctx.createRadialGradient(cx-6, cy-6, 8, cx, cy, radius*0.16);
+      grad.addColorStop(0, '#f5e7c8');
+      grad.addColorStop(0.7, '#d4af37');
+      grad.addColorStop(1, '#a8862a');
+      ctx.beginPath();
+      ctx.arc(cx, cy, radius*0.14, 0, 2*Math.PI);
+      ctx.fillStyle = grad;
+      ctx.shadowColor = 'rgba(212,175,55,0.3)';
+      ctx.shadowBlur = 28;
+      ctx.fill();
+      ctx.shadowBlur = 0;
+      ctx.strokeStyle = '#f5e7c8';
+      ctx.lineWidth = 2;
+      ctx.stroke();
+
+      // індикатор (золотий трикутник зверху)
+      ctx.shadowBlur = 16;
+      ctx.shadowColor = 'rgba(212,175,55,0.3)';
+      ctx.fillStyle = '#d4af37';
+      ctx.beginPath();
+      ctx.moveTo(cx, 18);
+      ctx.lineTo(cx - 16, 46);
+      ctx.lineTo(cx + 16, 46);
+      ctx.closePath();
+      ctx.fill();
+      ctx.shadowBlur = 0;
+      ctx.fillStyle = '#0b0e14';
+      ctx.font = 'bold 13px Inter, sans-serif';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText('▼', cx, 38);
+    }
+
+    // ---- анімація ----
+    let animationFrame = null;
+    function animateWheel() {
+      if (isSpinning) return;
+      const diff = targetAngle - wheelAngle;
+      if (Math.abs(diff) < 0.004) {
+        wheelAngle = targetAngle;
+        drawWheel(wheelAngle);
+        updateLetterFromAngle();
+        isSpinning = false;
+        if (animationFrame) {
+          cancelAnimationFrame(animationFrame);
+          animationFrame = null;
+        }
+        return;
+      }
+      const step = diff * 0.16;
+      wheelAngle += step;
+      drawWheel(wheelAngle);
+      updateLetterFromAngle();
+      animationFrame = requestAnimationFrame(animateWheel);
+    }
+
+    function spinWheel(delta) {
+      if (isSpinning) return;
+      if (animationFrame) {
+        cancelAnimationFrame(animationFrame);
+        animationFrame = null;
+      }
+      isSpinning = true;
+      targetAngle += delta;
+      animateWheel();
+    }
+
+    function setLetterImmediate(letter) {
+      if (isSpinning) {
+        if (animationFrame) {
+          cancelAnimationFrame(animationFrame);
+          animationFrame = null;
+        }
+        isSpinning = false;
+      }
+      const idx = letters.indexOf(letter);
+      if (idx === -1) return;
+      const angle = (idx / letters.length) * 2 * Math.PI;
+      wheelAngle = angle;
+      targetAngle = angle;
+      drawWheel(wheelAngle);
+      updateLetterFromAngle();
+    }
+
+    function randomLetter() {
+      if (letters.length === 0) return '?';
+      return letters[Math.floor(Math.random() * letters.length)];
+    }
+
+    function pickRandomLetter() {
+      if (isSpinning) {
+        if (animationFrame) {
+          cancelAnimationFrame(animationFrame);
+          animationFrame = null;
+        }
+        isSpinning = false;
+      }
+      const letter = randomLetter();
+      const idx = letters.indexOf(letter);
+      if (idx === -1) return;
+      const angle = (idx / letters.length) * 2 * Math.PI;
+      wheelAngle = angle;
+      targetAngle = angle;
+      drawWheel(wheelAngle);
+      updateLetterFromAngle();
+      feedbackEl.innerHTML = `літера <strong>${currentLetter}</strong> · назви слово`;
+      wordInput.value = '';
+      wordInput.focus();
+      // пульс
+      letterDisplay.classList.remove('pulse-letter');
+      void letterDisplay.offsetWidth;
+      letterDisplay.classList.add('pulse-letter');
+    }
+
+    // ---- зміна алфавіту ----
+    function setAlphabet(key) {
+      if (key === currentAlphabet && letters.length > 0) return;
+      if (!ALPHABETS[key]) return;
+      currentAlphabet = key;
+      letters = ALPHABETS[key];
+      alphabetBtns.forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.alphabet === key);
+      });
+      const letter = randomLetter();
+      const idx = letters.indexOf(letter);
+      const angle = (idx / letters.length) * 2 * Math.PI;
+      wheelAngle = angle;
+      targetAngle = angle;
+      drawWheel(wheelAngle);
+      updateLetterFromAngle();
+      feedbackEl.innerHTML = `${key.toUpperCase()} · ${letters.length} літер`;
+      wordInput.value = '';
+      hintDisplay.textContent = 'назви слово на літеру';
+      letterDisplay.classList.remove('pulse-letter');
+    }
+
+    // ---- перевірка слова ----
+    function checkWord() {
+      const word = wordInput.value.trim();
+      if (!word) {
+        feedbackEl.innerHTML = 'введи слово, будь ласка';
+        return;
+      }
+      const first = word.charAt(0).toUpperCase();
+      const current = currentLetter.toUpperCase();
+      if (first === current) {
+        feedbackEl.innerHTML = `✓ <strong>${word}</strong> починається на <strong>${currentLetter}</strong>`;
+        // маленька пульсація
+        letterDisplay.classList.remove('pulse-letter');
+        void letterDisplay.offsetWidth;
+        letterDisplay.classList.add('pulse-letter');
+      } else {
+        feedbackEl.innerHTML = `✗ <strong>${word}</strong> починається на <strong>${first}</strong>, очікується <strong>${currentLetter}</strong>`;
+      }
+    }
+
+    // ---- жести (емуляція) ----
+    function gestureLeft() {
+      spinWheel(-0.55);
+      feedbackEl.innerHTML = 'лівий жест · обертання';
+    }
+    function gestureRight() {
+      spinWheel(0.55);
+      feedbackEl.innerHTML = 'правий жест · обертання';
+    }
+    function gestureStop() {
+      if (isSpinning) {
+        if (animationFrame) {
+          cancelAnimationFrame(animationFrame);
+          animationFrame = null;
+        }
+        isSpinning = false;
+        targetAngle = wheelAngle;
+        drawWheel(wheelAngle);
+        updateLetterFromAngle();
+      }
+      // пульс
+      letterDisplay.classList.remove('pulse-letter');
+      void letterDisplay.offsetWidth;
+      letterDisplay.classList.add('pulse-letter');
+      feedbackEl.innerHTML = `стоп · літера <strong>${currentLetter}</strong> · назви слово`;
+      wordInput.focus();
+    }
+
+    // ---- клавіатура ----
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowLeft') { e.preventDefault(); gestureLeft(); }
+      else if (e.key === 'ArrowRight') { e.preventDefault(); gestureRight(); }
+      else if (e.key === ' ' || e.key === 'Space') { e.preventDefault(); gestureStop(); }
+      else if (e.key === 'Enter' && document.activeElement === wordInput) {
+        e.preventDefault();
+        checkWord();
+      }
+    });
+
+    // ---- ініціалізація ----
+    function init() {
+      const firstKey = 'uk';
+      currentAlphabet = firstKey;
+      letters = ALPHABETS[firstKey];
+      alphabetBtns.forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.alphabet === firstKey);
+      });
+      const letter = randomLetter();
+      const idx = letters.indexOf(letter);
+      const angle = (idx / letters.length) * 2 * Math.PI;
+      wheelAngle = angle;
+      targetAngle = angle;
+      drawWheel(wheelAngle);
+      updateLetterFromAngle();
+      hintDisplay.textContent = 'назви слово на літеру';
+      feedbackEl.innerHTML = 'обертай колесо жестами або натисни «Нова літера»';
+
+      // події
+      alphabetBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+          const key = btn.dataset.alphabet;
+          if (key) setAlphabet(key);
+        });
+      });
+
+      spinBtn.addEventListener('click', pickRandomLetter);
+      checkBtn.addEventListener('click', checkWord);
+      wordInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') { e.preventDefault(); checkWord(); }
+      });
+
+      // жести через кліки на панель
+      document.querySelector('.gesture-panel').addEventListener('click', (e) => {
+        const badge = e.target.closest('.gesture-badge');
+        if (!badge) return;
+        const txt = badge.innerText;
+        if (txt.includes('Лівий')) gestureLeft();
+        else if (txt.includes('Правий')) gestureRight();
+        else if (txt.includes('Стоп')) gestureStop();
+      });
+
+      // touch / swipe на canvas
+      let touchStartX = 0;
+      canvas.addEventListener('touchstart', (e) => {
+        const t = e.touches[0];
+        touchStartX = t.clientX;
+      }, { passive: true });
+      canvas.addEventListener('touchmove', (e) => {
+        e.preventDefault();
+        if (!touchStartX) return;
+        const t = e.touches[0];
+        const dx = t.clientX - touchStartX;
+        if (Math.abs(dx) > 20) {
+          if (dx > 0) gestureRight();
+          else gestureLeft();
+          touchStartX = t.clientX;
+        }
+      }, { passive: false });
+      canvas.addEventListener('touchend', () => { touchStartX = 0; }, { passive: true });
+
+      canvas.addEventListener('dblclick', gestureStop);
+    }
+
+    init();
+  })();
+</script>
+</body>
+</html>
