@@ -12,7 +12,7 @@
     </script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta name="theme-color" content="#0B0B12">
-    <title>AR Studio | SmartLessa 2026</title>
+    <title>AR Studio | Олеся Бохонок · SmartLessa 2026</title>
 
     <!-- PWA — інлайн manifest, без 404 -->
     <link rel="manifest" href='data:application/manifest+json,{"name":"AR Studio SmartLessa","short_name":"AR Studio","start_url":".","scope":".","display":"standalone","orientation":"portrait","background_color":"%230B0B12","theme_color":"%230B0B12","lang":"uk","icons":[]}'>
@@ -21,10 +21,13 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <link rel="apple-touch-icon" href="icon-192.png">
     <meta name="description" content="AR Studio SmartLessa — створіть доповнену реальність для уроків за хвилину. Завантажте MP4, отримайте QR-код, а учні побачать голограму через камеру.">
+    <meta name="author" content="Олеся Бохонок">
+    <meta name="copyright" content="© 2026 Олеся Бохонок · SmartLessa">
 
     <!-- Open Graph -->
-    <meta property="og:title" content="AR Studio SmartLessa 2026">
-    <meta property="og:description" content="Доповнена реальність нового покоління — безшовна інтеграція в освіту">
+    <meta property="og:title" content="AR Studio — Олеся Бохонок · SmartLessa 2026">
+    <meta property="og:description" content="Доповнена реальність для уроків. Авторка: Олеся Бохонок · SmartLessa 2026">
+    <meta property="og:site_name" content="SmartLessa">
     <meta property="og:image" content="https://lessa2332.github.io/ar-generator/icon-512.png">
     <meta property="og:url" content="https://lessa2332.github.io/ar-generator/">
 
@@ -310,6 +313,15 @@
             line-height: 1.2;
         }
         .setup-header .tagline { display: none; }
+        .setup-author {
+            font-size: 12px;
+            color: rgba(230, 211, 179, 0.6);
+            letter-spacing: 0.05em;
+            margin-top: 10px;
+            text-align: center;
+        }
+        .setup-author strong { color: var(--accent-soft); font-weight: 600; }
+        @media (min-width: 900px) { .setup-author { text-align: left; } }
 
         .wizard-progress {
             display: flex;
@@ -378,12 +390,8 @@
             .drop-zone-icon { font-size: 28px; }
             .drop-zone-text { font-size: 13px; }
         }
-        @media (hover: none) {
-            .drop-zone-hint-desktop { display: none; }
-        }
-        @media (hover: hover) and (pointer: fine) {
-            .drop-zone-hint-touch { display: none; }
-        }
+        @media (hover: none) { .drop-zone-hint-desktop { display: none; } }
+        @media (hover: hover) and (pointer: fine) { .drop-zone-hint-touch { display: none; } }
 
         #video-url {
             background: rgba(255, 255, 255, 0.03);
@@ -549,14 +557,14 @@
             position: absolute;
             bottom: max(10px, env(safe-area-inset-bottom, 10px));
             left: 0; right: 0;
-            color: rgba(255, 255, 255, 0.2);
+            color: rgba(255, 255, 255, 0.25);
             font-size: 10px;
             text-align: center;
             letter-spacing: 0.05em;
             pointer-events: none;
         }
         .footer a {
-            color: rgba(255, 255, 255, 0.35);
+            color: rgba(255, 255, 255, 0.4);
             text-decoration: none;
             pointer-events: auto;
             border-bottom: 1px solid transparent;
@@ -785,7 +793,7 @@
 <video id="video" autoplay playsinline muted></video>
 <canvas id="canvas"></canvas>
 
-<div id="ar-author" aria-hidden="true"><span>SmartLessa AR 2026</span></div>
+<div id="ar-author" aria-hidden="true"><span>Олеся Бохонок · SmartLessa AR 2026</span></div>
 <div id="ar-caption" aria-hidden="true">
     <div id="ar-caption-title"></div>
     <div id="ar-caption-date"></div>
@@ -799,6 +807,7 @@
             <div class="logo">AR STUDIO</div>
             <h1 data-i18n="h1">Генератор реальності</h1>
             <p class="tagline" data-i18n="tagline">Доповнена реальність для уроків — за 60 секунд.</p>
+            <p class="setup-author">Авторка: <strong>Олеся Бохонок</strong> · SmartLessa 2026</p>
         </div>
 
         <div class="setup-right-col">
@@ -883,7 +892,9 @@
         </div>
     </div>
 
-    <div class="footer"><a href="https://github.com/lessa2332" target="_blank" rel="noopener">SmartLessa 2026</a></div>
+    <div class="footer">
+        © 2026 <a href="https://github.com/lessa2332" target="_blank" rel="noopener">Олеся Бохонок</a> · SmartLessa
+    </div>
 </div>
 
 <!-- Toast -->
@@ -930,22 +941,18 @@
 <script type="module">
     import * as THREE from 'https://unpkg.com/three@0.158.0/build/three.module.js';
 
-    // ═══════════ КОНФІГУРАЦІЯ ═══════════
     const WORKER_URL = 'https://ar-videoo.23lessa32.workers.dev';
 
-    // ═══════════ SAFE STORAGE ═══════════
     const safeStorage = {
         get(k) { try { return localStorage.getItem(k); } catch { return null; } },
         set(k, v) { try { localStorage.setItem(k, v); } catch {} }
     };
 
-    // ═══════════ АНАЛІТИКА ═══════════
     function trackEvent(name, data = {}) {
         try { if (window.cfBeacon?.trackEvent) window.cfBeacon.trackEvent(name, data); } catch(e) {}
         try { if (typeof gtag === 'function') gtag('event', name, data); } catch(e) {}
     }
 
-    // ═══════════ i18n ═══════════
     const I18N = {
         uk: {
             h1: 'Генератор реальності',
@@ -1050,12 +1057,10 @@
         document.documentElement.lang = LANG;
     }
 
-    // ═══════════ DEVICE CAPABILITIES ═══════════
     function getDeviceCapabilities() {
         const ua = navigator.userAgent;
         const isAndroid = /Android/i.test(ua);
         const isIOS = /iPhone|iPad|iPod/i.test(ua);
-        const isDesktop = !isAndroid && !isIOS;
         let androidVersion = 0;
         if (isAndroid) { const m = ua.match(/Android\s([0-9.]+)/); if (m) androidVersion = parseFloat(m[1]); }
 
@@ -1090,12 +1095,11 @@
         let prefersReducedMotion = false;
         try { prefersReducedMotion = matchMedia('(prefers-reduced-motion: reduce)').matches; } catch(e) {}
 
-        return { useSimpleDetection, useGPU, cameraQuality, androidVersion, isAndroid, isIOS, isDesktop, webgl2Support, lowMemory, prefersReducedMotion };
+        return { useSimpleDetection, useGPU, cameraQuality, androidVersion, isAndroid, isIOS, webgl2Support, lowMemory, prefersReducedMotion };
     }
 
     const deviceCap = getDeviceCapabilities();
 
-    // ═══════════ СЕРВІСНІ ═══════════
     function sanitizeUrl(str) {
         if (!str || typeof str !== 'string') return '';
         try {
@@ -1129,7 +1133,6 @@
         return String(s).replace(/[&<>"']/g, c => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c]));
     }
 
-    // ═══════════ CLEANUP ═══════════
     const cleanup = {
         tasks: [],
         add(fn) { this.tasks.push(fn); },
@@ -1137,7 +1140,6 @@
     };
     window.addEventListener('pagehide', () => cleanup.run());
 
-    // ═══════════ TOAST ═══════════
     function showToast(msg, type = 'info') {
         const toast = document.getElementById('toast');
         if (!toast) return;
@@ -1150,7 +1152,6 @@
         toast._timer = setTimeout(() => toast.classList.remove('visible'), 2400);
     }
 
-    // ═══════════ SETUP MODE ═══════════
     function enterSetupMode() {
         applyI18n();
         const setupScreen = document.getElementById('setup-screen');
@@ -1351,9 +1352,8 @@
         trackEvent('setup_opened');
     }
 
-    // ═══════════ DESKTOP PREVIEW (окрема функція) ═══════════
+    // ═══════════ DESKTOP PREVIEW (fallback, якщо камера не запустилась) ═══════════
     function showDesktopPreview() {
-        // Ховаємо всі AR-шари
         document.getElementById('ar-author').style.display = 'none';
         document.getElementById('debug-info').style.display = 'none';
         document.getElementById('onboarding').style.display = 'none';
@@ -1388,6 +1388,7 @@
                 <button id="desktop-back" style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.2);color:#F0F0F2;padding:14px 28px;border-radius:60px;font-weight:500;font-size:14px;cursor:pointer;text-transform:uppercase;letter-spacing:0.04em;transition:all 0.25s;">${t('desktop_back')}</button>
                 <button id="desktop-copy-link" style="background:#1E1E2A;border:1px solid #C9A96E;color:#F0F0F2;padding:14px 28px;border-radius:60px;font-weight:500;font-size:14px;cursor:pointer;text-transform:uppercase;letter-spacing:0.04em;transition:all 0.25s;box-shadow:0 8px 24px rgba(0,0,0,0.3);">${t('desktop_copy')}</button>
             </div>
+            <div style="font-size:11px;color:rgba(230,211,179,0.4);margin-top:24px;letter-spacing:0.05em;text-align:center;">Авторка: Олеся Бохонок · SmartLessa 2026</div>
         `;
         document.body.appendChild(panel);
 
@@ -1403,8 +1404,10 @@
                 correctLevel: QRCode.CorrectLevel.M
             });
             const cap = document.getElementById('desktop-qr-caption');
-            if (params.title) cap.innerHTML = `<strong>${escapeHtml(params.title)}</strong>`;
-            else cap.textContent = 'AR Studio SmartLessa';
+            let capText = '';
+            if (params.title) capText += `<strong>${escapeHtml(params.title)}</strong><br>`;
+            capText += '<span style="opacity:0.7;">Олеся Бохонок · SmartLessa 2026</span>';
+            cap.innerHTML = capText;
         } catch(e) {
             const q = document.getElementById('desktop-qr');
             if (q) q.style.display = 'none';
@@ -1435,14 +1438,8 @@
 
     function initARMode() {
         applyI18n();
-        // ⚠️ НЕ ховаємо setup тут — тільки після успішної камери
-
-        // 🖥️ Desktop — окрема гілка
-        if (deviceCap.isDesktop) {
-            document.getElementById('setup-screen').style.display = 'none';
-            showDesktopPreview();
-            return;
-        }
+        // ✅ БЕЗ перевірки isDesktop — пробуємо камеру завжди (як у старих версіях)
+        // Якщо камера не запуститься — покажемо прев'ю всередині init()
 
         trackEvent('ar_started');
 
@@ -1492,7 +1489,6 @@
             }
         }
 
-        // ── THREE.JS SCENE ──
         const scene = new THREE.Scene();
         const cam3 = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
         cam3.position.set(0, 0, 3.2);
@@ -2013,26 +2009,23 @@
                 loadingEl.classList.add('visible');
                 onboardingEl.classList.add('visible');
 
-                // 1) Модель
                 await initDetection();
                 document.getElementById('ls-scene').classList.add('active');
 
-                // 2) Камера
                 const ok = await startCamera();
                 if (!ok) {
-                    // ❌ Камера не запустилась — повертаємось на setup
+                    // ❌ Камера не запустилась → показуємо прев'ю
                     loadingEl.classList.remove('visible');
                     onboardingEl.classList.remove('visible');
+                    document.getElementById('setup-screen').style.display = 'none';
                     document.getElementById('ar-author').style.display = 'none';
                     document.getElementById('ar-topbar').style.display = 'none';
                     document.getElementById('debug-info').style.display = 'none';
-                    // Показуємо setup-екран замість білого
-                    document.getElementById('setup-screen').style.display = 'flex';
-                    showToast(LANG === 'uk' ? 'Камера недоступна. Дозвольте доступ або відкрийте на телефоні.' : 'Camera unavailable.', 'error');
+                    showDesktopPreview();
                     return;
                 }
 
-                // 3) Успіх — показуємо AR
+                // ✅ Камера ОК — повний AR (як у старих версіях)
                 setPb(95);
                 hologramGroup.visible = false;
                 document.getElementById('ls-scene').classList.replace('active', 'done');
@@ -2040,7 +2033,6 @@
                 await new Promise(r => setTimeout(r, 300));
                 loadingEl.classList.remove('visible');
 
-                // Тепер ховаємо setup
                 document.getElementById('setup-screen').style.display = 'none';
                 document.getElementById('ar-author').style.display = 'block';
                 document.getElementById('ar-topbar').style.display = 'flex';
