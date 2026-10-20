@@ -2,39 +2,26 @@
 <html lang="uk">
 <head>
     <meta charset="UTF-8">
-    <!-- Google tag (gtag.js) -->
+    <!-- Google Analytics -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-LZ2J670JDT"></script>
-    <script>
-        window.dataLayer = window.dataLayer || [];
-        function gtag(){dataLayer.push(arguments);}
-        gtag('js', new Date());
-        gtag('config', 'G-LZ2J670JDT');
-    </script>
+    <script>window.dataLayer = window.dataLayer || []; function gtag(){dataLayer.push(arguments);} gtag('js', new Date()); gtag('config', 'G-LZ2J670JDT');</script>
+    
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta name="theme-color" content="#0B0B12">
     <title>AR Studio | Олеся Бохонок · SmartLessa 2026</title>
 
-    <!-- PWA — інлайн manifest -->
-    <link rel="manifest" href='data:application/manifest+json,{"name":"AR Studio SmartLessa","short_name":"AR Studio","start_url":".","scope":".","display":"standalone","orientation":"portrait","background_color":"%230B0B12","theme_color":"%230B0B12","lang":"uk","icons":[]}'>
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <link rel="apple-touch-icon" href="icon-192.png">
-    <meta name="description" content="AR Studio SmartLessa — створіть доповнену реальність для уроків за хвилину.">
     <meta name="author" content="Олеся Бохонок">
 
-    <!-- Open Graph -->
-    <meta property="og:title" content="AR Studio — Олеся Бохонок · SmartLessa 2026">
-    <meta property="og:description" content="Доповнена реальність для уроків. Авторка: Олеся Бохонок">
-
-    <!-- Cloudflare Web Analytics -->
+    <!-- Cloudflare Analytics -->
     <script defer src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{"token": "64df0e53a7f64e188d3eb86c8918389d"}'></script>
 
-    <!-- Fonts -->
+    <!-- Fonts & QR -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-
     <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
 
     <style>
@@ -44,8 +31,7 @@
             --bg-deep: #0B0B12;
             --text-primary: #F0F0F2;
             --text-secondary: rgba(240, 240, 242, 0.7);
-            --font-main: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
-            --transition: 0.25s cubic-bezier(0.2, 0, 0, 1);
+            --font-main: 'Inter', system-ui, -apple-system, sans-serif;
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: var(--font-main); -webkit-tap-highlight-color: transparent; }
@@ -117,18 +103,16 @@
         #onboarding.visible { display: flex; }
         #step-card { background: rgba(12, 12, 20, 0.85); backdrop-filter: blur(20px); border: 1px solid rgba(201, 169, 110, 0.4); border-radius: 28px; padding: 30px 24px; text-align: center; box-shadow: 0 10px 40px rgba(0, 0, 0, 0.7); }
         #step-emoji { font-size: 64px; margin-bottom: 8px; animation: pulseSoft 2s infinite; }
-        #step-num { font-size: 11px; color: var(--accent-primary); font-weight: 700; }
+        #step-num { font-size: 11px; color: var(--accent-primary); font-weight: 700; letter-spacing: 0.1em; }
         #step-title { font-size: 22px; font-weight: 700; margin: 4px 0; }
         #step-sub { font-size: 14px; color: var(--text-secondary); }
 
-        /* Toast & Debug */
-        #debug-info { position: absolute; bottom: 70px; left: 50%; transform: translateX(-50%); background: rgba(10, 10, 18, 0.8); color: var(--accent-soft); padding: 8px 20px; border-radius: 40px; font-size: 11px; z-index: 150; pointer-events: none; }
+        #debug-info { position: absolute; bottom: 70px; left: 50%; transform: translateX(-50%); background: rgba(10, 10, 18, 0.8); color: var(--accent-soft); padding: 8px 20px; border-radius: 40px; font-size: 11px; z-index: 150; pointer-events: none; border: 1px solid rgba(255,255,255,0.1); }
         .toast { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%) translateY(20px); background: rgba(20, 20, 30, 0.95); border: 1px solid var(--accent-primary); color: #fff; padding: 12px 22px; border-radius: 40px; font-size: 14px; z-index: 2000; opacity: 0; transition: all 0.3s; pointer-events: none; }
         .toast.visible { opacity: 1; transform: translateX(-50%) translateY(0); }
 
         @keyframes pulseSoft { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.6; transform: scale(0.95); } }
         
-        /* Кнопка звуку */
         #unmute-btn { position: absolute; top: max(80px, calc(env(safe-area-inset-top, 0px) + 60px)); left: 50%; transform: translateX(-50%); z-index: 350; background: var(--accent-primary); color: #000; padding: 12px 24px; border-radius: 30px; border: none; font-weight: 700; font-size: 14px; cursor: pointer; box-shadow: 0 4px 15px rgba(0,0,0,0.5); display: none; text-transform: uppercase; }
         #unmute-btn.visible { display: block; animation: pulseSoft 2s infinite; }
     </style>
@@ -182,8 +166,8 @@
 
                 <!-- КРОК 2 -->
                 <div class="wizard-step" data-step="1">
-                    <div class="step-title">Підпис (опційно)</div>
-                    <input type="text" id="event-title" placeholder="Назва події" maxlength="80" />
+                    <div class="step-title">Підпис події</div>
+                    <input type="text" id="event-title" placeholder="Назва (напр. МАН 2026)" maxlength="80" />
                     <div style="display: flex; gap: 10px;">
                         <input type="date" id="event-date" style="flex:1;" />
                         <input type="time" id="event-time" style="flex:1;" />
@@ -280,7 +264,7 @@
         function goStep(n) {
             currentStep = Math.max(0, Math.min(2, n));
             steps.forEach((s, i) => s.classList.toggle('active', i === currentStep));
-            dots.forEach((d, i) => { d.classList.toggle('active', i === currentStep); d.style.background = i < currentStep ? 'var(--accent-deep)' : ''; });
+            dots.forEach((d, i) => { d.classList.toggle('active', i === currentStep); d.style.background = i < currentStep ? 'var(--accent-primary)' : ''; });
             if (currentStep === 2) refreshQr();
         }
 
@@ -328,6 +312,13 @@
         hVideo.setAttribute('playsinline', ''); hVideo.setAttribute('crossorigin', 'anonymous');
         hVideo.muted = true; hVideo.loop = false; hVideo.src = params.video; hVideo.load();
 
+        // Відображення назви та дати
+        if (params.title || params.date) {
+            document.getElementById('ar-caption').style.display = 'block';
+            if (params.title) document.getElementById('ar-caption-title').textContent = params.title;
+            if (params.date) document.getElementById('ar-caption-date').textContent = '📅 ' + formatCaptionDate(params.date, params.time);
+        }
+
         // 3D Scene
         const scene = new THREE.Scene();
         const cam3 = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
@@ -361,8 +352,18 @@
 
         const hPlane = new THREE.Mesh(new THREE.PlaneGeometry(1.1, 0.825), hMat);
         hPlane.position.y = 0.35; hologramGroup.add(hPlane);
-        
         hVideo.addEventListener('loadedmetadata', () => { const asp = hVideo.videoWidth / hVideo.videoHeight || 1.33; hPlane.scale.set(1, 1 / asp * (4/3), 1); });
+
+        // ✨ ЗОЛОТІ ЧАСТИНКИ (Повертаємо вау-ефект)
+        const particles = new THREE.Group(); hologramGroup.add(particles);
+        const pGeo = new THREE.SphereGeometry(0.01, 4, 4);
+        const pMat = new THREE.MeshStandardMaterial({ color: 0xC9A96E, emissive: 0x8C6E3F, emissiveIntensity: 0.5 });
+        for (let i = 0; i < 15; i++) {
+            const p = new THREE.Mesh(pGeo, pMat);
+            p.userData = { angle: (i / 15) * Math.PI * 2, radius: 0.65, speed: 0.3 + Math.random() * 0.4 };
+            particles.add(p);
+        }
+        scene.add(new THREE.AmbientLight(0xffffff, 1));
 
         let hologramActive = false, isPaused = false, videoPlayed = false;
 
@@ -383,7 +384,7 @@
         function showStep(s) {
             const emoji = document.getElementById('step-emoji'), title = document.getElementById('step-title'), sub = document.getElementById('step-sub'), num = document.getElementById('step-num');
             if (s === 0) { emoji.textContent = '🖐️'; num.textContent = 'КРОК 1'; title.textContent = 'Покажіть долоню'; sub.textContent = 'Підніміть руку перед камерою'; }
-            else if (s === 1) { emoji.textContent = '👌'; num.textContent = 'КРОК 2'; title.textContent = 'Жест OK'; sub.textContent = "З'єднайте пальці"; }
+            else if (s === 1) { emoji.textContent = '👌'; num.textContent = 'КРОК 2'; title.textContent = 'Жест OK'; sub.textContent = "З'єднайте великий та вказівний палець"; }
         }
 
         const pauseBtn = document.getElementById('pause-btn'), restartBtn = document.getElementById('restart-btn'), videoControls = document.getElementById('video-controls');
@@ -392,15 +393,14 @@
         pauseBtn.onclick = () => { if (isPaused) { hVideo.play(); hMat.uniforms.uPlaying.value = 1; isPaused = false; pauseBtn.textContent = 'Пауза'; } else { hVideo.pause(); hMat.uniforms.uPlaying.value = 0; isPaused = true; pauseBtn.textContent = 'Продовжити'; } };
         restartBtn.onclick = () => { hVideo.currentTime = 0; hVideo.play(); hMat.uniforms.uPlaying.value = 1; };
 
-        // ✅ ГОЛОВНА ФУНКЦІЯ ЗАПУСКУ (Безпечна)
+        // ✅ БЕЗПЕЧНИЙ ЗАПУСК
         async function activateHologram() {
             if (hologramActive) return;
             hologramActive = true;
             hologramGroup.visible = true;
-            document.getElementById('onboarding').classList.remove('visible'); // Ховаємо підказки
+            document.getElementById('onboarding').classList.remove('visible');
             debugInfo.innerHTML = 'Голограма активована';
 
-            // 1. Пробуємо зі звуком (жест - це дозвіл)
             hVideo.muted = false;
             try {
                 await hVideo.play();
@@ -408,22 +408,17 @@
                 debugInfo.innerHTML = 'Відео + Звук';
                 return;
             } catch(e) {
-                // 2. Якщо браузер заблокував - запускаємо БЕЗ ЗВУКУ (100% спрацює)
                 hVideo.muted = true;
                 await hVideo.play();
                 videoPlayed = true; hMat.uniforms.uPlaying.value = 1; videoControls.style.display = 'flex';
                 debugInfo.innerHTML = 'Відео (без звуку)';
-                unmuteBtn.classList.add('visible'); // Показуємо кнопку "Увімкнути звук"
+                unmuteBtn.classList.add('visible');
             }
         }
 
-        unmuteBtn.onclick = () => {
-            hVideo.muted = false;
-            unmuteBtn.classList.remove('visible');
-            debugInfo.innerHTML = 'Звук увімкнено';
-        };
+        unmuteBtn.onclick = () => { hVideo.muted = false; unmuteBtn.classList.remove('visible'); debugInfo.innerHTML = 'Звук увімкнено'; };
 
-        // Детекція руки (MediaPipe)
+        // Детекція руки
         let handLandmarker = null;
         try {
             const { FilesetResolver, HandLandmarker } = await import('https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.3/+esm');
@@ -438,7 +433,6 @@
         document.getElementById('onboarding').classList.add('visible');
         showStep(0);
 
-        // Запуск циклу детекції
         let lastDetectTime = 0;
         function detectLoop() {
             requestAnimationFrame(detectLoop);
@@ -451,13 +445,18 @@
                 const res = handLandmarker.detectForVideo(videoEl, now);
                 if (res.landmarks?.length > 0) {
                     const lm = res.landmarks[0];
-                    // Перевірка жесту OK
                     const okD = Math.hypot(lm[4].x - lm[8].x, lm[4].y - lm[8].y);
                     const palmSz = Math.hypot(lm[0].x - lm[9].x, lm[0].y - lm[9].y) || 0.001;
+                    
+                    // Перевірка жесту OK
                     if (okD < palmSz * 0.5) {
                         activateHologram();
+                    } else {
+                        // Якщо просто долоня — показуємо підказку для OK
+                        showStep(1); 
                     }
-                    // Рух голограми за рукою
+                    
+                    // Рух голограми
                     const mir = facingMode === 'user', dir = mir ? -1 : 1;
                     hologramGroup.position.x += (dir * ((lm[0].x + lm[17].x)/2 * 2 - 1) - hologramGroup.position.x) * 0.1;
                     hologramGroup.position.y += ((0.5 - (lm[0].y + lm[17].y)/2) * 1.5 + 0.35 - hologramGroup.position.y) * 0.1;
@@ -465,9 +464,15 @@
             } catch(e) {}
         }
 
-        // Анімація
         function animate() {
             requestAnimationFrame(animate);
+            if (hologramGroup.visible) {
+                const t = performance.now() / 1000;
+                particles.children.forEach(p => {
+                    const a = t * p.userData.speed + p.userData.angle;
+                    p.position.set(Math.cos(a) * p.userData.radius, Math.sin(a * 2) * 0.05, Math.sin(a) * p.userData.radius);
+                });
+            }
             renderer.render(scene, cam3);
         }
         animate();
