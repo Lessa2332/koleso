@@ -14,12 +14,13 @@
     <meta name="theme-color" content="#0B0B12">
     <title>AR Studio | SmartLessa 2026</title>
 
-    <!-- PWA -->
-    <link rel="manifest" href="manifest.json">
+    <!-- PWA — інлайн manifest, без 404 -->
+    <link rel="manifest" href='data:application/manifest+json,{"name":"AR Studio SmartLessa","short_name":"AR Studio","start_url":".","scope":".","display":"standalone","orientation":"portrait","background_color":"%230B0B12","theme_color":"%230B0B12","lang":"uk","icons":[]}'>
+    <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <link rel="apple-touch-icon" href="icon-192.png">
-    <meta name="description" content="AR Studio SmartLessa — створіть доповнену реальність для уроків за хвилину. Завантажте MP4, отримайте QR-код, а учні побачать голограму через камеру. Безплатно, без реєстрації.">
+    <meta name="description" content="AR Studio SmartLessa — створіть доповнену реальність для уроків за хвилину. Завантажте MP4, отримайте QR-код, а учні побачать голограму через камеру.">
 
     <!-- Open Graph -->
     <meta property="og:title" content="AR Studio SmartLessa 2026">
@@ -61,7 +62,7 @@
             -webkit-tap-highlight-color: transparent;
             font-family: var(--font-main);
         }
-        button, .top-bar button, .setup-buttons button, #upload-video-btn {
+        button, .top-bar button, .setup-buttons button {
             user-select: none;
             -webkit-user-select: none;
             -webkit-touch-callout: none;
@@ -219,7 +220,7 @@
             border-radius: 30px;
         }
 
-        /* ═════════ SETUP SCREEN (DESKTOP-FIRST WIZARD) ═════════ */
+        /* ═════════ SETUP SCREEN ═════════ */
         #setup-screen {
             position: fixed;
             inset: 0;
@@ -244,7 +245,6 @@
             padding: 20px 0;
         }
 
-        /* 🖥️ DESKTOP: 2-колонковий layout */
         @media (min-width: 900px) {
             .setup-container {
                 max-width: 1040px;
@@ -274,7 +274,6 @@
                 margin-bottom: 28px;
                 margin-top: 28px;
             }
-            /* На десктопі — прогрес під заголовком, wizard — права колонка */
             .setup-right-col {
                 display: flex;
                 flex-direction: column;
@@ -282,7 +281,6 @@
             }
         }
 
-        /* 📱 TABLET landscape */
         @media (min-width: 768px) and (max-width: 899px) and (orientation: landscape) {
             .setup-container { max-width: 820px; }
             .setup-wizard { display: grid; grid-template-columns: 1fr 1fr; gap: 32px; align-items: center; }
@@ -352,7 +350,6 @@
             .step-title { text-align: left; font-size: 1.25rem; margin-bottom: 20px; }
         }
 
-        /* 📥 DROP ZONE — десктоп */
         .drop-zone {
             position: relative;
             width: 100%;
@@ -382,7 +379,6 @@
             .drop-zone-text { font-size: 13px; }
         }
         @media (hover: none) {
-            /* На тач-пристроях ховаємо "перетягніть" */
             .drop-zone-hint-desktop { display: none; }
         }
         @media (hover: hover) and (pointer: fine) {
@@ -796,17 +792,15 @@
 </div>
 <div id="debug-info" role="status" aria-live="polite"><span class="status-dot"></span>Ініціалізація</div>
 
-<!-- ═════════ SETUP SCREEN (RESPONSIVE WIZARD) ═════════ -->
+<!-- ═════════ SETUP SCREEN ═════════ -->
 <div id="setup-screen" role="main">
     <div class="setup-container">
-        <!-- Ліва колонка (десктоп) / Верх (мобіль) -->
         <div class="setup-header">
             <div class="logo">AR STUDIO</div>
             <h1 data-i18n="h1">Генератор реальності</h1>
             <p class="tagline" data-i18n="tagline">Доповнена реальність для уроків — за 60 секунд.</p>
         </div>
 
-        <!-- Права колонка (десктоп) / Центр (мобіль) -->
         <div class="setup-right-col">
             <div class="wizard-progress" aria-hidden="true">
                 <div class="wizard-dot active" data-dot="0"></div>
@@ -815,11 +809,10 @@
             </div>
 
             <div class="setup-wizard">
-                <!-- КРОК 1: Відео -->
+                <!-- КРОК 1 -->
                 <div class="wizard-step active" data-step="0">
                     <div class="step-title" data-i18n="step1_title">Додайте відео</div>
 
-                    <!-- Drop zone -->
                     <div class="drop-zone" id="drop-zone">
                         <div class="drop-zone-icon">📹</div>
                         <div class="drop-zone-text">
@@ -848,7 +841,7 @@
                     </div>
                 </div>
 
-                <!-- КРОК 2: Підпис -->
+                <!-- КРОК 2 -->
                 <div class="wizard-step" data-step="1">
                     <div class="step-title" data-i18n="step2_title">Підпис (не обов'язково)</div>
 
@@ -868,7 +861,7 @@
                     </div>
                 </div>
 
-                <!-- КРОК 3: QR -->
+                <!-- КРОК 3 -->
                 <div class="wizard-step" data-step="2">
                     <div class="step-title" data-i18n="step3_title">Готово</div>
 
@@ -990,6 +983,13 @@
             copy_done: '✅ Скопійовано',
             copied_fail: 'Не вдалося',
             no_camera_desktop: 'Камера недоступна. Відкрийте AR-посилання на телефоні.',
+            desktop_title: "Прев'ю на комп'ютері",
+            desktop_sub: 'Тут показано лише відео. Щоб побачити повну AR-голограму — відскануйте QR-код телефоном.',
+            desktop_video: 'Відео',
+            desktop_scan: 'Скануйте телефоном',
+            desktop_back: '← Назад до налаштувань',
+            desktop_copy: 'Копіювати AR-посилання',
+            desktop_copied: '✅ AR-посилання скопійовано',
         },
         en: {
             h1: 'Reality Generator',
@@ -1027,6 +1027,13 @@
             copy_done: '✅ Copied',
             copied_fail: 'Failed',
             no_camera_desktop: 'Camera unavailable. Open the AR link on a phone.',
+            desktop_title: 'Desktop preview',
+            desktop_sub: 'This is video only. To see the full AR hologram — scan the QR code with your phone.',
+            desktop_video: 'Video',
+            desktop_scan: 'Scan with phone',
+            desktop_back: '← Back to settings',
+            desktop_copy: 'Copy AR link',
+            desktop_copied: '✅ AR link copied',
         }
     };
     const LANG = (navigator.language || 'uk').toLowerCase().startsWith('uk') ? 'uk' : 'en';
@@ -1043,7 +1050,7 @@
         document.documentElement.lang = LANG;
     }
 
-    // ═══════════ АВТОМАТИЧНЕ ВИЗНАЧЕННЯ МОЖЛИВОСТЕЙ ═══════════
+    // ═══════════ DEVICE CAPABILITIES ═══════════
     function getDeviceCapabilities() {
         const ua = navigator.userAgent;
         const isAndroid = /Android/i.test(ua);
@@ -1088,7 +1095,7 @@
 
     const deviceCap = getDeviceCapabilities();
 
-    // ═══════════ СЕРВІСНІ ФУНКЦІЇ ═══════════
+    // ═══════════ СЕРВІСНІ ═══════════
     function sanitizeUrl(str) {
         if (!str || typeof str !== 'string') return '';
         try {
@@ -1118,7 +1125,11 @@
         } catch { return dateStr + (timeStr ? ' • ' + timeStr : ''); }
     }
 
-    // ═══════════ CLEANUP MANAGER ═══════════
+    function escapeHtml(s) {
+        return String(s).replace(/[&<>"']/g, c => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c]));
+    }
+
+    // ═══════════ CLEANUP ═══════════
     const cleanup = {
         tasks: [],
         add(fn) { this.tasks.push(fn); },
@@ -1172,7 +1183,6 @@
         const qrContainer = document.getElementById('qrcode-container');
         const qrMetaBlock = document.getElementById('qr-meta-block');
 
-        // Автозаповнення
         const now = new Date();
         try {
             dateInput.value = now.toISOString().split('T')[0];
@@ -1191,10 +1201,6 @@
             const date = encodeURIComponent(dateInput.value || '');
             const time = encodeURIComponent(timeInput.value || '');
             return `${window.location.origin}${window.location.pathname}?video=${encodeURIComponent(clean)}&chroma=${chromaToggle.checked ? '1' : '0'}&title=${title}&date=${date}&time=${time}`;
-        }
-
-        function escapeHtml(s) {
-            return s.replace(/[&<>"']/g, c => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c]));
         }
 
         function refreshQr() {
@@ -1219,7 +1225,6 @@
             } catch(e) { qrWrapper.classList.remove('visible'); }
         }
 
-        // ── Навігація ──
         document.getElementById('next-1').addEventListener('click', () => {
             if (!sanitizeUrl(urlInput.value.trim())) {
                 showToast(t('need_video'), 'error');
@@ -1237,7 +1242,6 @@
             window.location.href = link;
         });
 
-        // ── Upload ──
         function handleFile(file) {
             if (!file) return;
             if (!file.name.toLowerCase().endsWith('.mp4')) {
@@ -1302,7 +1306,6 @@
         dropZone.addEventListener('click', () => fileInput.click());
         fileInput.addEventListener('change', (e) => handleFile(e.target.files[0]));
 
-        // ── Drag & Drop ──
         ['dragenter', 'dragover'].forEach(ev => {
             dropZone.addEventListener(ev, (e) => {
                 e.preventDefault(); e.stopPropagation();
@@ -1320,7 +1323,6 @@
             if (file) handleFile(file);
         });
 
-        // ── Copy / Share ──
         document.getElementById('copy-link').addEventListener('click', () => {
             if (!currentQrUrl) return;
             if (navigator.clipboard?.writeText) {
@@ -1349,15 +1351,99 @@
         trackEvent('setup_opened');
     }
 
+    // ═══════════ DESKTOP PREVIEW (окрема функція) ═══════════
+    function showDesktopPreview() {
+        // Ховаємо всі AR-шари
+        document.getElementById('ar-author').style.display = 'none';
+        document.getElementById('debug-info').style.display = 'none';
+        document.getElementById('onboarding').style.display = 'none';
+        document.getElementById('video-controls').style.display = 'none';
+        document.getElementById('loading').classList.remove('visible');
+        const topBar = document.getElementById('ar-topbar');
+        if (topBar) topBar.style.display = 'none';
+
+        const panel = document.createElement('div');
+        panel.style.cssText = 'position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;background:radial-gradient(circle at 50% 10%, #13131F, #09090F);z-index:999;padding:24px;overflow-y:auto;font-family:"Inter",system-ui,sans-serif;';
+
+        panel.innerHTML = `
+            <div style="font-size:0.85rem;letter-spacing:0.3em;color:#E6D3B3;opacity:0.7;text-transform:uppercase;margin-bottom:6px;">AR STUDIO</div>
+            <h1 style="background:linear-gradient(135deg,#F0F0F2,#C9A96E);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;font-size:1.8rem;font-weight:700;margin-bottom:8px;text-align:center;letter-spacing:-0.01em;">
+                ${t('desktop_title')}
+            </h1>
+            <p style="color:rgba(240,240,242,0.7);font-size:14px;margin-bottom:24px;text-align:center;max-width:480px;line-height:1.6;">
+                ${t('desktop_sub')}
+            </p>
+            <div style="display:flex;gap:24px;flex-wrap:wrap;justify-content:center;align-items:center;margin-bottom:24px;max-width:900px;">
+                <div style="flex:1;min-width:280px;max-width:480px;">
+                    <div style="font-size:11px;color:rgba(230,211,179,0.6);letter-spacing:0.2em;text-transform:uppercase;margin-bottom:8px;text-align:center;">${t('desktop_video')}</div>
+                    <video id="desktop-video" controls autoplay loop playsinline style="width:100%;border-radius:16px;box-shadow:0 20px 60px rgba(0,0,0,0.6);background:#000;display:block;"></video>
+                </div>
+                <div style="flex:1;min-width:220px;max-width:280px;text-align:center;">
+                    <div style="font-size:11px;color:rgba(230,211,179,0.6);letter-spacing:0.2em;text-transform:uppercase;margin-bottom:8px;">${t('desktop_scan')}</div>
+                    <div id="desktop-qr" style="background:#fff;padding:16px;border-radius:16px;display:inline-block;box-shadow:0 8px 32px rgba(0,0,0,0.5);"></div>
+                    <div id="desktop-qr-caption" style="font-size:11px;color:rgba(240,240,242,0.5);margin-top:12px;line-height:1.5;text-align:center;"></div>
+                </div>
+            </div>
+            <div style="display:flex;gap:12px;flex-wrap:wrap;justify-content:center;">
+                <button id="desktop-back" style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.2);color:#F0F0F2;padding:14px 28px;border-radius:60px;font-weight:500;font-size:14px;cursor:pointer;text-transform:uppercase;letter-spacing:0.04em;transition:all 0.25s;">${t('desktop_back')}</button>
+                <button id="desktop-copy-link" style="background:#1E1E2A;border:1px solid #C9A96E;color:#F0F0F2;padding:14px 28px;border-radius:60px;font-weight:500;font-size:14px;cursor:pointer;text-transform:uppercase;letter-spacing:0.04em;transition:all 0.25s;box-shadow:0 8px 24px rgba(0,0,0,0.3);">${t('desktop_copy')}</button>
+            </div>
+        `;
+        document.body.appendChild(panel);
+
+        const desktopVideo = document.getElementById('desktop-video');
+        desktopVideo.src = params.video;
+        desktopVideo.play().catch(() => {});
+
+        try {
+            new QRCode(document.getElementById('desktop-qr'), {
+                text: window.location.href,
+                width: 180, height: 180,
+                colorDark: "#0B0B12", colorLight: "#FFFFFF",
+                correctLevel: QRCode.CorrectLevel.M
+            });
+            const cap = document.getElementById('desktop-qr-caption');
+            if (params.title) cap.innerHTML = `<strong>${escapeHtml(params.title)}</strong>`;
+            else cap.textContent = 'AR Studio SmartLessa';
+        } catch(e) {
+            const q = document.getElementById('desktop-qr');
+            if (q) q.style.display = 'none';
+        }
+
+        document.getElementById('desktop-back').addEventListener('click', () => {
+            window.location.href = window.location.origin + window.location.pathname;
+        });
+        document.getElementById('desktop-copy-link').addEventListener('click', () => {
+            if (navigator.clipboard?.writeText) {
+                navigator.clipboard.writeText(window.location.href)
+                    .then(() => showToast(t('desktop_copied')))
+                    .catch(() => showToast(t('copied_fail'), 'error'));
+            }
+        });
+
+        cleanup.add(() => {
+            try { desktopVideo.pause(); desktopVideo.src = ''; desktopVideo.load(); } catch(e) {}
+            panel.remove();
+        });
+
+        trackEvent('desktop_preview_opened');
+    }
+
     // ═══════════ AR MODE ═══════════
     let rafId = null;
     let heartbeatId = null;
 
     function initARMode() {
         applyI18n();
-        document.getElementById('setup-screen').style.display = 'none';
-        document.getElementById('ar-author').style.display = 'block';
-        document.getElementById('ar-topbar').style.display = 'flex';
+        // ⚠️ НЕ ховаємо setup тут — тільки після успішної камери
+
+        // 🖥️ Desktop — окрема гілка
+        if (deviceCap.isDesktop) {
+            document.getElementById('setup-screen').style.display = 'none';
+            showDesktopPreview();
+            return;
+        }
+
         trackEvent('ar_started');
 
         const debugInfo = document.getElementById('debug-info');
@@ -1388,12 +1474,6 @@
         const stepSub = document.getElementById('step-sub');
         const onboardingEl = document.getElementById('onboarding');
 
-        // 🖥️ Desktop fallback — камера не потрібна, показуємо відео-прев'ю
-        if (deviceCap.isDesktop) {
-            showDesktopPreview();
-            return;
-        }
-
         function showStep(s) {
             if (s === 0) {
                 onboardingEl.classList.add('visible');
@@ -1410,40 +1490,6 @@
             } else {
                 onboardingEl.classList.remove('visible');
             }
-        }
-
-        // ── Desktop preview (без камери) ──
-        function showDesktopPreview() {
-            document.getElementById('ar-author').style.display = 'none';
-            const topBar = document.getElementById('ar-topbar');
-            topBar.innerHTML = '<button id="back-to-setup">← ' + (LANG === 'uk' ? 'Назад' : 'Back') + '</button>';
-            topBar.style.justifyContent = 'center';
-            document.getElementById('back-to-setup').addEventListener('click', () => {
-                window.location.href = window.location.origin + window.location.pathname;
-            });
-
-            const container = document.createElement('div');
-            container.style.cssText = 'position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:#000;z-index:100;';
-            const v = document.createElement('video');
-            v.src = params.video;
-            v.controls = true;
-            v.autoplay = true;
-            v.loop = true;
-            v.playsInline = true;
-            v.style.cssText = 'max-width:80vw;max-height:80vh;border-radius:16px;box-shadow:0 20px 60px rgba(0,0,0,0.6);';
-            container.appendChild(v);
-            document.body.appendChild(container);
-
-            const hint = document.createElement('div');
-            hint.style.cssText = 'position:fixed;bottom:30px;left:50%;transform:translateX(-50%);background:rgba(20,20,30,0.9);backdrop-filter:blur(12px);border:1px solid rgba(201,169,110,0.4);color:#E6D3B3;padding:12px 22px;border-radius:40px;font-size:13px;text-align:center;z-index:200;max-width:90vw;';
-            hint.textContent = t('no_camera_desktop');
-            document.body.appendChild(hint);
-
-            cleanup.add(() => {
-                try { v.pause(); v.src = ''; v.load(); } catch(e) {}
-                container.remove();
-                hint.remove();
-            });
         }
 
         // ── THREE.JS SCENE ──
@@ -1697,7 +1743,6 @@
                 videoEl.srcObject = null;
             }
             if (!navigator.mediaDevices?.getUserMedia) {
-                stepSub.textContent = 'Camera unavailable';
                 return false;
             }
             const tryC = async (c) => {
@@ -1710,7 +1755,7 @@
                 await tryC(getCameraConstraints());
             } catch(e) {
                 try { await tryC({ video: { facingMode } }); }
-                catch { stepSub.textContent = 'Camera denied'; return false; }
+                catch { return false; }
             }
             await new Promise(r => {
                 if (videoEl.readyState >= 2 && videoEl.videoWidth > 0) r();
@@ -1967,19 +2012,39 @@
             try {
                 loadingEl.classList.add('visible');
                 onboardingEl.classList.add('visible');
+
+                // 1) Модель
                 await initDetection();
                 document.getElementById('ls-scene').classList.add('active');
+
+                // 2) Камера
                 const ok = await startCamera();
                 if (!ok) {
-                    debugInfo.innerHTML = `<span class="status-dot"></span> Camera error`;
+                    // ❌ Камера не запустилась — повертаємось на setup
+                    loadingEl.classList.remove('visible');
+                    onboardingEl.classList.remove('visible');
+                    document.getElementById('ar-author').style.display = 'none';
+                    document.getElementById('ar-topbar').style.display = 'none';
+                    document.getElementById('debug-info').style.display = 'none';
+                    // Показуємо setup-екран замість білого
+                    document.getElementById('setup-screen').style.display = 'flex';
+                    showToast(LANG === 'uk' ? 'Камера недоступна. Дозвольте доступ або відкрийте на телефоні.' : 'Camera unavailable.', 'error');
                     return;
                 }
+
+                // 3) Успіх — показуємо AR
                 setPb(95);
                 hologramGroup.visible = false;
                 document.getElementById('ls-scene').classList.replace('active', 'done');
                 setPb(100);
                 await new Promise(r => setTimeout(r, 300));
                 loadingEl.classList.remove('visible');
+
+                // Тепер ховаємо setup
+                document.getElementById('setup-screen').style.display = 'none';
+                document.getElementById('ar-author').style.display = 'block';
+                document.getElementById('ar-topbar').style.display = 'flex';
+
                 showStep(0);
                 initCaption();
                 animate();
@@ -2001,10 +2066,12 @@
         initARMode();
     }
 
-    // ═══════════ SERVICE WORKER ═══════════
+    // ═══════════ SERVICE WORKER (безпечна реєстрація) ═══════════
     if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => {
-            navigator.serviceWorker.register('sw.js').catch(() => {});
+            fetch('sw.js', { method: 'HEAD' })
+                .then(r => { if (r.ok) navigator.serviceWorker.register('sw.js').catch(() => {}); })
+                .catch(() => {});
         });
         window.addEventListener('appinstalled', () => {
             try { if (typeof gtag === 'function') gtag('event', 'pwa_installed', { app: 'AR_Studio_2026' }); } catch(e) {}
