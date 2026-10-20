@@ -11,25 +11,32 @@
         gtag('config', 'G-LZ2J670JDT');
     </script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>AR Студія | SmartLessa 2026</title>
+    <meta name="theme-color" content="#0B0B12">
+    <title>AR Studio | SmartLessa 2026</title>
 
     <!-- PWA -->
     <link rel="manifest" href="manifest.json">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <link rel="apple-touch-icon" href="icon-192.png">
-    <meta name="description" content="AR Студія SmartLessa — створіть доповнену реальність для уроків за хвилину. Завантажте MP4-відео, отримайте QR-код, а учні побачать голограму через камеру телефону. Безплатно, без реєстрації.">
+    <meta name="description" content="AR Studio SmartLessa — створіть доповнену реальність для уроків за хвилину. Завантажте MP4, отримайте QR-код, а учні побачать голограму через камеру. Безплатно, без реєстрації.">
 
     <!-- Open Graph -->
-    <meta property="og:title" content="AR Студія SmartLessa 2026">
-    <meta property="og:description" content="Доповнена реальність нового покоління – безшовна інтеграція в освіту">
+    <meta property="og:title" content="AR Studio SmartLessa 2026">
+    <meta property="og:description" content="Доповнена реальність нового покоління — безшовна інтеграція в освіту">
     <meta property="og:image" content="https://lessa2332.github.io/ar-generator/icon-512.png">
     <meta property="og:url" content="https://lessa2332.github.io/ar-generator/">
 
     <!-- Cloudflare Web Analytics -->
     <script defer src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{"token": "64df0e53a7f64e188d3eb86c8918389d"}'></script>
 
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
     <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
+
     <style>
         :root {
             --accent-primary: #C9A96E;
@@ -47,16 +54,21 @@
             --radius-s: 12px;
             --font-main: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
             --transition: 0.25s cubic-bezier(0.2, 0, 0, 1);
+            --spring: cubic-bezier(0.34, 1.56, 0.64, 1);
         }
 
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+            font-family: var(--font-main);
+        }
+        /* user-select обмежено: не глобально, лише для інтерактивних кнопок */
+        button, .top-bar button, .setup-buttons button, #upload-video-btn {
             user-select: none;
             -webkit-user-select: none;
             -webkit-touch-callout: none;
-            font-family: var(--font-main);
         }
         body, html {
             width: 100%;
@@ -64,8 +76,9 @@
             overflow: hidden;
             background: var(--bg-deep);
             letter-spacing: 0.01em;
+            color: var(--text-primary);
         }
-        button:focus-visible, input:focus-visible, a:focus-visible {
+        button:focus-visible, input:focus-visible, a:focus-visible, [role="button"]:focus-visible {
             outline: 2px solid var(--accent-primary);
             outline-offset: 3px;
             border-radius: 4px;
@@ -114,7 +127,6 @@
             cursor: pointer;
             transition: all var(--transition);
             box-shadow: 0 4px 14px rgba(0,0,0,0.3);
-            -webkit-tap-highlight-color: transparent;
             text-transform: uppercase;
         }
         .top-bar button:active {
@@ -126,13 +138,14 @@
 
         #video-controls {
             position: absolute;
-            bottom: max(100px, env(safe-area-inset-bottom, 100px));
+            bottom: max(100px, calc(env(safe-area-inset-bottom, 0px) + 80px));
             left: 0;
             right: 0;
             display: none;
             justify-content: center;
             gap: 16px;
             z-index: 300;
+            padding: 0 20px;
         }
         #video-controls button {
             background: rgba(18, 18, 28, 0.8);
@@ -147,7 +160,6 @@
             cursor: pointer;
             transition: all var(--transition);
             box-shadow: 0 4px 18px rgba(0,0,0,0.4);
-            -webkit-tap-highlight-color: transparent;
             text-transform: uppercase;
             letter-spacing: 0.04em;
         }
@@ -171,19 +183,18 @@
             color: var(--accent-soft);
             padding: 24px;
         }
+        #loading.visible { display: flex; }
         #loading-title {
-            font-size: 1.7rem;
+            font-size: clamp(1.2rem, 4vw, 1.7rem);
             font-weight: 600;
             letter-spacing: 0.2em;
             margin-bottom: 40px;
             text-shadow: 0 0 25px rgba(201, 169, 110, 0.4);
             text-transform: uppercase;
             color: #E6D3B3;
+            text-align: center;
         }
-        .load-steps {
-            width: 100%;
-            max-width: 320px;
-        }
+        .load-steps { width: 100%; max-width: 320px; }
         .load-step {
             display: flex;
             align-items: center;
@@ -200,15 +211,9 @@
             text-align: center;
             font-weight: 600;
             color: inherit;
-            letter-spacing: 0.02em;
         }
-        .load-step.active {
-            color: #F5F5F0;
-            font-weight: 500;
-        }
-        .load-step.done {
-            color: var(--accent-primary);
-        }
+        .load-step.active { color: #F5F5F0; font-weight: 500; }
+        .load-step.done { color: var(--accent-primary); }
         .pbwrap {
             width: 100%;
             max-width: 320px;
@@ -227,6 +232,7 @@
             border-radius: 30px;
         }
 
+        /* ═════════ SETUP WIZARD ═════════ */
         #setup-screen {
             position: fixed;
             inset: 0;
@@ -234,27 +240,41 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: center;
             z-index: 999;
             color: var(--text-primary);
             padding: max(28px, env(safe-area-inset-top)) 24px max(28px, env(safe-area-inset-bottom));
             overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
         }
+        .setup-container {
+            width: 100%;
+            max-width: 480px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin: auto 0;
+        }
+        /* iPad/landscape 2-col */
+        @media (min-width: 768px) and (orientation: landscape) {
+            .setup-container { max-width: 900px; }
+            .setup-wizard { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; align-items: center; }
+        }
+
         #setup-screen .logo {
-            font-size: 2rem;
-            margin-bottom: 10px;
+            font-size: 1.6rem;
+            margin-bottom: 8px;
             letter-spacing: 0.2em;
             font-weight: 500;
             color: var(--accent-soft);
             line-height: 1;
             text-transform: uppercase;
         }
-        #setup-screen h2 {
+        #setup-screen h1 {
             background: linear-gradient(135deg, #F0F0F2, #C9A96E);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
-            font-size: 2rem;
+            font-size: clamp(1.4rem, 5vw, 2rem);
             margin-bottom: 6px;
             font-weight: 700;
             text-align: center;
@@ -264,38 +284,53 @@
         #setup-screen .author {
             color: rgba(230, 211, 179, 0.65);
             font-size: 12px;
-            margin-bottom: 18px;
-            letter-spacing: 0.06em;
-            font-weight: 400;
-        }
-        #setup-screen .subtitle {
-            color: var(--text-secondary);
-            font-size: 14px;
-            text-align: center;
             margin-bottom: 24px;
-            letter-spacing: 0.04em;
-            font-weight: 400;
-        }
-        #setup-screen .hint-box {
-            background: rgba(255, 255, 255, 0.02);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            border-radius: var(--radius-m);
-            padding: 18px 22px;
-            margin-bottom: 22px;
-            width: 100%;
-            max-width: 420px;
+            letter-spacing: 0.06em;
             text-align: center;
-            font-size: 16px;
-            color: var(--text-secondary);
-            line-height: 1.8;
         }
-        #setup-screen .hint-box b {
-            color: var(--accent-soft);
+
+        /* Wizard progress */
+        .wizard-progress {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 24px;
+            align-items: center;
+        }
+        .wizard-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.15);
+            transition: all 0.3s var(--spring);
+        }
+        .wizard-dot.active {
+            background: var(--accent-primary);
+            width: 24px;
+            border-radius: 4px;
+            box-shadow: 0 0 12px rgba(201,169,110,0.5);
+        }
+        .wizard-dot.done { background: var(--accent-deep); }
+
+        .wizard-step { display: none; width: 100%; animation: fadeStep 0.35s var(--spring); }
+        .wizard-step.active { display: block; }
+        @keyframes fadeStep {
+            from { opacity: 0; transform: translateY(12px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .step-title {
+            font-size: 1.15rem;
             font-weight: 600;
+            margin-bottom: 6px;
+            text-align: center;
+            color: var(--text-primary);
         }
-        #setup-screen .hint-box .warn {
-            color: #D4AF37;
-            font-weight: 500;
+        .step-sub {
+            font-size: 14px;
+            color: var(--text-secondary);
+            text-align: center;
+            margin-bottom: 20px;
+            line-height: 1.5;
         }
 
         .privacy-note {
@@ -305,34 +340,12 @@
             padding: 12px 18px;
             margin-bottom: 18px;
             width: 100%;
-            max-width: 420px;
             font-size: 12px;
             color: var(--text-secondary);
             line-height: 1.6;
             text-align: center;
         }
-        .privacy-note strong {
-            color: var(--accent-soft);
-            font-weight: 600;
-        }
-
-        .toggle-box {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            margin-bottom: 18px;
-            font-size: 14px;
-            color: var(--text-secondary);
-            font-weight: 400;
-            cursor: pointer;
-            letter-spacing: 0.02em;
-        }
-        .toggle-box input {
-            accent-color: var(--accent-primary);
-            width: 20px;
-            height: 20px;
-            cursor: pointer;
-        }
+        .privacy-note strong { color: var(--accent-soft); font-weight: 600; }
 
         #event-meta input,
         #video-url {
@@ -342,13 +355,10 @@
             padding: 14px 22px;
             border-radius: 60px;
             width: 100%;
-            max-width: 420px;
             font-size: 15px;
             outline: none;
             margin-bottom: 10px;
             transition: all var(--transition);
-            letter-spacing: 0.02em;
-            font-weight: 400;
             caret-color: var(--accent-primary);
         }
         #event-meta input:focus,
@@ -359,7 +369,7 @@
         }
         #event-meta input::placeholder,
         #video-url::placeholder {
-            color: rgba(255, 255, 255, 0.25);
+            color: rgba(255, 255, 255, 0.3);
             font-weight: 300;
         }
         #event-meta input[type="date"],
@@ -367,29 +377,45 @@
             color-scheme: dark;
         }
 
+        .toggle-box {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 16px;
+            font-size: 14px;
+            color: var(--text-secondary);
+            cursor: pointer;
+            padding: 4px 0;
+        }
+        .toggle-box input {
+            accent-color: var(--accent-primary);
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+            flex-shrink: 0;
+        }
+
         .setup-buttons {
             display: flex;
             gap: 12px;
             flex-wrap: wrap;
             justify-content: center;
-            margin-bottom: 18px;
+            margin-bottom: 16px;
             width: 100%;
-            max-width: 420px;
         }
         .setup-buttons button {
             flex: 1;
-            min-width: 150px;
+            min-width: 140px;
             background: rgba(255, 255, 255, 0.03);
             border: 1px solid rgba(255, 255, 255, 0.2);
             color: var(--text-primary);
             padding: 14px 20px;
             border-radius: 60px;
             font-weight: 500;
-            font-size: 16px;
+            font-size: 15px;
             cursor: pointer;
             letter-spacing: 0.04em;
             transition: all var(--transition);
-            -webkit-tap-highlight-color: transparent;
             text-transform: uppercase;
             box-shadow: 0 2px 8px rgba(0,0,0,0.2);
         }
@@ -403,6 +429,11 @@
             transform: translateY(1px);
             border-color: var(--accent-primary);
         }
+        .setup-buttons button:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+            transform: none;
+        }
 
         #upload-video-btn {
             background: transparent;
@@ -411,56 +442,37 @@
             padding: 20px 32px;
             border-radius: 60px;
             font-weight: 500;
-            font-size: 18px;
+            font-size: 16px;
             cursor: pointer;
             margin-bottom: 10px;
             width: 100%;
-            max-width: 420px;
             transition: all var(--transition);
-            letter-spacing: 0.04em;
-            -webkit-tap-highlight-color: transparent;
             text-transform: uppercase;
         }
-        #upload-video-btn:hover {
+        #upload-video-btn:hover, #upload-video-btn:focus-visible {
             background: rgba(255, 255, 255, 0.04);
             border-color: var(--accent-primary);
             color: #fff;
         }
         #upload-status {
-            font-size: 16px;
-            font-weight: 600;
+            font-size: 14px;
+            font-weight: 500;
             color: var(--accent-soft);
             margin-bottom: 12px;
-            min-height: 22px;
+            min-height: 20px;
             text-align: center;
-            letter-spacing: 0.03em;
-            padding: 12px;
+            padding: 10px;
             border-radius: 8px;
+            transition: all 0.2s;
         }
-        #upload-status.success {
-            background: rgba(76, 175, 80, 0.2);
-            color: #4CAF50;
-        }
-        #upload-status.error {
-            background: rgba(244, 67, 54, 0.2);
-            color: #F44336;
-        }
-        #compress-link {
-            color: var(--accent-soft);
-            font-size: 11px;
-            text-decoration: underline;
-            cursor: pointer;
-            letter-spacing: 0.03em;
-            transition: color 0.2s;
-        }
-        #compress-link:hover {
-            color: #fff;
-        }
+        #upload-status.success { background: rgba(76, 175, 80, 0.2); color: #4CAF50; }
+        #upload-status.error { background: rgba(244, 67, 54, 0.2); color: #F44336; }
 
         #qrcode-wrapper {
             margin-top: 16px;
             display: none;
             text-align: center;
+            width: 100%;
         }
         #qrcode-container {
             display: inline-block;
@@ -477,16 +489,34 @@
             letter-spacing: 0.08em;
             text-transform: uppercase;
         }
-        #copy-link {
+        #qr-meta-block {
+            margin-top: 12px;
+            font-size: 11px;
+            color: var(--text-secondary);
+            line-height: 1.5;
+            text-align: center;
+            padding: 0 10px;
+        }
+        #qr-meta-block .qr-title { font-weight: 600; font-size: 13px; color: var(--text-primary); margin-bottom: 4px; }
+
+        .action-links {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
             margin-top: 14px;
+            flex-wrap: wrap;
+        }
+        .action-links button {
+            background: none;
+            border: none;
             color: var(--accent-soft);
             font-size: 13px;
             cursor: pointer;
             text-decoration: underline;
             letter-spacing: 0.04em;
-            font-weight: 400;
-            -webkit-tap-highlight-color: transparent;
+            padding: 6px 4px;
         }
+        .action-links button:hover { color: #fff; }
 
         .footer {
             position: absolute;
@@ -499,17 +529,16 @@
             z-index: 999;
             letter-spacing: 0.06em;
             text-transform: uppercase;
+            pointer-events: none;
         }
         .footer a {
             color: var(--text-secondary);
             text-decoration: none;
-            font-weight: 400;
             border-bottom: 1px solid transparent;
             transition: border-color 0.2s;
+            pointer-events: auto;
         }
-        .footer a:hover {
-            border-bottom-color: var(--accent-primary);
-        }
+        .footer a:hover { border-bottom-color: var(--accent-primary); }
 
         #ar-author {
             position: absolute;
@@ -537,7 +566,7 @@
 
         #ar-caption {
             position: absolute;
-            bottom: max(180px, env(safe-area-inset-bottom, 180px));
+            bottom: max(180px, calc(env(safe-area-inset-bottom, 0px) + 160px));
             left: 20px;
             right: 20px;
             z-index: 250;
@@ -546,14 +575,11 @@
             pointer-events: none;
             animation: fadeInCaption 0.8s ease-out;
         }
-
         @keyframes fadeInCaption {
             from { opacity: 0; transform: translateY(20px); }
             to { opacity: 1; transform: translateY(0); }
         }
-
         #ar-caption-title {
-            font-family: var(--font-main);
             color: #F0F0F2;
             font-weight: 600;
             letter-spacing: 0.02em;
@@ -573,9 +599,7 @@
             -webkit-line-clamp: 2;
             -webkit-box-orient: vertical;
         }
-
         #ar-caption-date {
-            font-family: var(--font-main);
             color: var(--accent-soft);
             font-size: clamp(11px, 2.5vw, 14px);
             font-weight: 500;
@@ -595,6 +619,7 @@
             gap: 12px;
             pointer-events: none;
         }
+        #onboarding.visible { display: flex; }
         #step-card {
             background: rgba(12, 12, 20, 0.9);
             backdrop-filter: blur(20px);
@@ -606,7 +631,7 @@
             align-items: center;
             gap: 18px;
             box-shadow: var(--shadow-soft);
-            transition: all 0.35s ease;
+            transition: all 0.35s var(--spring);
         }
         #step-emoji {
             font-size: 38px;
@@ -614,13 +639,8 @@
             flex-shrink: 0;
             width: 60px;
             text-align: center;
-            font-weight: 400;
-            letter-spacing: 0.04em;
-            color: var(--accent-soft);
         }
-        #step-body {
-            flex: 1;
-        }
+        #step-body { flex: 1; }
         #step-num {
             font-size: 10px;
             color: rgba(230, 211, 179, 0.6);
@@ -628,18 +648,8 @@
             font-weight: 600;
             text-transform: uppercase;
         }
-        #step-title {
-            font-size: 18px;
-            font-weight: 600;
-            color: #F0F0F2;
-            letter-spacing: 0.02em;
-        }
-        #step-sub {
-            font-size: 13px;
-            color: var(--text-secondary);
-            font-weight: 400;
-            letter-spacing: 0.02em;
-        }
+        #step-title { font-size: 18px; font-weight: 600; color: #F0F0F2; }
+        #step-sub { font-size: 13px; color: var(--text-secondary); }
 
         #autoplay-overlay {
             position: fixed;
@@ -653,13 +663,12 @@
             z-index: 500;
             flex-direction: column;
             gap: 28px;
+            padding: 24px;
         }
-        #autoplay-overlay.visible {
-            display: flex;
-        }
+        #autoplay-overlay.visible { display: flex; }
         #autoplay-lbl {
             color: rgba(245, 245, 245, 0.9);
-            font-size: 20px;
+            font-size: clamp(16px, 5vw, 20px);
             text-align: center;
             line-height: 1.6;
             font-weight: 400;
@@ -669,7 +678,7 @@
         #autoplay-btn {
             background: #1A1A28;
             color: #E6D3B3;
-            font-size: 18px;
+            font-size: 17px;
             font-weight: 500;
             padding: 18px 44px;
             border-radius: 60px;
@@ -678,17 +687,13 @@
             letter-spacing: 0.1em;
             transition: all var(--transition);
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
-            -webkit-tap-highlight-color: transparent;
             text-transform: uppercase;
         }
-        #autoplay-btn:active {
-            transform: scale(0.97);
-            background: #242435;
-        }
+        #autoplay-btn:active { transform: scale(0.97); background: #242435; }
 
         #debug-info {
             position: absolute;
-            bottom: 70px;
+            bottom: max(70px, calc(env(safe-area-inset-bottom, 0px) + 60px));
             left: 50%;
             transform: translateX(-50%);
             z-index: 150;
@@ -696,29 +701,51 @@
             backdrop-filter: blur(12px);
             -webkit-backdrop-filter: blur(12px);
             color: var(--accent-soft);
-            padding: 10px 24px;
+            padding: 8px 20px;
             border-radius: 40px;
-            font-size: 12px;
+            font-size: 11px;
             font-weight: 400;
-            display: block;
             pointer-events: none;
             text-align: center;
             border: 1px solid rgba(255, 255, 255, 0.2);
-            min-width: 180px;
+            min-width: 160px;
             letter-spacing: 0.03em;
+            max-width: 90vw;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
         #debug-info .status-dot {
             display: inline-block;
             width: 6px;
             height: 6px;
             border-radius: 50%;
-            margin-right: 10px;
+            margin-right: 8px;
             background: var(--accent-primary);
             animation: pulseSoft 1.4s ease-in-out infinite;
+            vertical-align: middle;
         }
         @keyframes pulseSoft {
             0%, 100% { opacity: 1; }
             50% { opacity: 0.4; }
+        }
+
+        /* Reduced motion */
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+            }
+            #debug-info .status-dot { animation: none; }
+        }
+
+        /* Very small screens */
+        @media (max-height: 600px) {
+            #setup-screen .logo { font-size: 1.2rem; }
+            #setup-screen h1 { font-size: 1.1rem; }
+            .wizard-progress { margin-bottom: 12px; }
+            .step-sub { margin-bottom: 12px; }
         }
     </style>
 </head>
@@ -726,86 +753,115 @@
 <video id="video" autoplay playsinline muted></video>
 <canvas id="canvas"></canvas>
 
-<div id="ar-author"><span>SmartLessa AR 2026</span></div>
-<div id="ar-caption">
+<div id="ar-author" aria-hidden="true"><span>SmartLessa AR 2026</span></div>
+<div id="ar-caption" aria-hidden="true">
     <div id="ar-caption-title"></div>
     <div id="ar-caption-date"></div>
 </div>
-<div id="debug-info"><span class="status-dot"></span>Ініціалізація</div>
+<div id="debug-info" role="status" aria-live="polite"><span class="status-dot"></span>Ініціалізація</div>
 
-<div id="setup-screen">
-    <div class="logo">AR STUDIO</div>
-    <h2>Генератор реальності</h2>
-    <p class="author">Автор <b>Олеся Бохонок | SmartLessa</b></p>
-    <p class="subtitle">Доповнена реальність для уроків майбутнього</p>
+<!-- ═════════ SETUP SCREEN (WIZARD) ═════════ -->
+<div id="setup-screen" role="main">
+    <div class="setup-container">
+        <div class="logo">AR STUDIO</div>
+        <h1 data-i18n="h1">Генератор реальності</h1>
+        <p class="author" data-i18n="author">Автор <b>Олеся Бохонок | SmartLessa</b></p>
 
-    <div class="privacy-note">
-        🔒 <strong>Безпека:</strong> Ваше відео залишається на вашому телефоні. Ніхто його не побачить, крім тих, кому ви покажете QR.
-    </div>
+        <div class="wizard-progress" aria-hidden="true">
+            <div class="wizard-dot active" data-dot="0"></div>
+            <div class="wizard-dot" data-dot="1"></div>
+            <div class="wizard-dot" data-dot="2"></div>
+        </div>
 
-    <div class="hint-box">
-        <div style="font-size: 48px; margin-bottom: 12px;">📹</div>
-        <div style="text-align: center; font-size: 16px; line-height: 1.8;">
-            <b>Крок 1:</b> Зніміть відео на телефон<br>
-            <b>Крок 2:</b> Завантажте його сюди<br>
-            <b>Крок 3:</b> Отримайте QR-код<br>
-            <b>Крок 4:</b> Роздрукуйте та покажіть друзям!
+        <div class="setup-wizard">
+            <!-- КРОК 1: Контент -->
+            <div class="wizard-step active" data-step="0">
+                <div class="step-title" data-i18n="step1_title">Що покажемо?</div>
+                <div class="step-sub" data-i18n="step1_sub">Завантажте MP4-відео (до 60 сек, до 50 МБ)</div>
+
+                <div class="privacy-note">
+                    🔒 <strong data-i18n="privacy_bold">Безпека:</strong> <span data-i18n="privacy_text">Ваше відео залишається на вашому телефоні.</span>
+                </div>
+
+                <input type="file" id="video-file-input" accept="video/mp4" style="display:none;" />
+                <button id="upload-video-btn" data-i18n="upload_btn">📁 Вибрати відео з телефону</button>
+                <p id="upload-status" role="status" aria-live="polite"></p>
+
+                <input type="url" id="video-url" placeholder="🔗 Або вставте пряме посилання (.mp4)" aria-label="Посилання на відео" />
+
+                <div class="toggle-box">
+                    <input type="checkbox" id="chromakey-toggle" checked>
+                    <label for="chromakey-toggle" data-i18n="chroma">🎨 Видалити зелений екран</label>
+                </div>
+
+                <div class="setup-buttons">
+                    <button id="next-1" class="primary" data-i18n="next">Далі →</button>
+                </div>
+            </div>
+
+            <!-- КРОК 2: Метадані -->
+            <div class="wizard-step" data-step="1">
+                <div class="step-title" data-i18n="step2_title">Підпишіть подію</div>
+                <div class="step-sub" data-i18n="step2_sub">Необов'язково — але гарно виглядає на QR-картці</div>
+
+                <div id="event-meta">
+                    <input type="text" id="event-title"
+                           placeholder="📌 Назва події (напр. Захист робіт МАН)"
+                           maxlength="80" aria-label="Назва події" />
+                    <div style="display: flex; gap: 10px;">
+                        <input type="date" id="event-date" style="flex:1;" aria-label="Дата" />
+                        <input type="time" id="event-time" style="flex:1;" aria-label="Час" />
+                    </div>
+                </div>
+
+                <div class="setup-buttons">
+                    <button id="prev-1" data-i18n="back">← Назад</button>
+                    <button id="next-2" class="primary" data-i18n="next">Далі →</button>
+                </div>
+            </div>
+
+            <!-- КРОК 3: QR + Preview -->
+            <div class="wizard-step" data-step="2">
+                <div class="step-title" data-i18n="step3_title">Готово!</div>
+                <div class="step-sub" data-i18n="step3_sub">Покажіть QR-код учням або запустіть AR-перегляд</div>
+
+                <div id="qrcode-wrapper">
+                    <div id="qrcode-container"></div>
+                    <p id="qrcode-author">SmartLessa AR 2026</p>
+                    <div id="qr-meta-block"></div>
+                    <div style="margin-top: 16px; text-align: center; font-size: 13px; line-height: 1.6; color: var(--text-secondary);">
+                        <span data-i18n="qr_hint">1️⃣ Зробіть скріншот · 2️⃣ Роздрукуйте · 3️⃣ Наведіть камеру → покажіть долоню</span>
+                    </div>
+                    <div class="action-links">
+                        <button id="share-link" data-i18n="share">🔗 Поділитися</button>
+                        <button id="copy-link" data-i18n="copy">📋 Копіювати</button>
+                    </div>
+                </div>
+
+                <div class="setup-buttons" style="margin-top: 20px;">
+                    <button id="prev-2" data-i18n="back">← Назад</button>
+                    <button id="go-ar-btn" class="primary" data-i18n="preview_ar">👀 Запустити AR</button>
+                </div>
+            </div>
         </div>
     </div>
 
-    <!-- 📝 Метадані події -->
-    <div id="event-meta">
-        <input type="text" id="event-title" 
-               placeholder="📌 Назва події (напр. Захист робіт шкільного МАН)" 
-               maxlength="80" />
-        
-        <div style="display: flex; gap: 10px; max-width: 420px; width: 100%;">
-            <input type="date" id="event-date" />
-            <input type="time" id="event-time" />
-        </div>
-    </div>
-
-    <div class="toggle-box">
-        <input type="checkbox" id="chromakey-toggle" checked>
-        <label for="chromakey-toggle">🎨 Видалити зелений екран (ChromaKey)</label>
-    </div>
-
-    <input type="url" id="video-url" placeholder="🔗 Або вставте пряме посилання (.mp4)" aria-label="Посилання на відео" />
-    <input type="file" id="video-file-input" accept="video/mp4" style="display:none;" />
-    <button id="upload-video-btn" aria-label="Завантажити відео з пристрою">📁 Вибрати відео з телефону</button>
-    <p id="upload-status" role="status" aria-live="polite"></p>
-
-    <div class="setup-buttons">
-        <button id="go-ar-btn" class="primary">👀 Подивитися, що вийшло</button>
-        <button id="show-qr-btn">📱 Отримати QR-код для друку</button>
-    </div>
-
-    <div id="qrcode-wrapper">
-        <div id="qrcode-container"></div>
-        <p id="qrcode-author">SmartLessa AR 2026</p>
-        <div style="margin-top: 20px; text-align: center; font-size: 14px; line-height: 1.6; color: var(--text-secondary);">
-            <b>Що робити далі:</b><br>
-            1️⃣ Зробіть скріншот цього коду<br>
-            2️⃣ Роздрукуйте або покажіть на телефоні<br>
-            3️⃣ Наведіть камеру → покажіть долоню → дивіться магію! ✨
-        </div>
-    </div>
-    <div id="copy-link" style="display:none;">Скопіювати посилання</div>
+    <div class="footer">© <a href="https://github.com/lessa2332" target="_blank" rel="noopener">Олеся Бохонок | SmartLessa 2026</a></div>
 </div>
 
-<div class="footer">© <a href="https://github.com/lessa2332" target="_blank" rel="noopener">Олеся Бохонок | SmartLessa 2026</a></div>
-
-<div id="loading">
+<!-- ═════════ LOADING ═════════ -->
+<div id="loading" role="status" aria-live="polite">
     <div id="loading-title">AR STUDIO 2026</div>
     <div class="load-steps">
-        <div class="load-step" id="ls-model"><span class="si">AI</span><span>Завантаження моделі руки</span></div>
-        <div class="load-step" id="ls-cam"><span class="si">CAM</span><span>Ініціалізація камери</span></div>
-        <div class="load-step" id="ls-scene"><span class="si">3D</span><span>Формування голограми</span></div>
+        <div class="load-step" id="ls-model"><span class="si">AI</span><span data-i18n="load_model">Завантаження моделі руки</span></div>
+        <div class="load-step" id="ls-cam"><span class="si">CAM</span><span data-i18n="load_cam">Ініціалізація камери</span></div>
+        <div class="load-step" id="ls-scene"><span class="si">3D</span><span data-i18n="load_scene">Формування голограми</span></div>
     </div>
     <div class="pbwrap"><div class="pb" id="pb"></div></div>
 </div>
 
-<div class="top-bar">
+<!-- ═════════ AR OVERLAYS ═════════ -->
+<div class="top-bar" style="display:none;" id="ar-topbar">
     <button id="camera-toggle" aria-label="Перемкнути камеру">Камера</button>
     <button id="reset" aria-label="Скинути AR">Скинути</button>
 </div>
@@ -837,29 +893,161 @@
     // ═══════════ КОНФІГУРАЦІЯ ═══════════
     const WORKER_URL = 'https://ar-videoo.23lessa32.workers.dev';
 
+    // ═══════════ SAFE STORAGE ═══════════
+    const safeStorage = {
+        get(k) { try { return localStorage.getItem(k); } catch { return null; } },
+        set(k, v) { try { localStorage.setItem(k, v); } catch {} }
+    };
+
     // ═══════════ АНАЛІТИКА ═══════════
     function trackEvent(name, data = {}) {
         try { if (window.cfBeacon?.trackEvent) window.cfBeacon.trackEvent(name, data); } catch(e) {}
         try { if (typeof gtag === 'function') gtag('event', name, data); } catch(e) {}
     }
 
-    // ═══════════ АВТОМАТИЧНЕ ВИЗНАЧЕННЯ МОЖЛИВОСТЕЙ ПРИСТРОЮ ═══════════
+    // ═══════════ i18n ═══════════
+    const I18N = {
+        uk: {
+            h1: 'Генератор реальності',
+            author: 'Автор <b>Олеся Бохонок | SmartLessa</b>',
+            step1_title: 'Що покажемо?',
+            step1_sub: 'Завантажте MP4-відео (до 60 сек, до 50 МБ)',
+            privacy_bold: 'Безпека:',
+            privacy_text: 'Ваше відео залишається на вашому телефоні.',
+            upload_btn: '📁 Вибрати відео з телефону',
+            chroma: '🎨 Видалити зелений екран',
+            next: 'Далі →',
+            back: '← Назад',
+            step2_title: 'Підпишіть подію',
+            step2_sub: "Необов'язково — але гарно виглядає на QR-картці",
+            step3_title: 'Готово!',
+            step3_sub: 'Покажіть QR-код учням або запустіть AR-перегляд',
+            qr_hint: '1️⃣ Зробіть скріншот · 2️⃣ Роздрукуйте · 3️⃣ Наведіть камеру → покажіть долоню',
+            share: '🔗 Поділитися',
+            copy: '📋 Копіювати',
+            preview_ar: '👀 Запустити AR',
+            load_model: 'Завантаження моделі руки',
+            load_cam: 'Ініціалізація камери',
+            load_scene: 'Формування голограми',
+            err_mp4: '❌ Помилка: тільки файли .mp4',
+            err_size: '❌ Помилка: файл перевищує 50 МБ',
+            err_dur: '❌ Помилка: відео довше 1 хвилини',
+            check_dur: '⏳ Перевірка тривалості...',
+            uploading: '⏳ Завантажую... зачекайте',
+            upload_pct: (p) => `⏳ Завантаження: ${p}%`,
+            upload_done: '✅ Готово! Натисніть "Далі"',
+            upload_err: '❌ Помилка сервера.',
+            upload_invalid: '❌ Некоректна відповідь.',
+            upload_net: '❌ Помилка мережі.',
+            need_video: 'Завантажте відео або вставте валідне посилання.',
+            step_hand: 'Покажіть долоню',
+            step_hand_sub: 'Підніміть руку перед камерою',
+            step_ok: 'Покажіть жест OK',
+            step_ok_sub: "З'єднайте великий та вказівний пальці",
+            step1: 'КРОК 1',
+            step2: 'КРОК 2',
+            copy_done: '✅ Скопійовано!',
+            copied_fail: 'Не вдалося скопіювати',
+        },
+        en: {
+            h1: 'Reality Generator',
+            author: 'By <b>Olesya Bokhonok | SmartLessa</b>',
+            step1_title: 'What shall we show?',
+            step1_sub: 'Upload MP4 video (max 60 sec, 50 MB)',
+            privacy_bold: 'Privacy:',
+            privacy_text: 'Your video stays on your phone.',
+            upload_btn: '📁 Choose video from phone',
+            chroma: '🎨 Remove green screen',
+            next: 'Next →',
+            back: '← Back',
+            step2_title: 'Label your event',
+            step2_sub: 'Optional — looks great on the QR card',
+            step3_title: 'Done!',
+            step3_sub: 'Show the QR to students or launch AR preview',
+            qr_hint: '1️⃣ Screenshot · 2️⃣ Print · 3️⃣ Point camera → show palm',
+            share: '🔗 Share',
+            copy: '📋 Copy',
+            preview_ar: '👀 Launch AR',
+            load_model: 'Loading hand model',
+            load_cam: 'Initializing camera',
+            load_scene: 'Building hologram',
+            err_mp4: '❌ Error: only .mp4 files',
+            err_size: '❌ Error: file exceeds 50 MB',
+            err_dur: '❌ Error: video longer than 1 minute',
+            check_dur: '⏳ Checking duration...',
+            uploading: '⏳ Uploading... please wait',
+            upload_pct: (p) => `⏳ Uploading: ${p}%`,
+            upload_done: '✅ Done! Tap "Next"',
+            upload_err: '❌ Server error.',
+            upload_invalid: '❌ Invalid response.',
+            upload_net: '❌ Network error.',
+            need_video: 'Upload a video or paste a valid link.',
+            step_hand: 'Show your palm',
+            step_hand_sub: 'Raise your hand in front of camera',
+            step_ok: 'Show OK gesture',
+            step_ok_sub: 'Connect thumb and index finger',
+            step1: 'STEP 1',
+            step2: 'STEP 2',
+            copy_done: '✅ Copied!',
+            copied_fail: 'Copy failed',
+        }
+    };
+    const LANG = (navigator.language || 'uk').toLowerCase().startsWith('uk') ? 'uk' : 'en';
+    const t = (key, arg) => {
+        const val = I18N[LANG][key] ?? I18N.uk[key] ?? key;
+        return typeof val === 'function' ? val(arg) : val;
+    };
+    function applyI18n() {
+        document.querySelectorAll('[data-i18n]').forEach(el => {
+            const key = el.getAttribute('data-i18n');
+            const val = t(key);
+            if (typeof val === 'string') el.innerHTML = val;
+        });
+        document.documentElement.lang = LANG;
+    }
+
+    // ═══════════ АВТОМАТИЧНЕ ВИЗНАЧЕННЯ МОЖЛИВОСТЕЙ ═══════════
     function getDeviceCapabilities() {
         const ua = navigator.userAgent;
         const isAndroid = /Android/i.test(ua);
         const isIOS = /iPhone|iPad|iPod/i.test(ua);
         let androidVersion = 0;
         if (isAndroid) { const m = ua.match(/Android\s([0-9.]+)/); if (m) androidVersion = parseFloat(m[1]); }
+
         let webgl2Support = false;
         try { const c = document.createElement('canvas'); webgl2Support = !!c.getContext('webgl2'); } catch(e) {}
-        let memoryLimit = ('deviceMemory' in navigator) ? navigator.deviceMemory < 2 : false;
+
+        // navigator.deviceMemory не працює на Safari — обережно
+        let lowMemory = false;
+        try {
+            if ('deviceMemory' in navigator && typeof navigator.deviceMemory === 'number') {
+                lowMemory = navigator.deviceMemory < 2;
+            }
+        } catch(e) {}
+
         let useSimpleDetection = false, useGPU = false, cameraQuality = 'high';
-        if (isAndroid && androidVersion > 0 && androidVersion <= 8) { useSimpleDetection = true; cameraQuality = 'low'; }
-        else if (isAndroid && androidVersion > 0 && androidVersion <= 10 && !webgl2Support) { useSimpleDetection = true; cameraQuality = 'medium'; }
-        else if (memoryLimit) { useSimpleDetection = true; cameraQuality = 'low'; }
-        else if (isIOS && /iPhone OS ([0-9_]+)/.test(ua)) { const m = ua.match(/iPhone OS ([0-9_]+)/); if (m && parseFloat(m[1].replace(/_/g, '.')) < 13) { useSimpleDetection = true; cameraQuality = 'low'; } }
-        else { useGPU = webgl2Support && !memoryLimit; cameraQuality = webgl2Support ? 'high' : 'medium'; }
-        return { useSimpleDetection, useGPU, cameraQuality, androidVersion, isAndroid, isIOS, webgl2Support, memoryLimit };
+
+        if (isAndroid && androidVersion > 0 && androidVersion <= 8) {
+            useSimpleDetection = true; cameraQuality = 'low';
+        } else if (isAndroid && androidVersion > 0 && androidVersion <= 10 && !webgl2Support) {
+            useSimpleDetection = true; cameraQuality = 'medium';
+        } else if (lowMemory) {
+            useSimpleDetection = true; cameraQuality = 'low';
+        } else if (isIOS) {
+            const m = ua.match(/OS ([0-9_]+)/);
+            if (m && parseFloat(m[1].replace(/_/g, '.')) < 13) {
+                useSimpleDetection = true; cameraQuality = 'low';
+            }
+        } else {
+            useGPU = webgl2Support && !lowMemory;
+            cameraQuality = webgl2Support ? 'high' : 'medium';
+        }
+
+        // Reduced motion
+        let prefersReducedMotion = false;
+        try { prefersReducedMotion = matchMedia('(prefers-reduced-motion: reduce)').matches; } catch(e) {}
+
+        return { useSimpleDetection, useGPU, cameraQuality, androidVersion, isAndroid, isIOS, webgl2Support, lowMemory, prefersReducedMotion };
     }
 
     const deviceCap = getDeviceCapabilities();
@@ -867,12 +1055,15 @@
     // ═══════════ СЕРВІСНІ ФУНКЦІЇ ═══════════
     function sanitizeUrl(str) {
         if (!str || typeof str !== 'string') return '';
-        try { const u = new URL(str.trim(), window.location.href); return (u.protocol === 'http:' || u.protocol === 'https:') ? u.href : ''; } catch { return ''; }
+        try {
+            const u = new URL(str.trim(), window.location.href);
+            return (u.protocol === 'http:' || u.protocol === 'https:') ? u.href : '';
+        } catch { return ''; }
     }
     function getParams() {
         const p = new URLSearchParams(window.location.search);
-        return { 
-            video: sanitizeUrl(p.get('video')), 
+        return {
+            video: sanitizeUrl(p.get('video')),
             chroma: p.get('chroma') !== '0',
             title: decodeURIComponent(p.get('title') || ''),
             date: p.get('date') || '',
@@ -881,422 +1072,865 @@
     }
     const params = getParams();
 
-    // ═══════════ ФОРМАТУВАННЯ ДАТИ ═══════════
     function formatCaptionDate(dateStr, timeStr) {
         if (!dateStr) return '';
         try {
             const d = new Date(dateStr + (timeStr ? 'T' + timeStr : ''));
-            return d.toLocaleDateString('uk-UA', { 
-                day: '2-digit', month: 'long', year: 'numeric' 
+            return d.toLocaleDateString(LANG === 'uk' ? 'uk-UA' : 'en-US', {
+                day: '2-digit', month: 'long', year: 'numeric'
             }) + (timeStr ? ' • ' + timeStr : '');
         } catch { return dateStr + (timeStr ? ' • ' + timeStr : ''); }
     }
 
-    // ═══════════ РЕЖИМ НАЛАШТУВАННЯ ═══════════
-    if (!params.video) {
-        document.getElementById('setup-screen').style.display = 'flex';
+    // ═══════════ CLEANUP MANAGER ═══════════
+    const cleanup = {
+        tasks: [],
+        add(fn) { this.tasks.push(fn); },
+        run() { this.tasks.forEach(fn => { try { fn(); } catch(e) {} }); this.tasks = []; }
+    };
+    window.addEventListener('pagehide', () => cleanup.run());
+
+    // ═══════════ SETUP MODE ═══════════
+    function enterSetupMode() {
+        applyI18n();
+        const setupScreen = document.getElementById('setup-screen');
+        setupScreen.style.display = 'flex';
+
+        const steps = setupScreen.querySelectorAll('.wizard-step');
+        const dots = setupScreen.querySelectorAll('.wizard-dot');
+        let currentStep = 0;
+
+        function goStep(n) {
+            currentStep = Math.max(0, Math.min(2, n));
+            steps.forEach((s, i) => s.classList.toggle('active', i === currentStep));
+            dots.forEach((d, i) => {
+                d.classList.toggle('active', i === currentStep);
+                d.classList.toggle('done', i < currentStep);
+            });
+            if (currentStep === 2) refreshQr();
+            setupScreen.scrollTop = 0;
+        }
 
         const urlInput = document.getElementById('video-url');
-        const goARBtn = document.getElementById('go-ar-btn');
-        const showQrBtn = document.getElementById('show-qr-btn');
-        const qrWrapper = document.getElementById('qrcode-wrapper');
-        const qrContainer = document.getElementById('qrcode-container');
-        const copyLink = document.getElementById('copy-link');
         const uploadBtn = document.getElementById('upload-video-btn');
         const fileInput = document.getElementById('video-file-input');
         const uploadStatus = document.getElementById('upload-status');
         const chromaToggle = document.getElementById('chromakey-toggle');
-        
-        // 📅 Метадані події
         const titleInput = document.getElementById('event-title');
         const dateInput = document.getElementById('event-date');
         const timeInput = document.getElementById('event-time');
-        
-        // Автоматичне заповнення поточною датою і часом
+        const qrWrapper = document.getElementById('qrcode-wrapper');
+        const qrContainer = document.getElementById('qrcode-container');
+        const qrMetaBlock = document.getElementById('qr-meta-block');
+
+        // Автозаповнення
         const now = new Date();
-        dateInput.value = now.toISOString().split('T')[0];
-        timeInput.value = now.toTimeString().slice(0, 5);
-        
-        // Збереження останньої назви в localStorage
-        const savedTitle = localStorage.getItem('lastEventTitle');
+        try {
+            dateInput.value = now.toISOString().split('T')[0];
+            timeInput.value = now.toTimeString().slice(0, 5);
+        } catch(e) {}
+        const savedTitle = safeStorage.get('lastEventTitle');
         if (savedTitle) titleInput.value = savedTitle;
-        titleInput.addEventListener('input', () => localStorage.setItem('lastEventTitle', titleInput.value));
-        
+        titleInput.addEventListener('input', () => safeStorage.set('lastEventTitle', titleInput.value));
+
         let currentQrUrl = '';
 
-        function updateQR(url) {
-            qrContainer.innerHTML = '';
-            if (url) {
-                try { 
-                    new QRCode(qrContainer, { text: url, width: 180, height: 180, colorDark: "#0B0B12", colorLight: "#FFFFFF" }); 
-                    qrWrapper.style.display = 'block'; 
-                    copyLink.style.display = 'block'; 
-                    currentQrUrl = url; 
-                    
-                    // 📜 Додаємо підпис на картку
-                    const metaBlock = document.getElementById('qr-meta-block');
-                    if (metaBlock) metaBlock.remove();
-                    
-                    const meta = document.createElement('div');
-                    meta.id = 'qr-meta-block';
-                    meta.style.cssText = 'margin-top: 12px; font-size: 11px; color: #333; line-height: 1.4; text-align: center;';
-                    
-                    let metaText = '';
-                    if (titleInput.value.trim()) metaText += `<div style="font-weight: 600; font-size: 13px; margin-bottom: 4px;">${titleInput.value.trim()}</div>`;
-                    if (dateInput.value) metaText += `<div>${formatCaptionDate(dateInput.value, timeInput.value)}</div>`;
-                    
-                    meta.innerHTML = metaText;
-                    qrWrapper.appendChild(meta);
-                    
-                    trackEvent('qr_generated'); 
-                } catch(e) {}
-            } else { 
-                qrWrapper.style.display = 'none'; 
-                copyLink.style.display = 'none'; 
-            }
-        }
-
-        uploadBtn.addEventListener('click', () => fileInput.click());
-        fileInput.addEventListener('change', (e) => {
-            const file = e.target.files[0];
-            if (!file || !file.name.toLowerCase().endsWith('.mp4')) { 
-                uploadStatus.textContent = '❌ Помилка: тільки файли .mp4'; 
-                uploadStatus.className = 'error';
-                return; 
-            }
-            if (file.size > 50 * 1024 * 1024) { 
-                uploadStatus.textContent = '❌ Помилка: файл перевищує 50 МБ'; 
-                uploadStatus.className = 'error';
-                return; 
-            }
-            uploadStatus.textContent = '⏳ Перевірка тривалості...';
-            uploadStatus.className = '';
-            const tv = document.createElement('video'); tv.preload = 'metadata'; tv.src = URL.createObjectURL(file);
-            tv.onloadedmetadata = () => {
-                if (tv.duration > 65) { 
-                    uploadStatus.textContent = '❌ Помилка: відео довше 1 хвилини'; 
-                    uploadStatus.className = 'error';
-                    URL.revokeObjectURL(tv.src); 
-                    return; 
-                }
-                uploadStatus.textContent = '⏳ Завантажую... зачекайте';
-                uploadStatus.className = '';
-                const xhr = new XMLHttpRequest(); const fd = new FormData(); fd.append('file', file);
-                xhr.upload.onprogress = (ev) => { if (ev.lengthComputable) uploadStatus.textContent = `⏳ Завантаження: ${Math.round((ev.loaded / ev.total) * 100)}%`; };
-                xhr.onload = () => {
-                    try { 
-                        const d = JSON.parse(xhr.responseText); 
-                        if (d.url) { 
-                            urlInput.value = d.url; 
-                            uploadStatus.textContent = '✅ Готово! Тепер натисніть "Отримати QR-код"'; 
-                            uploadStatus.className = 'success';
-                            trackEvent('video_uploaded', { size: file.size }); 
-                        } else {
-                            uploadStatus.textContent = '❌ Помилка сервера.';
-                            uploadStatus.className = 'error';
-                        }
-                    } catch { 
-                        uploadStatus.textContent = '❌ Некоректна відповідь.'; 
-                        uploadStatus.className = 'error';
-                    }
-                };
-                xhr.onerror = () => { 
-                    uploadStatus.textContent = '❌ Помилка мережі.'; 
-                    uploadStatus.className = 'error';
-                };
-                xhr.open('POST', WORKER_URL); xhr.send(fd);
-            };
-        });
-
         function buildARLink(rawUrl) {
-            const clean = sanitizeUrl(rawUrl); 
+            const clean = sanitizeUrl(rawUrl);
             if (!clean) return '';
-            
             const title = encodeURIComponent(titleInput.value.trim() || '');
             const date = encodeURIComponent(dateInput.value || '');
             const time = encodeURIComponent(timeInput.value || '');
-            
             return `${window.location.origin}${window.location.pathname}?video=${encodeURIComponent(clean)}&chroma=${chromaToggle.checked ? '1' : '0'}&title=${title}&date=${date}&time=${time}`;
         }
 
-        goARBtn.addEventListener('click', () => { 
-            const t = buildARLink(urlInput.value.trim()); 
-            if (!t) { 
-                alert('Завантажте відео або вставте валідне посилання.'); 
-                return; 
-            } 
-            window.location.href = t; 
+        function refreshQr() {
+            const t2 = buildARLink(urlInput.value.trim());
+            if (!t2) {
+                qrWrapper.style.display = 'none';
+                return;
+            }
+            try {
+                qrContainer.innerHTML = '';
+                new QRCode(qrContainer, {
+                    text: t2, width: 180, height: 180,
+                    colorDark: "#0B0B12", colorLight: "#FFFFFF",
+                    correctLevel: QRCode.CorrectLevel.M
+                });
+                qrWrapper.style.display = 'block';
+                currentQrUrl = t2;
+
+                let metaText = '';
+                if (titleInput.value.trim()) metaText += `<div class="qr-title">${escapeHtml(titleInput.value.trim())}</div>`;
+                if (dateInput.value) metaText += `<div>${formatCaptionDate(dateInput.value, timeInput.value)}</div>`;
+                qrMetaBlock.innerHTML = metaText;
+
+                trackEvent('qr_generated');
+            } catch(e) { qrWrapper.style.display = 'none'; }
+        }
+
+        function escapeHtml(s) {
+            return s.replace(/[&<>"']/g, c => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c]));
+        }
+
+        // Кнопки wizard
+        document.getElementById('next-1').addEventListener('click', () => {
+            if (!sanitizeUrl(urlInput.value.trim())) {
+                alert(t('need_video'));
+                return;
+            }
+            goStep(1);
         });
-        showQrBtn.addEventListener('click', () => { 
-            const t = buildARLink(urlInput.value.trim()); 
-            if (!t) { 
-                alert('Спочатку завантажте або вставте відео.'); 
-                return; 
-            } 
-            updateQR(t); 
+        document.getElementById('prev-1').addEventListener('click', () => goStep(0));
+        document.getElementById('next-2').addEventListener('click', () => goStep(2));
+        document.getElementById('prev-2').addEventListener('click', () => goStep(1));
+        document.getElementById('go-ar-btn').addEventListener('click', () => {
+            const link = buildARLink(urlInput.value.trim());
+            if (!link) { alert(t('need_video')); return; }
+            trackEvent('ar_launched');
+            window.location.href = link;
         });
-        copyLink.addEventListener('click', () => { 
-            if (currentQrUrl && navigator.clipboard?.writeText) {
-                navigator.clipboard.writeText(currentQrUrl).then(() => {
-                    copyLink.textContent = '✅ Скопійовано!';
-                    setTimeout(() => copyLink.textContent = 'Скопіювати посилання', 2000);
-                }).catch(() => {});
+
+        // Upload
+        uploadBtn.addEventListener('click', () => fileInput.click());
+        fileInput.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+            if (!file.name.toLowerCase().endsWith('.mp4')) {
+                uploadStatus.textContent = t('err_mp4');
+                uploadStatus.className = 'error';
+                return;
+            }
+            if (file.size > 50 * 1024 * 1024) {
+                uploadStatus.textContent = t('err_size');
+                uploadStatus.className = 'error';
+                return;
+            }
+            uploadStatus.textContent = t('check_dur');
+            uploadStatus.className = '';
+            const tv = document.createElement('video');
+            tv.preload = 'metadata';
+            const objUrl = URL.createObjectURL(file);
+            tv.src = objUrl;
+            tv.onloadedmetadata = () => {
+                URL.revokeObjectURL(objUrl); // ← revoke одразу
+                if (tv.duration > 65) {
+                    uploadStatus.textContent = t('err_dur');
+                    uploadStatus.className = 'error';
+                    return;
+                }
+                uploadStatus.textContent = t('uploading');
+                uploadStatus.className = '';
+                const xhr = new XMLHttpRequest();
+                const fd = new FormData();
+                fd.append('file', file);
+                xhr.upload.onprogress = (ev) => {
+                    if (ev.lengthComputable) {
+                        uploadStatus.textContent = t('upload_pct', Math.round((ev.loaded / ev.total) * 100));
+                    }
+                };
+                xhr.onload = () => {
+                    try {
+                        const d = JSON.parse(xhr.responseText);
+                        if (d.url) {
+                            urlInput.value = d.url;
+                            uploadStatus.textContent = t('upload_done');
+                            uploadStatus.className = 'success';
+                            trackEvent('video_uploaded', { size: file.size });
+                        } else {
+                            uploadStatus.textContent = t('upload_err');
+                            uploadStatus.className = 'error';
+                        }
+                    } catch {
+                        uploadStatus.textContent = t('upload_invalid');
+                        uploadStatus.className = 'error';
+                    }
+                };
+                xhr.onerror = () => {
+                    uploadStatus.textContent = t('upload_net');
+                    uploadStatus.className = 'error';
+                };
+                xhr.open('POST', WORKER_URL);
+                xhr.send(fd);
+            };
+        });
+
+        // Copy / Share
+        document.getElementById('copy-link').addEventListener('click', () => {
+            if (!currentQrUrl) return;
+            const btn = document.getElementById('copy-link');
+            if (navigator.clipboard?.writeText) {
+                navigator.clipboard.writeText(currentQrUrl)
+                    .then(() => {
+                        btn.textContent = t('copy_done');
+                        setTimeout(() => btn.textContent = t('copy'), 2000);
+                    })
+                    .catch(() => {});
+            }
+        });
+        document.getElementById('share-link').addEventListener('click', async () => {
+            if (!currentQrUrl) return;
+            if (navigator.share) {
+                try {
+                    await navigator.share({
+                        title: 'AR Studio SmartLessa',
+                        text: titleInput.value.trim() || 'AR Experience',
+                        url: currentQrUrl
+                    });
+                    trackEvent('share_used');
+                } catch(e) {}
+            } else {
+                document.getElementById('copy-link').click();
             }
         });
 
-        throw new Error('Setup Mode');
+        goStep(0);
+        trackEvent('setup_opened');
     }
 
-    // ═══════════ AR РЕЖИМ ═══════════
-    document.getElementById('setup-screen').style.display = 'none';
-    document.getElementById('ar-author').style.display = 'block';
-    trackEvent('ar_started');
+    // ═══════════ AR MODE ═══════════
+    let rafId = null;
+    let heartbeatId = null;
 
-    const debugInfo = document.getElementById('debug-info');
-    const CFG = {
-        hologramOffsetY: 0.35, hologramScale: deviceCap.useSimpleDetection ? 0.9 : 1.1,
-        videoSrc: params.video, chromaEnabled: params.chroma,
-        particleCount: deviceCap.useSimpleDetection ? 8 : 20,
-        detectionInterval: deviceCap.useSimpleDetection ? 80 : 33,
-        cameraQuality: deviceCap.cameraQuality
-    };
-    debugInfo.innerHTML = `<span class="status-dot" style="background:#C9A96E;"></span> Режим: ${deviceCap.useSimpleDetection ? 'Оптимізований' : 'Повний'}`;
+    function initARMode() {
+        applyI18n();
+        document.getElementById('setup-screen').style.display = 'none';
+        document.getElementById('ar-author').style.display = 'block';
+        document.getElementById('ar-topbar').style.display = 'flex';
+        trackEvent('ar_started');
 
-    const videoEl = document.getElementById('video'), canvasEl = document.getElementById('canvas');
-    const loadingEl = document.getElementById('loading'), autoplayOverlay = document.getElementById('autoplay-overlay');
-    const autoplayBtn = document.getElementById('autoplay-btn'), resetBtn = document.getElementById('reset');
-    const cameraToggleBtn = document.getElementById('camera-toggle');
-    const pauseBtn = document.getElementById('pause-btn'), restartBtn = document.getElementById('restart-btn');
-    const videoControls = document.getElementById('video-controls');
-    const stepEmoji = document.getElementById('step-emoji'), stepNum = document.getElementById('step-num');
-    const stepTitle = document.getElementById('step-title'), stepSub = document.getElementById('step-sub');
-    const onboardingEl = document.getElementById('onboarding');
+        const debugInfo = document.getElementById('debug-info');
+        const CFG = {
+            hologramOffsetY: 0.35,
+            hologramScale: deviceCap.useSimpleDetection ? 0.9 : 1.1,
+            videoSrc: params.video,
+            chromaEnabled: params.chroma,
+            particleCount: deviceCap.prefersReducedMotion ? 0 : (deviceCap.useSimpleDetection ? 8 : 20),
+            detectionInterval: deviceCap.useSimpleDetection ? 80 : 33,
+            cameraQuality: deviceCap.cameraQuality
+        };
+        debugInfo.innerHTML = `<span class="status-dot"></span> ${deviceCap.useSimpleDetection ? 'Optimized' : 'Full'} mode`;
 
-    function showStep(s) {
-        if (s === 0) {
-            stepEmoji.textContent = '🖐️';
-            stepNum.textContent = 'КРОК 1';
-            stepTitle.textContent = 'Покажіть долоню';
-            stepSub.textContent = 'Підніміть руку перед камерою';
-        } else if (s === 1) {
-            stepEmoji.textContent = '👌';
-            stepNum.textContent = 'КРОК 2';
-            stepTitle.textContent = 'Покажіть жест OK';
-            stepSub.textContent = 'З'єднайте великий та вказівний пальці';
-        } else {
-            onboardingEl.style.display = 'none';
+        const videoEl = document.getElementById('video');
+        const canvasEl = document.getElementById('canvas');
+        const loadingEl = document.getElementById('loading');
+        const autoplayOverlay = document.getElementById('autoplay-overlay');
+        const autoplayBtn = document.getElementById('autoplay-btn');
+        const resetBtn = document.getElementById('reset');
+        const cameraToggleBtn = document.getElementById('camera-toggle');
+        const pauseBtn = document.getElementById('pause-btn');
+        const restartBtn = document.getElementById('restart-btn');
+        const videoControls = document.getElementById('video-controls');
+        const stepEmoji = document.getElementById('step-emoji');
+        const stepNum = document.getElementById('step-num');
+        const stepTitle = document.getElementById('step-title');
+        const stepSub = document.getElementById('step-sub');
+        const onboardingEl = document.getElementById('onboarding');
+
+        function showStep(s) {
+            if (s === 0) {
+                onboardingEl.classList.add('visible');
+                stepEmoji.textContent = '🖐️';
+                stepNum.textContent = t('step1');
+                stepTitle.textContent = t('step_hand');
+                stepSub.textContent = t('step_hand_sub');
+            } else if (s === 1) {
+                onboardingEl.classList.add('visible');
+                stepEmoji.textContent = '👌';
+                stepNum.textContent = t('step2');
+                stepTitle.textContent = t('step_ok');
+                stepSub.textContent = t('step_ok_sub');
+            } else {
+                onboardingEl.classList.remove('visible');
+            }
         }
-    }
 
-    const scene = new THREE.Scene(), cam3 = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
-    cam3.position.set(0, 0, 3.2);
-    const renderer = new THREE.WebGLRenderer({ canvas: canvasEl, alpha: true, antialias: !deviceCap.useSimpleDetection, powerPreference: 'high-performance', stencil: false, depth: false });
-    renderer.setClearColor(0, 0); renderer.setPixelRatio(deviceCap.useSimpleDetection ? Math.min(window.devicePixelRatio, 1.2) : Math.min(window.devicePixelRatio, 1.5)); renderer.setSize(window.innerWidth, window.innerHeight);
-    function onWindowResize() { cam3.aspect = window.innerWidth / window.innerHeight; cam3.updateProjectionMatrix(); renderer.setSize(window.innerWidth, window.innerHeight); }
-    window.addEventListener('resize', onWindowResize);
+        // ── THREE.JS SCENE ──
+        const scene = new THREE.Scene();
+        const cam3 = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
+        cam3.position.set(0, 0, 3.2);
 
-    const hologramGroup = new THREE.Group(); scene.add(hologramGroup);
-    const hVideo = document.createElement('video'); hVideo.setAttribute('playsinline', ''); hVideo.setAttribute('crossorigin', 'anonymous');
-    hVideo.muted = true; hVideo.loop = false; hVideo.preload = 'auto'; hVideo.src = CFG.videoSrc; hVideo.load();
-    const vTex = new THREE.VideoTexture(hVideo); vTex.minFilter = THREE.LinearFilter; vTex.magFilter = THREE.LinearFilter; vTex.generateMipmaps = false;
+        // Адаптивний DPR
+        function getOptimalDPR() {
+            if (deviceCap.useSimpleDetection) return 1;
+            const dpr = window.devicePixelRatio || 1;
+            const maxPixels = 1920 * 1080;
+            const screenPixels = window.innerWidth * window.innerHeight * dpr * dpr;
+            if (screenPixels > maxPixels) {
+                return Math.max(1, Math.sqrt(maxPixels / (window.innerWidth * window.innerHeight)));
+            }
+            return Math.min(dpr, 2.5);
+        }
 
-    const vShader = `varying vec2 vUv; void main(){ vUv = uv; gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }`;
-    const fShader = `
-    uniform sampler2D uTex; uniform float uPlaying; uniform float uChroma; varying vec2 vUv;
-    vec3 rgb2hsv(vec3 c){ vec4 K=vec4(0.,-1./3.,2./3.,-1.); vec4 p=mix(vec4(c.bg,K.wz),vec4(c.gb,K.xy),step(c.b,c.g)); vec4 q=mix(vec4(p.xyw,c.r),vec4(c.r,p.yzx),step(p.x,c.r)); float d=q.x-min(q.w,q.y); float e=1e-10; return vec3(abs(q.z+(q.w-q.y)/(6.*d+e)),d/(q.x+e),q.x); }
-    void main(){ if(uPlaying < 0.5) discard; vec4 col = texture2D(uTex, vUv); if(uChroma > 0.5){ vec3 hsv = rgb2hsv(col.rgb); float hDeg = hsv.x * 360.0; if(hDeg > 75.0 && hDeg < 170.0 && hsv.y > 0.24 && hsv.z > 0.08) discard; float edgeMask = 1.0; if(hDeg > 70.0 && hDeg < 175.0 && hsv.y > 0.14 && hsv.z > 0.06){ edgeMask = 1.0 - smoothstep(0.14, 0.28, hsv.y); if(edgeMask < 0.05) discard; } gl_FragColor = vec4(col.rgb, edgeMask); } else { gl_FragColor = col; } }`;
+        const renderer = new THREE.WebGLRenderer({
+            canvas: canvasEl, alpha: true,
+            antialias: !deviceCap.useSimpleDetection,
+            powerPreference: 'high-performance',
+            stencil: false, depth: false
+        });
+        renderer.setClearColor(0, 0);
+        renderer.setPixelRatio(getOptimalDPR());
+        renderer.setSize(window.innerWidth, window.innerHeight);
 
-    const hMat = new THREE.ShaderMaterial({ uniforms: { uTex: { value: vTex }, uPlaying: { value: 0 }, uChroma: { value: CFG.chromaEnabled ? 1.0 : 0.0 } }, vertexShader: vShader, fragmentShader: fShader, transparent: true, side: THREE.DoubleSide, depthWrite: false });
-    const hPlane = new THREE.Mesh(new THREE.PlaneGeometry(CFG.hologramScale, CFG.hologramScale * .75), hMat); hPlane.position.y = CFG.hologramOffsetY; hologramGroup.add(hPlane);
-    hVideo.addEventListener('loadedmetadata', () => { const asp = hVideo.videoWidth / hVideo.videoHeight || 1.33; hPlane.scale.set(CFG.hologramScale, CFG.hologramScale / asp, 1); });
+        function onWindowResize() {
+            cam3.aspect = window.innerWidth / window.innerHeight;
+            cam3.updateProjectionMatrix();
+            renderer.setPixelRatio(getOptimalDPR());
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        }
+        window.addEventListener('resize', onWindowResize);
+        cleanup.add(() => window.removeEventListener('resize', onWindowResize));
 
-    const particles = new THREE.Group(); hologramGroup.add(particles);
-    const pGeo = new THREE.SphereGeometry(deviceCap.useSimpleDetection ? 0.01 : 0.008, 4, 4);
-    const pMat = new THREE.MeshStandardMaterial({ color: 0xC9A96E, emissive: 0x8C6E3F, emissiveIntensity: deviceCap.useSimpleDetection ? 0.2 : 0.3, roughness: 0.6, metalness: 0.4 });
-    for (let i = 0; i < CFG.particleCount; i++) { const p = new THREE.Mesh(pGeo, pMat); p.userData = { angle: (i / CFG.particleCount) * Math.PI * 2, radius: 0.65, speed: 0.3 + Math.random() * 0.4 }; particles.add(p); }
+        // ── Hologram ──
+        const hologramGroup = new THREE.Group();
+        scene.add(hologramGroup);
 
-    let videoPlayed = false, hologramActive = false, isPaused = false;
-    function updatePauseButton() { pauseBtn.textContent = isPaused ? 'Продовжити' : 'Пауза'; }
-    pauseBtn.addEventListener('click', () => { if (!videoPlayed) return; if (isPaused) { hVideo.play().catch(() => {}); hMat.uniforms.uPlaying.value = 1; isPaused = false; trackEvent('video_resumed'); } else { hVideo.pause(); hMat.uniforms.uPlaying.value = 0; isPaused = true; trackEvent('video_paused'); } updatePauseButton(); });
-    restartBtn.addEventListener('click', () => { hVideo.currentTime = 0; if (isPaused) { isPaused = false; updatePauseButton(); } hVideo.play().catch(() => {}); hMat.uniforms.uPlaying.value = 1; videoPlayed = true; trackEvent('video_restarted'); });
-    function resetVideoState() { videoPlayed = false; isPaused = false; hVideo.pause(); hVideo.currentTime = 0; hMat.uniforms.uPlaying.value = 0; autoplayOverlay.classList.remove('visible'); videoControls.style.display = 'none'; updatePauseButton(); }
-    hVideo.addEventListener('ended', () => { if (!hologramActive) return; hMat.uniforms.uPlaying.value = 0; isPaused = false; updatePauseButton(); trackEvent('video_ended'); });
-    autoplayBtn.addEventListener('click', () => { autoplayOverlay.classList.remove('visible'); hVideo.muted = false; hVideo.play().then(() => { videoPlayed = true; hMat.uniforms.uPlaying.value = 1; videoControls.style.display = 'flex'; debugInfo.innerHTML = '<span class="status-dot" style="background:#C9A96E;"></span> Відео відтворюється'; }).catch(() => { hVideo.muted = true; hVideo.play().then(() => { videoPlayed = true; hMat.uniforms.uPlaying.value = 1; videoControls.style.display = 'flex'; debugInfo.innerHTML = '<span class="status-dot" style="background:#C9A96E;"></span> Відео (без звуку)'; }).catch(() => {}); }); });
-    function tryAutoplay() { hVideo.muted = false; hVideo.play().then(() => { videoPlayed = true; hMat.uniforms.uPlaying.value = 1; videoControls.style.display = 'flex'; debugInfo.innerHTML = '<span class="status-dot" style="background:#C9A96E;"></span> Відео відтворюється'; }).catch(() => { hVideo.muted = true; hVideo.play().then(() => { videoPlayed = true; hMat.uniforms.uPlaying.value = 1; videoControls.style.display = 'flex'; debugInfo.innerHTML = '<span class="status-dot" style="background:#C9A96E;"></span> Відео (без звуку)'; }).catch(() => {}); autoplayOverlay.classList.add('visible'); }); }
-    function activateHologram() { if (hologramActive || videoPlayed) return; hologramActive = true; hologramGroup.visible = true; showStep(2); if ('vibrate' in navigator) navigator.vibrate(100); debugInfo.innerHTML = '<span class="status-dot" style="background:#C9A96E;"></span> Голограма активована'; trackEvent('hologram_activated'); tryAutoplay(); }
+        const hVideo = document.createElement('video');
+        hVideo.setAttribute('playsinline', '');
+        hVideo.setAttribute('crossorigin', 'anonymous');
+        hVideo.muted = true;
+        hVideo.loop = false;
+        hVideo.preload = 'auto';
+        hVideo.src = CFG.videoSrc;
+        hVideo.load();
 
-    let facingMode = 'user';
-    function updateVideoMirror() { videoEl.style.transform = facingMode === 'user' ? 'scaleX(-1)' : 'none'; }
-    function getCameraConstraints() { const q = CFG.cameraQuality; let w, h; switch(q) { case 'low': w=240; h=180; break; case 'medium': w=320; h=240; break; default: w=480; h=360; } return { video: { facingMode, width: { ideal: w, max: w*1.5 }, height: { ideal: h, max: h*1.5 } } }; }
+        const vTex = new THREE.VideoTexture(hVideo);
+        vTex.minFilter = THREE.LinearFilter;
+        vTex.magFilter = THREE.LinearFilter;
+        vTex.generateMipmaps = false;
 
-    async function startCamera() {
-        document.getElementById('ls-cam').classList.add('active');
-        if (videoEl.srcObject) { videoEl.srcObject.getTracks().forEach(t => t.stop()); videoEl.srcObject = null; }
-        if (!navigator.mediaDevices?.getUserMedia) { stepSub.textContent = 'Камера недоступна'; return false; }
-        const tryC = async c => { const s = await navigator.mediaDevices.getUserMedia(c); videoEl.srcObject = s; await videoEl.play(); return s; };
-        try { await tryC(getCameraConstraints()); } catch(e) { try { await tryC({ video: { facingMode } }); } catch { stepSub.textContent = 'Доступ до камери заборонено'; return false; } }
-        await new Promise(r => { if (videoEl.readyState >= 2) r(); else videoEl.addEventListener('loadedmetadata', r, { once: true }); });
-        onWindowResize(); document.getElementById('ls-cam').classList.replace('active', 'done'); setPb(80); updateVideoMirror();
-        debugInfo.innerHTML = `<span class="status-dot" style="background:#C9A96E;"></span> Камера готова (${CFG.cameraQuality})`; return true;
-    }
+        const vShader = `varying vec2 vUv; void main(){ vUv = uv; gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }`;
+        const fShader = `
+        uniform sampler2D uTex; uniform float uPlaying; uniform float uChroma; varying vec2 vUv;
+        vec3 rgb2hsv(vec3 c){
+            vec4 K=vec4(0.,-1./3.,2./3.,-1.);
+            vec4 p=mix(vec4(c.bg,K.wz),vec4(c.gb,K.xy),step(c.b,c.g));
+            vec4 q=mix(vec4(p.xyw,c.r),vec4(c.r,p.yzx),step(p.x,c.r));
+            float d=q.x-min(q.w,q.y); float e=1e-10;
+            return vec3(abs(q.z+(q.w-q.y)/(6.*d+e)),d/(q.x+e),q.x);
+        }
+        void main(){
+            if(uPlaying < 0.5) discard;
+            vec4 col = texture2D(uTex, vUv);
+            if(uChroma > 0.5){
+                vec3 hsv = rgb2hsv(col.rgb);
+                float hDeg = hsv.x * 360.0;
+                if(hDeg > 75.0 && hDeg < 170.0 && hsv.y > 0.24 && hsv.z > 0.08) discard;
+                float edgeMask = 1.0;
+                if(hDeg > 70.0 && hDeg < 175.0 && hsv.y > 0.14 && hsv.z > 0.06){
+                    edgeMask = 1.0 - smoothstep(0.14, 0.28, hsv.y);
+                    if(edgeMask < 0.05) discard;
+                }
+                gl_FragColor = vec4(col.rgb, edgeMask);
+            } else {
+                gl_FragColor = col;
+            }
+        }`;
 
-    function detectHandSimple(imageData) {
-        const data = imageData.data, w = imageData.width, h = imageData.height, step = 4;
-        let skinPixels = [];
-        for (let y = 0; y < h; y += step) { for (let x = 0; x < w; x += step) { const i = (y * w + x) * 4, r = data[i], g = data[i+1], b = data[i+2]; if (r > 60 && g > 40 && b > 20 && r > g && r > b && (r-g)/(r+1) > 0.05 && r > 80 && g > 50) skinPixels.push({x, y}); } }
-        if (skinPixels.length < 15) return null;
-        let cx = 0, cy = 0; for (const p of skinPixels) { cx += p.x; cy += p.y; } cx /= skinPixels.length; cy /= skinPixels.length;
-        let spread = 0; for (const p of skinPixels) { const dx = p.x - cx, dy = p.y - cy; spread += Math.sqrt(dx*dx + dy*dy); } spread /= skinPixels.length;
-        const handRatio = spread / Math.max(w, h); if (handRatio < 0.01 || handRatio > 0.4) return null;
-        return { x: cx / w, y: cy / h, confidence: Math.min(1, skinPixels.length / 80) };
-    }
+        const hMat = new THREE.ShaderMaterial({
+            uniforms: {
+                uTex: { value: vTex },
+                uPlaying: { value: 0 },
+                uChroma: { value: CFG.chromaEnabled ? 1.0 : 0.0 }
+            },
+            vertexShader: vShader,
+            fragmentShader: fShader,
+            transparent: true,
+            side: THREE.DoubleSide,
+            depthWrite: false
+        });
 
-    let handLandmarker = null, handVisible = false, handStableCount = 0, lastDetectTime = 0, detectionRunning = false, frameCount = 0, useFallback = deviceCap.useSimpleDetection;
+        const hPlane = new THREE.Mesh(
+            new THREE.PlaneGeometry(CFG.hologramScale, CFG.hologramScale * 0.75),
+            hMat
+        );
+        hPlane.position.y = CFG.hologramOffsetY;
+        hologramGroup.add(hPlane);
 
-    async function initDetection() {
-        document.getElementById('ls-model').classList.add('active'); setPb(10);
-        if (useFallback) { document.getElementById('ls-model').classList.replace('active', 'done'); debugInfo.innerHTML = `<span class="status-dot" style="background:#C9A96E;"></span> Спрощена детекція (${CFG.cameraQuality})`; setPb(60); return; }
-        try {
-            const { FilesetResolver, HandLandmarker } = await import('https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.3/+esm');
-            const vision = await FilesetResolver.forVisionTasks('https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.3/wasm'); setPb(40);
-            handLandmarker = await HandLandmarker.createFromOptions(vision, { baseOptions: { modelAssetPath: 'https://storage.googleapis.com/mediapipe-models/hand_landmarker/hand_landmarker/float16/1/hand_landmarker.task', delegate: deviceCap.useGPU ? 'GPU' : 'CPU' }, runningMode: 'VIDEO', numHands: 1 });
-            setPb(60); document.getElementById('ls-model').classList.replace('active', 'done'); debugInfo.innerHTML = `<span class="status-dot" style="background:#C9A96E;"></span> MediaPipe завантажено (${deviceCap.useGPU ? 'GPU' : 'CPU'})`;
-        } catch(e) { document.getElementById('ls-model').classList.replace('active', 'done'); useFallback = true; debugInfo.innerHTML = `<span class="status-dot" style="background:#C9A96E;"></span> Переключено на спрощену детекцію`; setPb(60); }
-    }
+        // ✅ Виправлено: масштабуємо geometry через scale (не перезаписуючи ширину)
+        hVideo.addEventListener('loadedmetadata', () => {
+            const asp = hVideo.videoWidth / hVideo.videoHeight || 1.333;
+            hPlane.scale.set(1, 1 / asp * (4/3), 1);
+        });
 
-    function detectionLoop() {
-        if (detectionRunning) return; detectionRunning = true;
-        const now = performance.now(); const interval = handVisible ? CFG.detectionInterval : (useFallback ? 100 : 66);
-        if (now - lastDetectTime >= interval) { lastDetectTime = now; frameCount++;
-            if (videoEl.readyState >= 2 && videoEl.videoWidth > 0) { try {
-                let detected = false, normX = 0.5, normY = 0.5;
-                let isOk = false;
+        // Particles
+        const particles = new THREE.Group();
+        hologramGroup.add(particles);
+        const pGeo = new THREE.SphereGeometry(deviceCap.useSimpleDetection ? 0.01 : 0.008, 4, 4);
+        const pMat = new THREE.MeshStandardMaterial({
+            color: 0xC9A96E, emissive: 0x8C6E3F,
+            emissiveIntensity: deviceCap.useSimpleDetection ? 0.2 : 0.3,
+            roughness: 0.6, metalness: 0.4
+        });
+        for (let i = 0; i < CFG.particleCount; i++) {
+            const p = new THREE.Mesh(pGeo, pMat);
+            p.userData = {
+                angle: (i / CFG.particleCount) * Math.PI * 2,
+                radius: 0.65,
+                speed: 0.3 + Math.random() * 0.4
+            };
+            particles.add(p);
+        }
+        // light (потрібно для MeshStandardMaterial)
+        const ambient = new THREE.AmbientLight(0xffffff, 0.8);
+        scene.add(ambient);
+        const pt = new THREE.PointLight(0xC9A96E, 0.6);
+        pt.position.set(0, 1, 2);
+        scene.add(pt);
 
-                if (handLandmarker && !useFallback) {
-                    try {
-                        const res = handLandmarker.detectForVideo(videoEl, now);
-                        if (res.landmarks?.length > 0) {
-                            const lm = res.landmarks[0];
-                            detected = true;
-                            normX = (lm[0].x + lm[17].x) / 2;
-                            normY = (lm[0].y + lm[17].y) / 2;
+        // ── Video state ──
+        let videoPlayed = false, hologramActive = false, isPaused = false;
 
-                            const okD = Math.hypot(lm[4].x - lm[8].x, lm[4].y - lm[8].y, lm[4].z - lm[8].z);
-                            const palmSz = Math.hypot(lm[0].x - lm[9].x, lm[0].y - lm[9].y, lm[0].z - lm[9].z) || .001;
-                            const circle = okD < palmSz * 0.45;
-                            const ext3 = [12, 16, 20].filter(tip => {
-                                const dTip = Math.hypot(lm[tip].x - lm[0].x, lm[tip].y - lm[0].y, lm[tip].z - lm[0].z);
-                                const dPip = Math.hypot(lm[tip-2].x - lm[0].x, lm[tip-2].y - lm[0].y, lm[tip-2].z - lm[0].z);
-                                return dTip > dPip;
-                            }).length >= 2;
-                            isOk = circle && ext3;
+        function updatePauseButton() {
+            pauseBtn.textContent = isPaused ? 'Продовжити' : 'Пауза';
+        }
+
+        pauseBtn.addEventListener('click', () => {
+            if (!videoPlayed) return;
+            if (isPaused) {
+                hVideo.play().catch(() => {});
+                hMat.uniforms.uPlaying.value = 1;
+                isPaused = false;
+                trackEvent('video_resumed');
+            } else {
+                hVideo.pause();
+                hMat.uniforms.uPlaying.value = 0;
+                isPaused = true;
+                trackEvent('video_paused');
+            }
+            updatePauseButton();
+        });
+
+        restartBtn.addEventListener('click', () => {
+            hVideo.currentTime = 0;
+            if (isPaused) { isPaused = false; updatePauseButton(); }
+            hVideo.play().catch(() => {});
+            hMat.uniforms.uPlaying.value = 1;
+            videoPlayed = true;
+            trackEvent('video_restarted');
+        });
+
+        function resetVideoState() {
+            videoPlayed = false;
+            isPaused = false;
+            try { hVideo.pause(); hVideo.currentTime = 0; } catch(e) {}
+            hMat.uniforms.uPlaying.value = 0;
+            autoplayOverlay.classList.remove('visible');
+            videoControls.style.display = 'none';
+            updatePauseButton();
+        }
+
+        hVideo.addEventListener('ended', () => {
+            if (!hologramActive) return;
+            hMat.uniforms.uPlaying.value = 0;
+            isPaused = false;
+            updatePauseButton();
+            trackEvent('video_ended');
+        });
+
+        function showUnmuteButton() {
+            // необов'язково: показати кнопку "увімкнути звук" — пропускаємо для мінімалізму
+        }
+
+        async function tryAutoplay() {
+            // 1) спершу muted — завжди дозволено
+            hVideo.muted = true;
+            try {
+                await hVideo.play();
+                videoPlayed = true;
+                hMat.uniforms.uPlaying.value = 1;
+                videoControls.style.display = 'flex';
+                debugInfo.innerHTML = `<span class="status-dot"></span> Video (muted)`;
+                return;
+            } catch(e) {}
+
+            // 2) fallback: показати overlay
+            autoplayOverlay.classList.add('visible');
+        }
+
+        autoplayBtn.addEventListener('click', async () => {
+            autoplayOverlay.classList.remove('visible');
+            hVideo.muted = false;
+            try {
+                await hVideo.play();
+                videoPlayed = true;
+                hMat.uniforms.uPlaying.value = 1;
+                videoControls.style.display = 'flex';
+                debugInfo.innerHTML = `<span class="status-dot"></span> Video playing`;
+            } catch(e) {
+                // якщо зі звуком не вийшло — muted
+                hVideo.muted = true;
+                try {
+                    await hVideo.play();
+                    videoPlayed = true;
+                    hMat.uniforms.uPlaying.value = 1;
+                    videoControls.style.display = 'flex';
+                    debugInfo.innerHTML = `<span class="status-dot"></span> Video (muted)`;
+                } catch(e2) {}
+            }
+        });
+
+        function activateHologram() {
+            if (hologramActive || videoPlayed) return;
+            hologramActive = true;
+            hologramGroup.visible = true;
+            showStep(2);
+            if ('vibrate' in navigator) { try { navigator.vibrate(100); } catch(e) {} }
+            debugInfo.innerHTML = `<span class="status-dot"></span> Hologram activated`;
+            trackEvent('hologram_activated');
+            tryAutoplay();
+        }
+
+        // ── Camera ──
+        let facingMode = 'user';
+
+        function updateVideoMirror() {
+            videoEl.style.transform = facingMode === 'user' ? 'scaleX(-1)' : 'none';
+        }
+        function getCameraConstraints() {
+            const q = CFG.cameraQuality;
+            let w, h;
+            switch(q) {
+                case 'low': w = 240; h = 180; break;
+                case 'medium': w = 320; h = 240; break;
+                default: w = 480; h = 360;
+            }
+            return {
+                video: {
+                    facingMode,
+                    width: { ideal: w, max: w * 1.5 },
+                    height: { ideal: h, max: h * 1.5 }
+                }
+            };
+        }
+
+        async function startCamera() {
+            const camStep = document.getElementById('ls-cam');
+            camStep.classList.add('active');
+
+            if (videoEl.srcObject) {
+                videoEl.srcObject.getTracks().forEach(track => track.stop());
+                videoEl.srcObject = null;
+            }
+            if (!navigator.mediaDevices?.getUserMedia) {
+                stepSub.textContent = 'Camera unavailable';
+                return false;
+            }
+            const tryC = async (c) => {
+                const s = await navigator.mediaDevices.getUserMedia(c);
+                videoEl.srcObject = s;
+                await videoEl.play();
+                return s;
+            };
+            try {
+                await tryC(getCameraConstraints());
+            } catch(e) {
+                try { await tryC({ video: { facingMode } }); }
+                catch { stepSub.textContent = 'Camera denied'; return false; }
+            }
+            await new Promise(r => {
+                if (videoEl.readyState >= 2 && videoEl.videoWidth > 0) r();
+                else videoEl.addEventListener('loadedmetadata', r, { once: true });
+            });
+            onWindowResize();
+            camStep.classList.replace('active', 'done');
+            setPb(80);
+            updateVideoMirror();
+            debugInfo.innerHTML = `<span class="status-dot"></span> Camera ready (${CFG.cameraQuality})`;
+            return true;
+        }
+
+        // ── Detection ──
+        function detectHandSimple(imageData) {
+            const data = imageData.data, w = imageData.width, h = imageData.height, step = 4;
+            let skinPixels = [];
+            for (let y = 0; y < h; y += step) {
+                for (let x = 0; x < w; x += step) {
+                    const i = (y * w + x) * 4;
+                    const r = data[i], g = data[i+1], b = data[i+2];
+                    if (r > 60 && g > 40 && b > 20 && r > g && r > b &&
+                        (r - g) / (r + 1) > 0.05 && r > 80 && g > 50) {
+                        skinPixels.push({ x, y });
+                    }
+                }
+            }
+            if (skinPixels.length < 15) return null;
+            let cx = 0, cy = 0;
+            for (const p of skinPixels) { cx += p.x; cy += p.y; }
+            cx /= skinPixels.length; cy /= skinPixels.length;
+            let spread = 0;
+            for (const p of skinPixels) {
+                const dx = p.x - cx, dy = p.y - cy;
+                spread += Math.sqrt(dx*dx + dy*dy);
+            }
+            spread /= skinPixels.length;
+            const handRatio = spread / Math.max(w, h);
+            if (handRatio < 0.01 || handRatio > 0.4) return null;
+            return { x: cx / w, y: cy / h, confidence: Math.min(1, skinPixels.length / 80) };
+        }
+
+        let handLandmarker = null;
+        let handVisible = false;
+        let handStableCount = 0;
+        let lastDetectTime = 0;
+        let detectionRunning = false;
+        let frameCount = 0;
+        let useFallback = deviceCap.useSimpleDetection;
+        let detectionPaused = false;
+        let detectCanvas = null, detectCtx = null;
+
+        async function initDetection() {
+            const modelStep = document.getElementById('ls-model');
+            modelStep.classList.add('active');
+            setPb(10);
+
+            if (useFallback) {
+                modelStep.classList.replace('active', 'done');
+                debugInfo.innerHTML = `<span class="status-dot"></span> Simple detection (${CFG.cameraQuality})`;
+                setPb(60);
+                return;
+            }
+
+            try {
+                const importPromise = import('https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.3/+esm');
+                const timeoutPromise = new Promise((_, reject) =>
+                    setTimeout(() => reject(new Error('timeout')), 10000)
+                );
+                const { FilesetResolver, HandLandmarker } = await Promise.race([importPromise, timeoutPromise]);
+
+                const vision = await FilesetResolver.forVisionTasks('https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.3/wasm');
+                setPb(40);
+
+                handLandmarker = await HandLandmarker.createFromOptions(vision, {
+                    baseOptions: {
+                        modelAssetPath: 'https://storage.googleapis.com/mediapipe-models/hand_landmarker/hand_landmarker/float16/1/hand_landmarker.task',
+                        delegate: deviceCap.useGPU ? 'GPU' : 'CPU'
+                    },
+                    runningMode: 'VIDEO',
+                    numHands: 1
+                });
+                setPb(60);
+                modelStep.classList.replace('active', 'done');
+                debugInfo.innerHTML = `<span class="status-dot"></span> MediaPipe (${deviceCap.useGPU ? 'GPU' : 'CPU'})`;
+            } catch(e) {
+                modelStep.classList.replace('active', 'done');
+                useFallback = true;
+                debugInfo.innerHTML = `<span class="status-dot"></span> Fallback detection`;
+                setPb(60);
+            }
+        }
+
+        function detectionLoop() {
+            if (!detectionPaused) {
+                if (detectionRunning) {
+                    rafId = requestAnimationFrame(detectionLoop);
+                    return;
+                }
+                detectionRunning = true;
+                const now = performance.now();
+                const interval = handVisible ? CFG.detectionInterval : (useFallback ? 100 : 66);
+
+                if (now - lastDetectTime >= interval && !document.hidden) {
+                    lastDetectTime = now;
+                    frameCount++;
+                    if (videoEl.readyState >= 2 && videoEl.videoWidth > 0) {
+                        try {
+                            let detected = false, normX = 0.5, normY = 0.5, isOk = false;
+
+                            if (handLandmarker && !useFallback) {
+                                try {
+                                    const res = handLandmarker.detectForVideo(videoEl, now);
+                                    if (res.landmarks?.length > 0) {
+                                        const lm = res.landmarks[0];
+                                        detected = true;
+                                        normX = (lm[0].x + lm[17].x) / 2;
+                                        normY = (lm[0].y + lm[17].y) / 2;
+
+                                        const okD = Math.hypot(lm[4].x - lm[8].x, lm[4].y - lm[8].y, lm[4].z - lm[8].z);
+                                        const palmSz = Math.hypot(lm[0].x - lm[9].x, lm[0].y - lm[9].y, lm[0].z - lm[9].z) || 0.001;
+                                        const circle = okD < palmSz * 0.45;
+                                        const ext3 = [12, 16, 20].filter(tip => {
+                                            const dTip = Math.hypot(lm[tip].x - lm[0].x, lm[tip].y - lm[0].y, lm[tip].z - lm[0].z);
+                                            const dPip = Math.hypot(lm[tip-2].x - lm[0].x, lm[tip-2].y - lm[0].y, lm[tip-2].z - lm[0].z);
+                                            return dTip > dPip;
+                                        }).length >= 2;
+                                        isOk = circle && ext3;
+                                    }
+                                } catch(e) { useFallback = true; }
+                            }
+
+                            if (!detected && useFallback) {
+                                if (!detectCanvas) {
+                                    detectCanvas = document.createElement('canvas');
+                                    detectCanvas.width = 160; detectCanvas.height = 120;
+                                    detectCtx = detectCanvas.getContext('2d', { willReadFrequently: true });
+                                }
+                                detectCtx.drawImage(videoEl, 0, 0, 160, 120);
+                                const h = detectHandSimple(detectCtx.getImageData(0, 0, 160, 120));
+                                if (h && h.confidence > 0.25) {
+                                    detected = true; normX = h.x; normY = h.y;
+                                }
+                            }
+
+                            if (detected) {
+                                if (!handVisible) {
+                                    handVisible = true;
+                                    handStableCount = 0;
+                                    debugInfo.innerHTML = `<span class="status-dot"></span> Hand detected`;
+                                    showStep(1);
+                                }
+                                handStableCount++;
+                                const shouldActivate = (!useFallback && isOk) || (useFallback && handStableCount > 5);
+                                if (shouldActivate && !hologramActive && !videoPlayed) {
+                                    activateHologram();
+                                }
+                                const mir = facingMode === 'user', dir = mir ? -1 : 1;
+                                hologramGroup.position.x += (dir * (normX * 2 - 1) - hologramGroup.position.x) * 0.12;
+                                hologramGroup.position.y += ((0.5 - normY) * 1.5 + CFG.hologramOffsetY - hologramGroup.position.y) * 0.12;
+                                if (!hologramGroup.visible && !hologramActive) hologramGroup.visible = true;
+                            } else {
+                                if (handVisible) {
+                                    handVisible = false;
+                                    handStableCount = 0;
+                                    if (!hologramActive) {
+                                        hologramGroup.visible = false;
+                                        showStep(0);
+                                        debugInfo.innerHTML = `<span class="status-dot"></span> Looking for hand`;
+                                    }
+                                }
+                            }
+                        } catch(e) {
+                            if (frameCount % 60 === 0) debugInfo.innerHTML = `<span class="status-dot"></span> Detection error`;
                         }
-                    } catch(e) { useFallback = true; }
-                }
-
-                if (!detected && useFallback) {
-                    const tc = document.createElement('canvas'); tc.width = 160; tc.height = 120;
-                    const ctx = tc.getContext('2d'); ctx.drawImage(videoEl, 0, 0, 160, 120);
-                    const h = detectHandSimple(ctx.getImageData(0, 0, 160, 120));
-                    if (h && h.confidence > 0.25) { detected = true; normX = h.x; normY = h.y; }
-                }
-
-                if (detected) {
-                    if (!handVisible) {
-                        handVisible = true;
-                        handStableCount = 0;
-                        debugInfo.innerHTML = '<span class="status-dot" style="background:#C9A96E;"></span> Руку виявлено';
-                        showStep(1);
-                    }
-                    handStableCount++;
-                    const shouldActivate = (!useFallback && isOk) || (useFallback && handStableCount > 5);
-                    if (shouldActivate && !hologramActive && !videoPlayed) {
-                        activateHologram();
-                    }
-                    const mir = facingMode === 'user', dir = mir ? -1 : 1;
-                    hologramGroup.position.x += (dir * (normX * 2 - 1) - hologramGroup.position.x) * 0.12;
-                    hologramGroup.position.y += ((0.5 - normY) * 1.5 + CFG.hologramOffsetY - hologramGroup.position.y) * 0.12;
-                    if (!hologramGroup.visible && !hologramActive) hologramGroup.visible = true;
-                } else {
-                    if (handVisible) {
-                        handVisible = false; handStableCount = 0;
-                        if (!hologramActive) { hologramGroup.visible = false; showStep(0); debugInfo.innerHTML = `<span class="status-dot" style="background:#C9A96E;"></span> Шукаємо руку`; }
                     }
                 }
-            } catch(e) { if (frameCount % 60 === 0) debugInfo.innerHTML = `<span class="status-dot" style="background:#C9A96E;"></span> Помилка детекції`; } }
-        } detectionRunning = false;
-        requestAnimationFrame(detectionLoop);
-    }
-
-    function animate() { requestAnimationFrame(animate); if (hologramGroup.visible) { vTex.needsUpdate = true; const t = performance.now() / 1000; particles.children.forEach(p => { const a = t * p.userData.speed + p.userData.angle; p.position.set(Math.cos(a) * p.userData.radius, Math.sin(a * 2) * 0.05, Math.sin(a) * p.userData.radius); }); } renderer.render(scene, cam3); }
-
-    cameraToggleBtn.addEventListener('click', async () => { facingMode = facingMode === 'environment' ? 'user' : 'environment'; await startCamera(); updateVideoMirror(); });
-    resetBtn.addEventListener('click', () => { handVisible = false; hologramActive = false; handStableCount = 0; hologramGroup.visible = false; resetVideoState(); showStep(0); debugInfo.innerHTML = `<span class="status-dot" style="background:#C9A96E;"></span> Скинуто, шукаємо руку`; });
-    window.addEventListener('pagehide', () => { vTex.dispose(); hMat.dispose(); pGeo.dispose(); pMat.dispose(); renderer.dispose(); if (videoEl.srcObject) videoEl.srcObject.getTracks().forEach(t => t.stop()); });
-    function setPb(v) { document.getElementById('pb').style.width = v + '%'; }
-
-    // ═══════════ ПОКАЗ МЕТАДАНИХ У AR ═══════════
-    function initCaption() {
-        if (!params.title && !params.date) return;
-        
-        const caption = document.getElementById('ar-caption');
-        const titleEl = document.getElementById('ar-caption-title');
-        const dateEl = document.getElementById('ar-caption-date');
-        
-        if (params.title) {
-            titleEl.textContent = params.title;
-            const len = params.title.length;
-            if (len > 60) titleEl.style.fontSize = 'clamp(12px, 3vw, 18px)';
-            else if (len > 40) titleEl.style.fontSize = 'clamp(14px, 3.5vw, 20px)';
-            else titleEl.style.fontSize = 'clamp(16px, 4vw, 24px)';
-        } else {
-            titleEl.style.display = 'none';
+                detectionRunning = false;
+            }
+            rafId = requestAnimationFrame(detectionLoop);
         }
-        
-        if (params.date) {
-            dateEl.textContent = '📅 ' + formatCaptionDate(params.date, params.time);
+
+        function animate() {
+            rafId = requestAnimationFrame(animate);
+            if (hologramGroup.visible) {
+                const t2 = performance.now() / 1000;
+                particles.children.forEach(p => {
+                    const a = t2 * p.userData.speed + p.userData.angle;
+                    p.position.set(
+                        Math.cos(a) * p.userData.radius,
+                        Math.sin(a * 2) * 0.05,
+                        Math.sin(a) * p.userData.radius
+                    );
+                });
+            }
+            renderer.render(scene, cam3);
         }
-        
-        caption.style.display = 'block';
+
+        // Visibility: пауза detection при фоні
+        document.addEventListener('visibilitychange', () => {
+            detectionPaused = document.hidden;
+        });
+
+        cameraToggleBtn.addEventListener('click', async () => {
+            facingMode = facingMode === 'environment' ? 'user' : 'environment';
+            await startCamera();
+            updateVideoMirror();
+        });
+
+        resetBtn.addEventListener('click', () => {
+            handVisible = false;
+            hologramActive = false;
+            handStableCount = 0;
+            hologramGroup.visible = false;
+            resetVideoState();
+            showStep(0);
+            debugInfo.innerHTML = `<span class="status-dot"></span> Reset`;
+        });
+
+        // Cleanup
+        cleanup.add(() => {
+            if (rafId) cancelAnimationFrame(rafId);
+            if (heartbeatId) clearInterval(heartbeatId);
+            try { vTex.dispose(); hMat.dispose(); pGeo.dispose(); pMat.dispose(); renderer.dispose(); } catch(e) {}
+            if (videoEl.srcObject) {
+                videoEl.srcObject.getTracks().forEach(track => track.stop());
+            }
+            if (hVideo.src) { try { hVideo.pause(); hVideo.src = ''; hVideo.load(); } catch(e) {} }
+        });
+
+        function setPb(v) {
+            const pb = document.getElementById('pb');
+            if (pb) pb.style.width = v + '%';
+        }
+
+        // ── Caption ──
+        function initCaption() {
+            if (!params.title && !params.date) return;
+            const caption = document.getElementById('ar-caption');
+            const titleEl = document.getElementById('ar-caption-title');
+            const dateEl = document.getElementById('ar-caption-date');
+
+            if (params.title) {
+                titleEl.textContent = params.title;
+                const len = params.title.length;
+                if (len > 60) titleEl.style.fontSize = 'clamp(12px, 3vw, 18px)';
+                else if (len > 40) titleEl.style.fontSize = 'clamp(14px, 3.5vw, 20px)';
+                else titleEl.style.fontSize = 'clamp(16px, 4vw, 24px)';
+            } else {
+                titleEl.style.display = 'none';
+            }
+            if (params.date) {
+                dateEl.textContent = '📅 ' + formatCaptionDate(params.date, params.time);
+            }
+            caption.style.display = 'block';
+        }
+
+        async function init() {
+            try {
+                loadingEl.classList.add('visible');
+                onboardingEl.classList.add('visible');
+                await initDetection();
+                document.getElementById('ls-scene').classList.add('active');
+                const ok = await startCamera();
+                if (!ok) {
+                    debugInfo.innerHTML = `<span class="status-dot"></span> Camera error`;
+                    return;
+                }
+                setPb(95);
+                hologramGroup.visible = false;
+                document.getElementById('ls-scene').classList.replace('active', 'done');
+                setPb(100);
+                await new Promise(r => setTimeout(r, 300));
+                loadingEl.classList.remove('visible');
+                showStep(0);
+                initCaption();
+                animate();
+                detectionLoop();
+                heartbeatId = setInterval(() => trackEvent('session_heartbeat'), 30000);
+            } catch(e) {
+                debugInfo.innerHTML = `<span class="status-dot"></span> ${e.message || 'Error'}`;
+                loadingEl.innerHTML = '<div style="color:#f44;text-align:center;padding:24px">Error loading.<br>Reload the page.</div>';
+            }
+        }
+
+        init();
     }
 
-    async function initAR() { 
-        try { 
-            loadingEl.style.display = 'flex'; 
-            onboardingEl.style.display = 'flex'; 
-            await initDetection(); 
-            document.getElementById('ls-scene').classList.add('active'); 
-            const ok = await startCamera(); 
-            if (!ok) { 
-                debugInfo.innerHTML = '<span class="status-dot" style="background:#C9A96E;"></span> Помилка камери'; 
-                return; 
-            } 
-            setPb(95); 
-            hologramGroup.visible = false; 
-            document.getElementById('ls-scene').classList.replace('active', 'done'); 
-            setPb(100); 
-            await new Promise(r => setTimeout(r, 300)); 
-            loadingEl.style.display = 'none'; 
-            showStep(0); 
-            initCaption(); // ← Показ метаданих
-            animate(); 
-            detectionLoop(); 
-            setInterval(() => trackEvent('session_heartbeat'), 30000); 
-        } catch(e) { 
-            debugInfo.innerHTML = `<span class="status-dot" style="background:#C9A96E;"></span> ${e.message || 'Помилка'}`; 
-            loadingEl.innerHTML = '<div style="color:#f44;text-align:center;padding:24px">Помилка завантаження.<br>Оновіть сторінку.</div>'; 
-        } 
+    // ═══════════ BOOT ═══════════
+    if (!params.video) {
+        enterSetupMode();
+    } else {
+        initARMode();
     }
 
-    if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js');
-
-    initAR();
-</script>
-<script>
-    if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(() => {});
-    window.addEventListener('appinstalled', () => {
-        if (typeof gtag === 'function') gtag('event', 'pwa_installed', { app: 'AR_Studio_2026' });
-    });
+    // ═══════════ SERVICE WORKER (одноразова реєстрація) ═══════════
+    if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+            navigator.serviceWorker.register('sw.js').catch(() => {});
+        });
+        window.addEventListener('appinstalled', () => {
+            try { if (typeof gtag === 'function') gtag('event', 'pwa_installed', { app: 'AR_Studio_2026' }); } catch(e) {}
+        });
+    }
 </script>
 </body>
 </html>
