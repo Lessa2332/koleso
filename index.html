@@ -14,22 +14,18 @@
     <meta name="theme-color" content="#0B0B12">
     <title>AR Studio | Олеся Бохонок · SmartLessa 2026</title>
 
-    <!-- PWA — інлайн manifest, без 404 -->
+    <!-- PWA — інлайн manifest -->
     <link rel="manifest" href='data:application/manifest+json,{"name":"AR Studio SmartLessa","short_name":"AR Studio","start_url":".","scope":".","display":"standalone","orientation":"portrait","background_color":"%230B0B12","theme_color":"%230B0B12","lang":"uk","icons":[]}'>
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <link rel="apple-touch-icon" href="icon-192.png">
-    <meta name="description" content="AR Studio SmartLessa — створіть доповнену реальність для уроків за хвилину. Завантажте MP4, отримайте QR-код, а учні побачать голограму через камеру.">
+    <meta name="description" content="AR Studio SmartLessa — створіть доповнену реальність для уроків за хвилину.">
     <meta name="author" content="Олеся Бохонок">
-    <meta name="copyright" content="© 2026 Олеся Бохонок · SmartLessa">
 
     <!-- Open Graph -->
     <meta property="og:title" content="AR Studio — Олеся Бохонок · SmartLessa 2026">
-    <meta property="og:description" content="Доповнена реальність для уроків. Авторка: Олеся Бохонок · SmartLessa 2026">
-    <meta property="og:site_name" content="SmartLessa">
-    <meta property="og:image" content="https://lessa2332.github.io/ar-generator/icon-512.png">
-    <meta property="og:url" content="https://lessa2332.github.io/ar-generator/">
+    <meta property="og:description" content="Доповнена реальність для уроків. Авторка: Олеся Бохонок">
 
     <!-- Cloudflare Web Analytics -->
     <script defer src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{"token": "64df0e53a7f64e188d3eb86c8918389d"}'></script>
@@ -45,754 +41,120 @@
         :root {
             --accent-primary: #C9A96E;
             --accent-soft: #E6D3B3;
-            --accent-deep: #8C6E3F;
             --bg-deep: #0B0B12;
             --text-primary: #F0F0F2;
             --text-secondary: rgba(240, 240, 242, 0.7);
-            --shadow-soft: 0 8px 28px rgba(0, 0, 0, 0.5);
-            --radius-l: 28px;
-            --radius-m: 18px;
-            --radius-s: 12px;
             --font-main: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
             --transition: 0.25s cubic-bezier(0.2, 0, 0, 1);
-            --spring: cubic-bezier(0.34, 1.56, 0.64, 1);
         }
 
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            -webkit-tap-highlight-color: transparent;
-            font-family: var(--font-main);
-        }
-        button, .top-bar button, .setup-buttons button {
-            user-select: none;
-            -webkit-user-select: none;
-            -webkit-touch-callout: none;
-        }
-        body, html {
-            width: 100%;
-            height: 100%;
-            overflow: hidden;
-            background: var(--bg-deep);
-            letter-spacing: 0.01em;
-            color: var(--text-primary);
-        }
-        button:focus-visible, input:focus-visible, a:focus-visible, [role="button"]:focus-visible {
-            outline: 2px solid var(--accent-primary);
-            outline-offset: 3px;
-            border-radius: 4px;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: var(--font-main); -webkit-tap-highlight-color: transparent; }
+        body, html { width: 100%; height: 100%; overflow: hidden; background: var(--bg-deep); color: var(--text-primary); }
 
-        #video {
-            position: absolute;
-            top: 0; left: 0;
-            width: 100%; height: 100%;
-            object-fit: cover;
-            z-index: 0;
-        }
-        #canvas {
-            position: absolute;
-            top: 0; left: 0;
-            width: 100%; height: 100%;
-            z-index: 1;
-            pointer-events: none;
-        }
+        #video { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; z-index: 0; }
+        #canvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; pointer-events: none; }
 
-        .top-bar {
-            position: absolute;
-            top: max(18px, env(safe-area-inset-top, 18px));
-            left: 18px; right: 18px;
-            display: flex;
-            justify-content: space-between;
-            z-index: 200;
-            gap: 12px;
-        }
-        .top-bar button {
-            background: rgba(18, 18, 28, 0.75);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
-            border: 1px solid rgba(255, 255, 255, 0.12);
-            color: var(--accent-soft);
-            padding: 10px 22px;
-            border-radius: 60px;
-            font-weight: 500;
-            font-size: 13px;
-            letter-spacing: 0.04em;
-            cursor: pointer;
-            transition: all var(--transition);
-            box-shadow: 0 4px 14px rgba(0,0,0,0.3);
-            text-transform: uppercase;
-        }
-        .top-bar button:active {
-            transform: scale(0.96);
-            background: rgba(201, 169, 110, 0.12);
-            border-color: var(--accent-primary);
-            color: #fff;
-        }
+        /* Top Bar */
+        .top-bar { position: absolute; top: max(18px, env(safe-area-inset-top, 18px)); left: 18px; right: 18px; display: flex; justify-content: space-between; z-index: 200; gap: 12px; }
+        .top-bar button { background: rgba(18, 18, 28, 0.75); backdrop-filter: blur(16px); border: 1px solid rgba(255, 255, 255, 0.12); color: var(--accent-soft); padding: 10px 22px; border-radius: 60px; font-weight: 500; font-size: 13px; cursor: pointer; text-transform: uppercase; }
+        
+        /* Video Controls */
+        #video-controls { position: absolute; bottom: max(140px, calc(env(safe-area-inset-bottom, 0px) + 120px)); left: 0; right: 0; display: none; justify-content: center; gap: 16px; z-index: 300; padding: 0 20px; }
+        #video-controls button { background: rgba(18, 18, 28, 0.8); backdrop-filter: blur(14px); border: 1px solid rgba(255, 255, 255, 0.15); color: #fff; padding: 12px 24px; border-radius: 60px; font-weight: 500; font-size: 14px; cursor: pointer; text-transform: uppercase; }
+        #video-controls button.pause-btn { background: #1A1A28; border: 1px solid var(--accent-primary); color: var(--accent-soft); min-width: 130px; }
 
-        #video-controls {
-            position: absolute;
-            bottom: max(120px, calc(env(safe-area-inset-bottom, 0px) + 100px));
-            left: 0; right: 0;
-            display: none;
-            justify-content: center;
-            gap: 16px;
-            z-index: 300;
-            padding: 0 20px;
-        }
-        #video-controls button {
-            background: rgba(18, 18, 28, 0.8);
-            backdrop-filter: blur(14px);
-            -webkit-backdrop-filter: blur(14px);
-            border: 1px solid rgba(255, 255, 255, 0.15);
-            color: var(--text-primary);
-            padding: 12px 24px;
-            border-radius: 60px;
-            font-weight: 500;
-            font-size: 14px;
-            cursor: pointer;
-            transition: all var(--transition);
-            box-shadow: 0 4px 18px rgba(0,0,0,0.4);
-            text-transform: uppercase;
-            letter-spacing: 0.04em;
-        }
-        #video-controls button.pause-btn {
-            background: linear-gradient(135deg, #2A2A3A, #1A1A28);
-            border: 1px solid rgba(201, 169, 110, 0.4);
-            color: #E6D3B3;
-            min-width: 130px;
-        }
-
-        #loading {
-            position: fixed;
-            inset: 0;
-            background: radial-gradient(circle at 30% 40%, #1A1A28, #0B0B12);
-            display: none;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            z-index: 1000;
-            color: var(--accent-soft);
-            padding: 24px;
-        }
+        /* Loading */
+        #loading { position: fixed; inset: 0; background: radial-gradient(circle at 30% 40%, #1A1A28, #0B0B12); display: none; flex-direction: column; align-items: center; justify-content: center; z-index: 1000; color: var(--accent-soft); padding: 24px; }
         #loading.visible { display: flex; }
-        #loading-title {
-            font-size: clamp(1.2rem, 4vw, 1.7rem);
-            font-weight: 600;
-            letter-spacing: 0.2em;
-            margin-bottom: 40px;
-            text-shadow: 0 0 25px rgba(201, 169, 110, 0.4);
-            text-transform: uppercase;
-            color: #E6D3B3;
-            text-align: center;
-        }
-        .load-steps { width: 100%; max-width: 320px; }
-        .load-step {
-            display: flex;
-            align-items: center;
-            gap: 16px;
-            padding: 10px 0;
-            font-size: 15px;
-            color: rgba(230, 211, 179, 0.4);
-            transition: color 0.4s;
-        }
-        .load-step .si {
-            font-size: 18px;
-            width: 32px;
-            text-align: center;
-            font-weight: 600;
-            color: inherit;
-        }
+        #loading-title { font-size: 1.7rem; font-weight: 600; letter-spacing: 0.2em; margin-bottom: 40px; text-transform: uppercase; color: #E6D3B3; }
+        .load-step { display: flex; align-items: center; gap: 16px; padding: 10px 0; font-size: 15px; color: rgba(230, 211, 179, 0.4); }
         .load-step.active { color: #F5F5F0; font-weight: 500; }
         .load-step.done { color: var(--accent-primary); }
-        .pbwrap {
-            width: 100%;
-            max-width: 320px;
-            background: rgba(255, 255, 255, 0.06);
-            border-radius: 30px;
-            height: 6px;
-            margin-top: 28px;
-            overflow: hidden;
-        }
-        .pb {
-            height: 100%;
-            background: linear-gradient(90deg, #8C6E3F, #C9A96E);
-            width: 0%;
-            transition: width 0.35s ease;
-            border-radius: 30px;
-        }
+        .pbwrap { width: 100%; max-width: 320px; background: rgba(255, 255, 255, 0.06); border-radius: 30px; height: 6px; margin-top: 28px; overflow: hidden; }
+        .pb { height: 100%; background: linear-gradient(90deg, #8C6E3F, #C9A96E); width: 0%; transition: width 0.35s ease; }
 
-        /* ═════════ SETUP SCREEN ═════════ */
-        #setup-screen {
-            position: fixed;
-            inset: 0;
-            background: radial-gradient(circle at 50% 10%, #13131F, #09090F);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            z-index: 999;
-            color: var(--text-primary);
-            padding: max(24px, env(safe-area-inset-top)) 20px max(24px, env(safe-area-inset-bottom));
-            overflow-y: auto;
-            -webkit-overflow-scrolling: touch;
-        }
-
-        .setup-container {
-            width: 100%;
-            max-width: 440px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            margin: auto 0;
-            padding: 20px 0;
-        }
-
-        @media (min-width: 900px) {
-            .setup-container {
-                max-width: 1040px;
-                display: grid;
-                grid-template-columns: 1fr 1fr;
-                gap: 60px;
-                align-items: center;
-                padding: 40px 0;
-            }
-            .setup-header {
-                text-align: left;
-                align-self: start;
-                padding-top: 20px;
-            }
-            .setup-header .logo { font-size: 0.9rem; }
-            .setup-header h1 { font-size: 2.2rem; }
-            .setup-header .tagline {
-                display: block;
-                font-size: 14px;
-                color: var(--text-secondary);
-                margin-top: 14px;
-                line-height: 1.6;
-                max-width: 380px;
-            }
-            .wizard-progress {
-                justify-content: flex-start;
-                margin-bottom: 28px;
-                margin-top: 28px;
-            }
-            .setup-right-col {
-                display: flex;
-                flex-direction: column;
-                justify-content: center;
-            }
-        }
-
-        @media (min-width: 768px) and (max-width: 899px) and (orientation: landscape) {
-            .setup-container { max-width: 820px; }
-            .setup-wizard { display: grid; grid-template-columns: 1fr 1fr; gap: 32px; align-items: center; }
-        }
-
-        .setup-header {
-            text-align: center;
-            margin-bottom: 20px;
-        }
-        .setup-header .logo {
-            font-size: 0.85rem;
-            letter-spacing: 0.3em;
-            font-weight: 500;
-            color: var(--accent-soft);
-            text-transform: uppercase;
-            opacity: 0.7;
-            margin-bottom: 4px;
-        }
-        .setup-header h1 {
-            background: linear-gradient(135deg, #F0F0F2, #C9A96E);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            font-size: clamp(1.3rem, 5vw, 1.6rem);
-            font-weight: 700;
-            letter-spacing: -0.01em;
-            line-height: 1.2;
-        }
-        .setup-header .tagline { display: none; }
-        .setup-author {
-            font-size: 12px;
-            color: rgba(230, 211, 179, 0.6);
-            letter-spacing: 0.05em;
-            margin-top: 10px;
-            text-align: center;
-        }
-        .setup-author strong { color: var(--accent-soft); font-weight: 600; }
-        @media (min-width: 900px) { .setup-author { text-align: left; } }
-
-        .wizard-progress {
-            display: flex;
-            gap: 6px;
-            margin-bottom: 20px;
-            align-items: center;
-        }
-        .wizard-dot {
-            width: 6px;
-            height: 6px;
-            border-radius: 50%;
-            background: rgba(255,255,255,0.15);
-            transition: all 0.3s var(--spring);
-        }
-        .wizard-dot.active {
-            background: var(--accent-primary);
-            width: 20px;
-            border-radius: 3px;
-            box-shadow: 0 0 10px rgba(201,169,110,0.5);
-        }
-        .wizard-dot.done { background: var(--accent-deep); }
-
-        .wizard-step { display: none; width: 100%; animation: fadeStep 0.3s var(--spring); }
+        /* Setup */
+        #setup-screen { position: fixed; inset: 0; background: radial-gradient(circle at 50% 10%, #13131F, #09090F); display: flex; flex-direction: column; align-items: center; z-index: 999; padding: max(24px, env(safe-area-inset-top)) 20px; overflow-y: auto; }
+        .setup-container { width: 100%; max-width: 440px; display: flex; flex-direction: column; align-items: center; margin: auto 0; }
+        @media (min-width: 900px) { .setup-container { max-width: 1040px; display: grid; grid-template-columns: 1fr 1fr; gap: 60px; align-items: center; } .setup-header { text-align: left; } }
+        .setup-header { text-align: center; margin-bottom: 20px; }
+        .setup-header .logo { font-size: 0.85rem; letter-spacing: 0.3em; color: var(--accent-soft); text-transform: uppercase; opacity: 0.7; }
+        .setup-header h1 { font-size: clamp(1.3rem, 5vw, 1.8rem); font-weight: 700; margin-top: 4px; }
+        .setup-author { font-size: 12px; color: rgba(230, 211, 179, 0.6); margin-top: 10px; }
+        
+        .wizard-progress { display: flex; gap: 6px; margin-bottom: 20px; }
+        .wizard-dot { width: 6px; height: 6px; border-radius: 50%; background: rgba(255,255,255,0.15); }
+        .wizard-dot.active { background: var(--accent-primary); width: 20px; border-radius: 3px; }
+        
+        .wizard-step { display: none; width: 100%; }
         .wizard-step.active { display: block; }
-        @keyframes fadeStep {
-            from { opacity: 0; transform: translateY(8px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
+        .step-title { font-size: 1.1rem; font-weight: 600; margin-bottom: 16px; text-align: center; }
+        @media (min-width: 900px) { .step-title { text-align: left; } }
 
-        .step-title {
-            font-size: 1.1rem;
-            font-weight: 600;
-            margin-bottom: 16px;
-            text-align: center;
-            color: var(--text-primary);
-        }
-        @media (min-width: 900px) {
-            .step-title { text-align: left; font-size: 1.25rem; margin-bottom: 20px; }
-        }
-
-        .drop-zone {
-            position: relative;
-            width: 100%;
-            border: 1.5px dashed rgba(255, 255, 255, 0.25);
-            border-radius: var(--radius-m);
-            padding: 32px 20px;
-            text-align: center;
-            transition: all var(--transition);
-            margin-bottom: 10px;
-            background: rgba(255, 255, 255, 0.02);
-        }
-        .drop-zone.dragover {
-            border-color: var(--accent-primary);
-            background: rgba(201, 169, 110, 0.08);
-            transform: scale(1.01);
-        }
-        .drop-zone-icon { font-size: 32px; margin-bottom: 10px; opacity: 0.8; }
-        .drop-zone-text {
-            font-size: 14px;
-            color: var(--text-secondary);
-            line-height: 1.5;
-        }
-        .drop-zone-text strong { color: var(--accent-soft); font-weight: 600; }
-        @media (max-width: 899px) {
-            .drop-zone { padding: 24px 16px; }
-            .drop-zone-icon { font-size: 28px; }
-            .drop-zone-text { font-size: 13px; }
-        }
-        @media (hover: none) { .drop-zone-hint-desktop { display: none; } }
-        @media (hover: hover) and (pointer: fine) { .drop-zone-hint-touch { display: none; } }
-
-        #video-url {
-            background: rgba(255, 255, 255, 0.03);
-            border: 1px solid rgba(255, 255, 255, 0.15);
-            color: #fff;
-            padding: 14px 20px;
-            border-radius: 60px;
-            width: 100%;
-            font-size: 14px;
-            outline: none;
-            margin-bottom: 10px;
-            transition: all var(--transition);
-            caret-color: var(--accent-primary);
-        }
-        #video-url:focus {
-            border-color: var(--accent-primary);
-            background: rgba(255, 255, 255, 0.05);
-            box-shadow: 0 0 0 3px rgba(201, 169, 110, 0.15);
-        }
-        #video-url::placeholder { color: rgba(255, 255, 255, 0.3); font-weight: 300; }
-
-        #event-meta input {
-            background: rgba(255, 255, 255, 0.03);
-            border: 1px solid rgba(255, 255, 255, 0.15);
-            color: #fff;
-            padding: 14px 20px;
-            border-radius: 60px;
-            width: 100%;
-            font-size: 14px;
-            outline: none;
-            margin-bottom: 10px;
-            transition: all var(--transition);
-            caret-color: var(--accent-primary);
-        }
-        #event-meta input:focus {
-            border-color: var(--accent-primary);
-            background: rgba(255, 255, 255, 0.05);
-            box-shadow: 0 0 0 3px rgba(201, 169, 110, 0.15);
-        }
-        #event-meta input::placeholder { color: rgba(255, 255, 255, 0.3); font-weight: 300; }
-        #event-meta input[type="date"],
-        #event-meta input[type="time"] { color-scheme: dark; }
-
-        .toggle-box {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            margin-bottom: 14px;
-            font-size: 13px;
-            color: var(--text-secondary);
-            cursor: pointer;
-            padding: 4px 0;
-        }
-        .toggle-box input {
-            accent-color: var(--accent-primary);
-            width: 18px;
-            height: 18px;
-            cursor: pointer;
-            flex-shrink: 0;
-        }
-
-        .setup-buttons {
-            display: flex;
-            gap: 10px;
-            justify-content: center;
-            margin-bottom: 12px;
-            width: 100%;
-        }
-        .setup-buttons button {
-            flex: 1;
-            min-width: 0;
-            background: rgba(255, 255, 255, 0.03);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            color: var(--text-primary);
-            padding: 14px 20px;
-            border-radius: 60px;
-            font-weight: 500;
-            font-size: 15px;
-            cursor: pointer;
-            letter-spacing: 0.03em;
-            transition: all var(--transition);
-            text-transform: uppercase;
-        }
-        .setup-buttons button.primary {
-            background: #1E1E2A;
-            border: 1px solid var(--accent-primary);
-            color: #F0F0F2;
-            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
-        }
-        .setup-buttons button:active { transform: translateY(1px); border-color: var(--accent-primary); }
-        .setup-buttons button:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
-
-        #upload-status {
-            font-size: 13px;
-            font-weight: 500;
-            color: var(--accent-soft);
-            margin-bottom: 8px;
-            min-height: 18px;
-            text-align: center;
-            padding: 6px;
-            border-radius: 8px;
-        }
-        #upload-status:empty { display: none; }
-        #upload-status.success { background: rgba(76, 175, 80, 0.15); color: #4CAF50; }
-        #upload-status.error { background: rgba(244, 67, 54, 0.15); color: #F44336; }
-
-        #qrcode-wrapper {
-            margin-top: 8px;
-            display: none;
-            text-align: center;
-            width: 100%;
-        }
+        .drop-zone { border: 1.5px dashed rgba(255, 255, 255, 0.25); border-radius: 18px; padding: 32px 20px; text-align: center; margin-bottom: 10px; background: rgba(255, 255, 255, 0.02); cursor: pointer; }
+        .drop-zone-icon { font-size: 32px; margin-bottom: 10px; }
+        #video-url, #event-meta input { background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.15); color: #fff; padding: 14px 20px; border-radius: 60px; width: 100%; font-size: 14px; margin-bottom: 10px; outline: none; }
+        .toggle-box { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; font-size: 13px; color: var(--text-secondary); }
+        
+        .setup-buttons { display: flex; gap: 10px; width: 100%; }
+        .setup-buttons button { flex: 1; background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.2); color: #fff; padding: 14px; border-radius: 60px; font-size: 15px; cursor: pointer; text-transform: uppercase; }
+        .setup-buttons button.primary { background: #1E1E2A; border-color: var(--accent-primary); }
+        #upload-status { font-size: 13px; text-align: center; margin-bottom: 8px; min-height: 18px; }
+        
+        #qrcode-wrapper { display: none; text-align: center; margin-top: 10px; }
         #qrcode-wrapper.visible { display: block; }
-        #qrcode-container {
-            display: inline-block;
-            padding: 16px;
-            background: white;
-            border-radius: var(--radius-m);
-            box-shadow: 0 0 30px rgba(0,0,0,0.5);
-        }
-        #qr-meta-block {
-            margin-top: 10px;
-            font-size: 11px;
-            color: var(--text-secondary);
-            line-height: 1.5;
-            text-align: center;
-            padding: 0 8px;
-        }
-        #qr-meta-block .qr-title {
-            font-weight: 600;
-            font-size: 13px;
-            color: var(--text-primary);
-            margin-bottom: 3px;
-        }
+        #qrcode-container { padding: 16px; background: white; border-radius: 18px; display: inline-block; }
 
-        .action-links {
-            display: flex;
-            gap: 8px;
-            justify-content: center;
-            margin-top: 12px;
-        }
-        .action-links button {
-            background: rgba(255, 255, 255, 0.04);
-            border: 1px solid rgba(255, 255, 255, 0.12);
-            color: var(--accent-soft);
-            font-size: 18px;
-            width: 44px;
-            height: 44px;
-            border-radius: 50%;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: all var(--transition);
-        }
-        .action-links button:hover {
-            background: rgba(201, 169, 110, 0.15);
-            border-color: var(--accent-primary);
-            color: #fff;
-        }
+        .footer { position: absolute; bottom: 10px; left: 0; right: 0; text-align: center; font-size: 10px; color: rgba(255,255,255,0.3); }
+        
+        /* AR Overlays */
+        #ar-caption { position: absolute; bottom: max(170px, calc(env(safe-area-inset-bottom, 0px) + 140px)); left: 20px; right: 20px; z-index: 200; display: none; text-align: center; pointer-events: none; }
+        #ar-caption-title { color: #F0F0F2; font-weight: 600; background: rgba(10, 10, 18, 0.65); backdrop-filter: blur(14px); border: 1px solid rgba(201, 169, 110, 0.4); border-radius: 16px; padding: 12px 18px; margin-bottom: 6px; font-size: clamp(14px, 4vw, 20px); display: inline-block; }
+        #ar-caption-date { color: var(--accent-soft); font-size: clamp(11px, 2.5vw, 13px); text-transform: uppercase; text-shadow: 0 2px 8px rgba(0,0,0,0.9); }
 
-        .footer {
-            position: absolute;
-            bottom: max(10px, env(safe-area-inset-bottom, 10px));
-            left: 0; right: 0;
-            color: rgba(255, 255, 255, 0.25);
-            font-size: 10px;
-            text-align: center;
-            letter-spacing: 0.05em;
-            pointer-events: none;
-        }
-        .footer a {
-            color: rgba(255, 255, 255, 0.4);
-            text-decoration: none;
-            pointer-events: auto;
-            border-bottom: 1px solid transparent;
-            transition: border-color 0.2s;
-        }
-        .footer a:hover { border-bottom-color: var(--accent-primary); }
-
-        .toast {
-            position: fixed;
-            bottom: 30px;
-            left: 50%;
-            transform: translateX(-50%) translateY(20px);
-            background: rgba(20, 20, 30, 0.95);
-            backdrop-filter: blur(12px);
-            border: 1px solid rgba(201, 169, 110, 0.4);
-            color: var(--text-primary);
-            padding: 12px 22px;
-            border-radius: 40px;
-            font-size: 14px;
-            z-index: 2000;
-            opacity: 0;
-            transition: all 0.3s var(--spring);
-            pointer-events: none;
-            max-width: 90vw;
-            text-align: center;
-        }
-        .toast.visible {
-            opacity: 1;
-            transform: translateX(-50%) translateY(0);
-        }
-
-        /* AR overlays */
-        #ar-caption {
-            position: absolute;
-            bottom: max(170px, calc(env(safe-area-inset-bottom, 0px) + 140px));
-            left: 20px; right: 20px;
-            z-index: 200;
-            display: none;
-            text-align: center;
-            pointer-events: none;
-            animation: fadeInCaption 0.8s ease-out;
-        }
-        @keyframes fadeInCaption {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        #ar-caption-title {
-            color: #F0F0F2;
-            font-weight: 600;
-            background: rgba(10, 10, 18, 0.65);
-            backdrop-filter: blur(14px);
-            -webkit-backdrop-filter: blur(14px);
-            border: 1px solid rgba(201, 169, 110, 0.4);
-            border-radius: 16px;
-            padding: 12px 18px;
-            margin-bottom: 6px;
-            font-size: clamp(14px, 4vw, 20px);
-            line-height: 1.3;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
-            display: inline-block;
-        }
-        #ar-caption-date {
-            color: var(--accent-soft);
-            font-size: clamp(11px, 2.5vw, 13px);
-            font-weight: 500;
-            letter-spacing: 0.1em;
-            text-transform: uppercase;
-            text-shadow: 0 2px 8px rgba(0,0,0,0.9);
-        }
-
-        /* Onboarding (в центрі екрану) */
-        #onboarding {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            z-index: 250;
-            display: none;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            pointer-events: none;
-            width: 90%;
-            max-width: 350px;
-        }
+        /* Onboarding (Центр) */
+        #onboarding { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 250; display: none; flex-direction: column; align-items: center; width: 90%; max-width: 350px; pointer-events: none; }
         #onboarding.visible { display: flex; }
-        #step-card {
-            background: rgba(12, 12, 20, 0.85);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border: 1px solid rgba(201, 169, 110, 0.4);
-            border-radius: var(--radius-l);
-            padding: 30px 24px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 16px;
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.7);
-            text-align: center;
-            transition: all 0.35s var(--spring);
-        }
-        #step-emoji {
-            font-size: 64px;
-            filter: drop-shadow(0 0 15px rgba(201, 169, 110, 0.5));
-            margin-bottom: 8px;
-            animation: pulseSoft 2s infinite;
-        }
-        #step-body { display: flex; flex-direction: column; align-items: center; gap: 8px; }
-        #step-num {
-            font-size: 11px;
-            color: var(--accent-primary);
-            letter-spacing: 0.2em;
-            font-weight: 700;
-            text-transform: uppercase;
-        }
-        #step-title { font-size: 22px; font-weight: 700; color: #F0F0F2; }
-        #step-sub { font-size: 14px; color: var(--text-secondary); line-height: 1.5; }
+        #step-card { background: rgba(12, 12, 20, 0.85); backdrop-filter: blur(20px); border: 1px solid rgba(201, 169, 110, 0.4); border-radius: 28px; padding: 30px 24px; text-align: center; box-shadow: 0 10px 40px rgba(0, 0, 0, 0.7); }
+        #step-emoji { font-size: 64px; margin-bottom: 8px; animation: pulseSoft 2s infinite; }
+        #step-num { font-size: 11px; color: var(--accent-primary); font-weight: 700; }
+        #step-title { font-size: 22px; font-weight: 700; margin: 4px 0; }
+        #step-sub { font-size: 14px; color: var(--text-secondary); }
 
-        #autoplay-overlay {
-            position: fixed;
-            inset: 0;
-            background: rgba(8, 8, 14, 0.95);
-            backdrop-filter: blur(18px);
-            -webkit-backdrop-filter: blur(18px);
-            display: none;
-            align-items: center;
-            justify-content: center;
-            z-index: 500;
-            flex-direction: column;
-            gap: 28px;
-            padding: 24px;
-        }
-        #autoplay-overlay.visible { display: flex; }
-        #autoplay-lbl {
-            color: rgba(245, 245, 245, 0.9);
-            font-size: clamp(18px, 5vw, 24px);
-            text-align: center;
-            line-height: 1.5;
-            font-weight: 600;
-            letter-spacing: 0.04em;
-            text-transform: uppercase;
-        }
-        #autoplay-btn {
-            background: #1A1A28;
-            color: #E6D3B3;
-            font-size: 18px;
-            font-weight: 600;
-            padding: 20px 50px;
-            border-radius: 60px;
-            border: 1px solid var(--accent-primary);
-            cursor: pointer;
-            letter-spacing: 0.1em;
-            transition: all var(--transition);
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
-            text-transform: uppercase;
-        }
-        #autoplay-btn:active { transform: scale(0.97); background: #242435; }
+        /* Toast & Debug */
+        #debug-info { position: absolute; bottom: 70px; left: 50%; transform: translateX(-50%); background: rgba(10, 10, 18, 0.8); color: var(--accent-soft); padding: 8px 20px; border-radius: 40px; font-size: 11px; z-index: 150; pointer-events: none; }
+        .toast { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%) translateY(20px); background: rgba(20, 20, 30, 0.95); border: 1px solid var(--accent-primary); color: #fff; padding: 12px 22px; border-radius: 40px; font-size: 14px; z-index: 2000; opacity: 0; transition: all 0.3s; pointer-events: none; }
+        .toast.visible { opacity: 1; transform: translateX(-50%) translateY(0); }
 
-        #debug-info {
-            position: absolute;
-            bottom: max(70px, calc(env(safe-area-inset-bottom, 0px) + 60px));
-            left: 50%;
-            transform: translateX(-50%);
-            z-index: 150;
-            background: rgba(10, 10, 18, 0.8);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            color: var(--accent-soft);
-            padding: 8px 20px;
-            border-radius: 40px;
-            font-size: 11px;
-            pointer-events: none;
-            text-align: center;
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            min-width: 160px;
-            letter-spacing: 0.03em;
-            max-width: 90vw;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-        #debug-info .status-dot {
-            display: inline-block;
-            width: 6px;
-            height: 6px;
-            border-radius: 50%;
-            margin-right: 8px;
-            background: var(--accent-primary);
-            animation: pulseSoft 1.4s ease-in-out infinite;
-            vertical-align: middle;
-        }
-        @keyframes pulseSoft {
-            0%, 100% { opacity: 1; transform: scale(1); }
-            50% { opacity: 0.6; transform: scale(0.95); }
-        }
-
-        @media (prefers-reduced-motion: reduce) {
-            *, *::before, *::after {
-                animation-duration: 0.01ms !important;
-                transition-duration: 0.01ms !important;
-            }
-            #debug-info .status-dot { animation: none; }
-            #step-emoji { animation: none; }
-        }
+        @keyframes pulseSoft { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.6; transform: scale(0.95); } }
+        
+        /* Кнопка звуку */
+        #unmute-btn { position: absolute; top: max(80px, calc(env(safe-area-inset-top, 0px) + 60px)); left: 50%; transform: translateX(-50%); z-index: 350; background: var(--accent-primary); color: #000; padding: 12px 24px; border-radius: 30px; border: none; font-weight: 700; font-size: 14px; cursor: pointer; box-shadow: 0 4px 15px rgba(0,0,0,0.5); display: none; text-transform: uppercase; }
+        #unmute-btn.visible { display: block; animation: pulseSoft 2s infinite; }
     </style>
 </head>
 <body>
 <video id="video" autoplay playsinline muted></video>
 <canvas id="canvas"></canvas>
 
-<div id="ar-caption" aria-hidden="true">
+<div id="ar-caption">
     <div id="ar-caption-title"></div>
     <div id="ar-caption-date"></div>
 </div>
-<div id="debug-info" role="status" aria-live="polite"><span class="status-dot"></span>Ініціалізація</div>
+<div id="debug-info">Ініціалізація</div>
+<button id="unmute-btn">🔊 Увімкнути звук</button>
 
-<!-- ═════════ SETUP SCREEN ═════════ -->
-<div id="setup-screen" role="main">
+<!-- SETUP SCREEN -->
+<div id="setup-screen">
     <div class="setup-container">
         <div class="setup-header">
             <div class="logo">AR STUDIO</div>
-            <h1 data-i18n="h1">Генератор реальності</h1>
-            <p class="tagline" data-i18n="tagline">Доповнена реальність для уроків — за 60 секунд.</p>
+            <h1>Генератор реальності</h1>
             <p class="setup-author">Авторка: <strong>Олеся Бохонок</strong> · SmartLessa 2026</p>
         </div>
 
         <div class="setup-right-col">
-            <div class="wizard-progress" aria-hidden="true">
+            <div class="wizard-progress">
                 <div class="wizard-dot active" data-dot="0"></div>
                 <div class="wizard-dot" data-dot="1"></div>
                 <div class="wizard-dot" data-dot="2"></div>
@@ -801,1254 +163,319 @@
             <div class="setup-wizard">
                 <!-- КРОК 1 -->
                 <div class="wizard-step active" data-step="0">
-                    <div class="step-title" data-i18n="step1_title">Додайте відео</div>
-
+                    <div class="step-title">Додайте відео</div>
                     <div class="drop-zone" id="drop-zone">
                         <div class="drop-zone-icon">📹</div>
-                        <div class="drop-zone-text">
-                            <span class="drop-zone-hint-desktop">
-                                <strong data-i18n="drop_bold">Перетягніть MP4 сюди</strong><br>
-                                <span data-i18n="drop_sub">або натисніть, щоб вибрати</span>
-                            </span>
-                            <span class="drop-zone-hint-touch">
-                                <strong data-i18n="drop_touch_bold">Торкніться, щоб вибрати</strong><br>
-                                <span data-i18n="drop_sub">MP4, до 60 сек · 50 МБ</span>
-                            </span>
-                        </div>
+                        <div class="drop-zone-text"><strong>Торкніться, щоб вибрати</strong><br><span style="font-size:12px;color:#888;">MP4, до 60 сек</span></div>
                         <input type="file" id="video-file-input" accept="video/mp4" style="display:none;" />
                     </div>
-                    <p id="upload-status" role="status" aria-live="polite"></p>
-
-                    <input type="url" id="video-url" placeholder="🔗 або вставте посилання .mp4" aria-label="Посилання на відео" />
-
+                    <p id="upload-status"></p>
+                    <input type="url" id="video-url" placeholder="🔗 або посилання .mp4" />
                     <div class="toggle-box">
                         <input type="checkbox" id="chromakey-toggle" checked>
-                        <label for="chromakey-toggle" data-i18n="chroma">Видалити зелений екран</label>
+                        <label for="chromakey-toggle">Видалити зелений екран</label>
                     </div>
-
                     <div class="setup-buttons">
-                        <button id="next-1" class="primary" data-i18n="next">Далі →</button>
+                        <button id="next-1" class="primary">Далі →</button>
                     </div>
                 </div>
 
                 <!-- КРОК 2 -->
                 <div class="wizard-step" data-step="1">
-                    <div class="step-title" data-i18n="step2_title">Підпис (не обов'язково)</div>
-
-                    <div id="event-meta">
-                        <input type="text" id="event-title"
-                               placeholder="Назва події"
-                               maxlength="80" aria-label="Назва події" />
-                        <div style="display: flex; gap: 10px;">
-                            <input type="date" id="event-date" style="flex:1;" aria-label="Дата" />
-                            <input type="time" id="event-time" style="flex:1;" aria-label="Час" />
-                        </div>
+                    <div class="step-title">Підпис (опційно)</div>
+                    <input type="text" id="event-title" placeholder="Назва події" maxlength="80" />
+                    <div style="display: flex; gap: 10px;">
+                        <input type="date" id="event-date" style="flex:1;" />
+                        <input type="time" id="event-time" style="flex:1;" />
                     </div>
-
                     <div class="setup-buttons">
-                        <button id="prev-1" data-i18n="back">←</button>
-                        <button id="next-2" class="primary" data-i18n="next">Далі →</button>
+                        <button id="prev-1">←</button>
+                        <button id="next-2" class="primary">Далі →</button>
                     </div>
                 </div>
 
                 <!-- КРОК 3 -->
                 <div class="wizard-step" data-step="2">
-                    <div class="step-title" data-i18n="step3_title">Готово</div>
-
+                    <div class="step-title">Готово</div>
                     <div id="qrcode-wrapper">
                         <div id="qrcode-container"></div>
-                        <div id="qr-meta-block"></div>
-                        <div class="action-links">
-                            <button id="share-link" aria-label="Поділитися" title="Поділитися">🔗</button>
-                            <button id="copy-link" aria-label="Копіювати" title="Копіювати">📋</button>
-                        </div>
+                        <div id="qr-meta-block" style="margin-top:10px;font-size:12px;"></div>
                     </div>
-
-                    <div class="setup-buttons" style="margin-top: 16px;">
-                        <button id="prev-2" data-i18n="back">←</button>
-                        <button id="go-ar-btn" class="primary" data-i18n="preview_ar">Запустити AR</button>
+                    <div class="setup-buttons" style="margin-top: 20px;">
+                        <button id="prev-2">←</button>
+                        <button id="go-ar-btn" class="primary">Запустити AR</button>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-
-    <div class="footer">
-        © 2026 <a href="https://github.com/lessa2332" target="_blank" rel="noopener">Олеся Бохонок</a> · SmartLessa
-    </div>
+    <div class="footer">© 2026 <a href="https://github.com/lessa2332" target="_blank" style="color:#C9A96E;text-decoration:none;">Олеся Бохонок</a> · SmartLessa</div>
 </div>
 
-<!-- Toast -->
-<div class="toast" id="toast" role="alert" aria-live="assertive"></div>
-
-<!-- ═════════ LOADING ═════════ -->
-<div id="loading" role="status" aria-live="polite">
+<!-- LOADING -->
+<div id="loading">
     <div id="loading-title">AR STUDIO 2026</div>
-    <div class="load-steps">
-        <div class="load-step" id="ls-model"><span class="si">AI</span><span data-i18n="load_model">Модель руки</span></div>
-        <div class="load-step" id="ls-cam"><span class="si">CAM</span><span data-i18n="load_cam">Камера</span></div>
-        <div class="load-step" id="ls-scene"><span class="si">3D</span><span data-i18n="load_scene">Голограма</span></div>
-    </div>
+    <div class="load-step" id="ls-model"><span>AI</span><span>Модель руки</span></div>
+    <div class="load-step" id="ls-cam"><span>CAM</span><span>Камера</span></div>
     <div class="pbwrap"><div class="pb" id="pb"></div></div>
 </div>
 
-<!-- ═════════ AR OVERLAYS ═════════ -->
-<div class="top-bar" style="display:none;" id="ar-topbar">
-    <button id="camera-toggle" aria-label="Перемкнути камеру">Камера</button>
-    <button id="reset" aria-label="Скинути AR">Скинути</button>
+<!-- AR OVERLAYS -->
+<div class="top-bar" id="ar-topbar" style="display:none;">
+    <button id="camera-toggle">Камера</button>
+    <button id="reset">Скинути</button>
 </div>
 
 <div id="video-controls">
-    <button id="restart-btn" aria-label="Переглянути спочатку">Спочатку</button>
-    <button id="pause-btn" class="pause-btn" aria-label="Пауза або продовжити">Пауза</button>
+    <button id="restart-btn">Спочатку</button>
+    <button id="pause-btn" class="pause-btn">Пауза</button>
 </div>
 
-<!-- Онбординг тепер по центру екрану -->
 <div id="onboarding">
-    <div id="step-card" role="status" aria-live="polite">
+    <div id="step-card">
         <div id="step-emoji">🖐️</div>
-        <div id="step-body">
-            <div id="step-num">КРОК 1</div>
-            <div id="step-title">Покажіть долоню</div>
-            <div id="step-sub">Підніміть руку перед камерою</div>
-        </div>
+        <div id="step-num">КРОК 1</div>
+        <div id="step-title">Покажіть долоню</div>
+        <div id="step-sub">Підніміть руку перед камерою</div>
     </div>
 </div>
+
+<div class="toast" id="toast"></div>
 
 <script type="module">
     import * as THREE from 'https://unpkg.com/three@0.158.0/build/three.module.js';
 
     const WORKER_URL = 'https://ar-videoo.23lessa32.workers.dev';
+    const safeStorage = { get(k) { try { return localStorage.getItem(k); } catch { return null; } }, set(k, v) { try { localStorage.setItem(k, v); } catch {} } };
+    const trackEvent = (name, data = {}) => { try { if (window.cfBeacon?.trackEvent) window.cfBeacon.trackEvent(name, data); if (typeof gtag === 'function') gtag('event', name, data); } catch(e) {} };
 
-    const safeStorage = {
-        get(k) { try { return localStorage.getItem(k); } catch { return null; } },
-        set(k, v) { try { localStorage.setItem(k, v); } catch {} }
-    };
-
-    function trackEvent(name, data = {}) {
-        try { if (window.cfBeacon?.trackEvent) window.cfBeacon.trackEvent(name, data); } catch(e) {}
-        try { if (typeof gtag === 'function') gtag('event', name, data); } catch(e) {}
-    }
-
-    const I18N = {
-        uk: {
-            h1: 'Генератор реальності',
-            tagline: 'Доповнена реальність для уроків — за 60 секунд.',
-            step1_title: 'Додайте відео',
-            drop_bold: 'Перетягніть MP4 сюди',
-            drop_touch_bold: 'Торкніться, щоб вибрати',
-            drop_sub: 'MP4, до 60 сек · 50 МБ',
-            chroma: 'Видалити зелений екран',
-            next: 'Далі →',
-            back: '←',
-            step2_title: "Підпис (не обов'язково)",
-            step3_title: 'Готово',
-            preview_ar: 'Запустити AR',
-            load_model: 'Модель руки',
-            load_cam: 'Камера',
-            load_scene: 'Голограма',
-            err_mp4: 'Тільки .mp4',
-            err_size: 'Максимум 50 МБ',
-            err_dur: 'Максимум 60 секунд',
-            check_dur: 'Перевірка...',
-            uploading: 'Завантаження...',
-            upload_pct: (p) => `Завантаження ${p}%`,
-            upload_done: '✅ Готово',
-            upload_err: 'Помилка сервера',
-            upload_invalid: 'Помилка відповіді',
-            upload_net: 'Помилка мережі',
-            need_video: 'Спочатку додайте відео',
-            step_hand: 'Покажіть долоню',
-            step_hand_sub: 'Підніміть руку перед камерою',
-            step_ok: 'Жест OK',
-            step_ok_sub: "З'єднайте великий і вказівний",
-            step1: 'КРОК 1',
-            step2: 'КРОК 2',
-            copy_done: '✅ Скопійовано',
-            copied_fail: 'Не вдалося',
-            no_camera_desktop: 'Камера недоступна. Відкрийте AR-посилання на телефоні.',
-            desktop_title: "Прев'ю на комп'ютері",
-            desktop_sub: 'Тут показано лише відео. Щоб побачити повну AR-голограму — відскануйте QR-код телефоном.',
-            desktop_video: 'Відео',
-            desktop_scan: 'Скануйте телефоном',
-            desktop_back: '← Назад до налаштувань',
-            desktop_copy: 'Копіювати AR-посилання',
-            desktop_copied: '✅ AR-посилання скопійовано',
-        },
-        en: {
-            h1: 'Reality Generator',
-            tagline: 'Augmented reality for lessons — in 60 seconds.',
-            step1_title: 'Add video',
-            drop_bold: 'Drop MP4 here',
-            drop_touch_bold: 'Tap to choose',
-            drop_sub: 'MP4, up to 60 sec · 50 MB',
-            chroma: 'Remove green screen',
-            next: 'Next →',
-            back: '←',
-            step2_title: 'Label (optional)',
-            step3_title: 'Done',
-            preview_ar: 'Launch AR',
-            load_model: 'Hand model',
-            load_cam: 'Camera',
-            load_scene: 'Hologram',
-            err_mp4: 'Only .mp4',
-            err_size: 'Max 50 MB',
-            err_dur: 'Max 60 seconds',
-            check_dur: 'Checking...',
-            uploading: 'Uploading...',
-            upload_pct: (p) => `Uploading ${p}%`,
-            upload_done: '✅ Done',
-            upload_err: 'Server error',
-            upload_invalid: 'Invalid response',
-            upload_net: 'Network error',
-            need_video: 'Add a video first',
-            step_hand: 'Show your palm',
-            step_hand_sub: 'Raise hand in front of camera',
-            step_ok: 'OK gesture',
-            step_ok_sub: 'Connect thumb and index',
-            step1: 'STEP 1',
-            step2: 'STEP 2',
-            copy_done: '✅ Copied',
-            copied_fail: 'Failed',
-            no_camera_desktop: 'Camera unavailable. Open the AR link on a phone.',
-            desktop_title: 'Desktop preview',
-            desktop_sub: 'This is video only. To see the full AR hologram — scan the QR code with your phone.',
-            desktop_video: 'Video',
-            desktop_scan: 'Scan with phone',
-            desktop_back: '← Back to settings',
-            desktop_copy: 'Copy AR link',
-            desktop_copied: '✅ AR link copied',
-        }
-    };
-    const LANG = (navigator.language || 'uk').toLowerCase().startsWith('uk') ? 'uk' : 'en';
-    const t = (key, arg) => {
-        const val = I18N[LANG][key] ?? I18N.uk[key] ?? key;
-        return typeof val === 'function' ? val(arg) : val;
-    };
-    function applyI18n() {
-        document.querySelectorAll('[data-i18n]').forEach(el => {
-            const key = el.getAttribute('data-i18n');
-            const val = t(key);
-            if (typeof val === 'string') el.innerHTML = val;
-        });
-        document.documentElement.lang = LANG;
-    }
-
-    function getDeviceCapabilities() {
-        const ua = navigator.userAgent;
-        const isAndroid = /Android/i.test(ua);
-        const isIOS = /iPhone|iPad|iPod/i.test(ua);
-        let androidVersion = 0;
-        if (isAndroid) { const m = ua.match(/Android\s([0-9.]+)/); if (m) androidVersion = parseFloat(m[1]); }
-
-        let webgl2Support = false;
-        try { const c = document.createElement('canvas'); webgl2Support = !!c.getContext('webgl2'); } catch(e) {}
-
-        let lowMemory = false;
-        try {
-            if ('deviceMemory' in navigator && typeof navigator.deviceMemory === 'number') {
-                lowMemory = navigator.deviceMemory < 2;
-            }
-        } catch(e) {}
-
-        let useSimpleDetection = false, useGPU = false, cameraQuality = 'high';
-
-        if (isAndroid && androidVersion > 0 && androidVersion <= 8) {
-            useSimpleDetection = true; cameraQuality = 'low';
-        } else if (isAndroid && androidVersion > 0 && androidVersion <= 10 && !webgl2Support) {
-            useSimpleDetection = true; cameraQuality = 'medium';
-        } else if (lowMemory) {
-            useSimpleDetection = true; cameraQuality = 'low';
-        } else if (isIOS) {
-            const m = ua.match(/OS ([0-9_]+)/);
-            if (m && parseFloat(m[1].replace(/_/g, '.')) < 13) {
-                useSimpleDetection = true; cameraQuality = 'low';
-            }
-        } else {
-            useGPU = webgl2Support && !lowMemory;
-            cameraQuality = webgl2Support ? 'high' : 'medium';
-        }
-
-        let prefersReducedMotion = false;
-        try { prefersReducedMotion = matchMedia('(prefers-reduced-motion: reduce)').matches; } catch(e) {}
-
-        return { useSimpleDetection, useGPU, cameraQuality, androidVersion, isAndroid, isIOS, webgl2Support, lowMemory, prefersReducedMotion };
-    }
-
-    const deviceCap = getDeviceCapabilities();
-
-    function sanitizeUrl(str) {
-        if (!str || typeof str !== 'string') return '';
-        try {
-            const u = new URL(str.trim(), window.location.href);
-            return (u.protocol === 'http:' || u.protocol === 'https:') ? u.href : '';
-        } catch { return ''; }
-    }
-    function getParams() {
-        const p = new URLSearchParams(window.location.search);
-        return {
-            video: sanitizeUrl(p.get('video')),
-            chroma: p.get('chroma') !== '0',
-            title: decodeURIComponent(p.get('title') || ''),
-            date: p.get('date') || '',
-            time: p.get('time') || ''
-        };
-    }
+    function sanitizeUrl(str) { try { const u = new URL(str.trim(), window.location.href); return (u.protocol === 'http:' || u.protocol === 'https:') ? u.href : ''; } catch { return ''; } }
+    function getParams() { const p = new URLSearchParams(window.location.search); return { video: sanitizeUrl(p.get('video')), chroma: p.get('chroma') !== '0', title: decodeURIComponent(p.get('title') || ''), date: p.get('date') || '', time: p.get('time') || '' }; }
     const params = getParams();
 
-    function formatCaptionDate(dateStr, timeStr) {
-        if (!dateStr) return '';
-        try {
-            const d = new Date(dateStr + (timeStr ? 'T' + timeStr : ''));
-            return d.toLocaleDateString(LANG === 'uk' ? 'uk-UA' : 'en-US', {
-                day: '2-digit', month: 'long', year: 'numeric'
-            }) + (timeStr ? ' • ' + timeStr : '');
-        } catch { return dateStr + (timeStr ? ' • ' + timeStr : ''); }
-    }
+    function formatCaptionDate(d, t) { if (!d) return ''; try { const dt = new Date(d + (t ? 'T' + t : '')); return dt.toLocaleDateString('uk-UA', { day: '2-digit', month: 'long', year: 'numeric' }) + (t ? ' • ' + t : ''); } catch { return d; } }
+    function showToast(msg) { const el = document.getElementById('toast'); el.textContent = msg; el.classList.add('visible'); setTimeout(() => el.classList.remove('visible'), 2500); }
 
-    function escapeHtml(s) {
-        return String(s).replace(/[&<>"']/g, c => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c]));
-    }
-
-    const cleanup = {
-        tasks: [],
-        add(fn) { this.tasks.push(fn); },
-        run() { this.tasks.forEach(fn => { try { fn(); } catch(e) {} }); this.tasks = []; }
-    };
-    window.addEventListener('pagehide', () => cleanup.run());
-
-    function showToast(msg, type = 'info') {
-        const toast = document.getElementById('toast');
-        if (!toast) return;
-        toast.textContent = msg;
-        toast.style.borderColor = type === 'error'
-            ? 'rgba(244,67,54,0.6)'
-            : 'rgba(201,169,110,0.4)';
-        toast.classList.add('visible');
-        clearTimeout(toast._timer);
-        toast._timer = setTimeout(() => toast.classList.remove('visible'), 2400);
-    }
-
-    function enterSetupMode() {
-        applyI18n();
-        const setupScreen = document.getElementById('setup-screen');
-        setupScreen.style.display = 'flex';
-
-        const steps = setupScreen.querySelectorAll('.wizard-step');
-        const dots = setupScreen.querySelectorAll('.wizard-dot');
-        let currentStep = 0;
-
-        function goStep(n) {
-            currentStep = Math.max(0, Math.min(2, n));
-            steps.forEach((s, i) => s.classList.toggle('active', i === currentStep));
-            dots.forEach((d, i) => {
-                d.classList.toggle('active', i === currentStep);
-                d.classList.toggle('done', i < currentStep);
-            });
-            if (currentStep === 2) refreshQr();
-            setupScreen.scrollTop = 0;
-        }
-
+    // ── SETUP MODE ──
+    function initSetup() {
         const urlInput = document.getElementById('video-url');
         const fileInput = document.getElementById('video-file-input');
         const dropZone = document.getElementById('drop-zone');
         const uploadStatus = document.getElementById('upload-status');
-        const chromaToggle = document.getElementById('chromakey-toggle');
         const titleInput = document.getElementById('event-title');
         const dateInput = document.getElementById('event-date');
         const timeInput = document.getElementById('event-time');
         const qrWrapper = document.getElementById('qrcode-wrapper');
-        const qrContainer = document.getElementById('qrcode-container');
-        const qrMetaBlock = document.getElementById('qr-meta-block');
 
         const now = new Date();
-        try {
-            dateInput.value = now.toISOString().split('T')[0];
-            timeInput.value = now.toTimeString().slice(0, 5);
-        } catch(e) {}
-        const savedTitle = safeStorage.get('lastEventTitle');
-        if (savedTitle) titleInput.value = savedTitle;
-        titleInput.addEventListener('input', () => safeStorage.set('lastEventTitle', titleInput.value));
+        dateInput.value = now.toISOString().split('T')[0];
+        timeInput.value = now.toTimeString().slice(0, 5);
+        if (safeStorage.get('lastTitle')) titleInput.value = safeStorage.get('lastTitle');
+        titleInput.addEventListener('input', () => safeStorage.set('lastTitle', titleInput.value));
 
-        let currentQrUrl = '';
+        let currentStep = 0;
+        const steps = document.querySelectorAll('.wizard-step');
+        const dots = document.querySelectorAll('.wizard-dot');
 
-        function buildARLink(rawUrl) {
-            const clean = sanitizeUrl(rawUrl);
-            if (!clean) return '';
-            const title = encodeURIComponent(titleInput.value.trim() || '');
-            const date = encodeURIComponent(dateInput.value || '');
-            const time = encodeURIComponent(timeInput.value || '');
-            return `${window.location.origin}${window.location.pathname}?video=${encodeURIComponent(clean)}&chroma=${chromaToggle.checked ? '1' : '0'}&title=${title}&date=${date}&time=${time}`;
+        function goStep(n) {
+            currentStep = Math.max(0, Math.min(2, n));
+            steps.forEach((s, i) => s.classList.toggle('active', i === currentStep));
+            dots.forEach((d, i) => { d.classList.toggle('active', i === currentStep); d.style.background = i < currentStep ? 'var(--accent-deep)' : ''; });
+            if (currentStep === 2) refreshQr();
+        }
+
+        function buildLink() {
+            const url = sanitizeUrl(urlInput.value.trim()); if (!url) return '';
+            return `${window.location.origin}${window.location.pathname}?video=${encodeURIComponent(url)}&chroma=${document.getElementById('chromakey-toggle').checked ? '1' : '0'}&title=${encodeURIComponent(titleInput.value)}&date=${dateInput.value}&time=${timeInput.value}`;
         }
 
         function refreshQr() {
-            const link = buildARLink(urlInput.value.trim());
-            if (!link) { qrWrapper.classList.remove('visible'); return; }
-            try {
-                qrContainer.innerHTML = '';
-                new QRCode(qrContainer, {
-                    text: link, width: 180, height: 180,
-                    colorDark: "#0B0B12", colorLight: "#FFFFFF",
-                    correctLevel: QRCode.CorrectLevel.M
-                });
-                qrWrapper.classList.add('visible');
-                currentQrUrl = link;
-
-                let metaText = '';
-                if (titleInput.value.trim()) metaText += `<div class="qr-title">${escapeHtml(titleInput.value.trim())}</div>`;
-                if (dateInput.value) metaText += `<div>${formatCaptionDate(dateInput.value, timeInput.value)}</div>`;
-                qrMetaBlock.innerHTML = metaText;
-
-                trackEvent('qr_generated');
-            } catch(e) { qrWrapper.classList.remove('visible'); }
+            const link = buildLink(); if (!link) return;
+            const container = document.getElementById('qrcode-container');
+            container.innerHTML = '';
+            new QRCode(container, { text: link, width: 160, height: 160, colorDark: "#0B0B12", colorLight: "#FFFFFF" });
+            document.getElementById('qr-meta-block').innerHTML = `<strong>${titleInput.value || 'AR Studio'}</strong>`;
+            qrWrapper.classList.add('visible');
         }
 
-        document.getElementById('next-1').addEventListener('click', () => {
-            if (!sanitizeUrl(urlInput.value.trim())) {
-                showToast(t('need_video'), 'error');
-                return;
-            }
-            goStep(1);
-        });
-        document.getElementById('prev-1').addEventListener('click', () => goStep(0));
-        document.getElementById('next-2').addEventListener('click', () => goStep(2));
-        document.getElementById('prev-2').addEventListener('click', () => goStep(1));
-        document.getElementById('go-ar-btn').addEventListener('click', () => {
-            const link = buildARLink(urlInput.value.trim());
-            if (!link) { showToast(t('need_video'), 'error'); return; }
-            trackEvent('ar_launched');
-            window.location.href = link;
-        });
+        document.getElementById('next-1').onclick = () => { if (!sanitizeUrl(urlInput.value.trim())) return showToast('Спочатку додайте відео'); goStep(1); };
+        document.getElementById('prev-1').onclick = () => goStep(0);
+        document.getElementById('next-2').onclick = () => goStep(2);
+        document.getElementById('prev-2').onclick = () => goStep(1);
+        document.getElementById('go-ar-btn').onclick = () => { const l = buildLink(); if (l) window.location.href = l; };
 
-        function handleFile(file) {
-            if (!file) return;
-            if (!file.name.toLowerCase().endsWith('.mp4')) {
-                uploadStatus.textContent = t('err_mp4');
-                uploadStatus.className = 'error';
-                return;
-            }
-            if (file.size > 50 * 1024 * 1024) {
-                uploadStatus.textContent = t('err_size');
-                uploadStatus.className = 'error';
-                return;
-            }
-            uploadStatus.textContent = t('check_dur');
-            uploadStatus.className = '';
-            const tv = document.createElement('video');
-            tv.preload = 'metadata';
-            const objUrl = URL.createObjectURL(file);
-            tv.src = objUrl;
-            tv.onloadedmetadata = () => {
-                URL.revokeObjectURL(objUrl);
-                if (tv.duration > 65) {
-                    uploadStatus.textContent = t('err_dur');
-                    uploadStatus.className = 'error';
-                    return;
-                }
-                uploadStatus.textContent = t('uploading');
-                uploadStatus.className = '';
-                const xhr = new XMLHttpRequest();
-                const fd = new FormData();
-                fd.append('file', file);
-                xhr.upload.onprogress = (ev) => {
-                    if (ev.lengthComputable) {
-                        uploadStatus.textContent = t('upload_pct', Math.round((ev.loaded / ev.total) * 100));
-                    }
-                };
-                xhr.onload = () => {
-                    try {
-                        const d = JSON.parse(xhr.responseText);
-                        if (d.url) {
-                            urlInput.value = d.url;
-                            uploadStatus.textContent = t('upload_done');
-                            uploadStatus.className = 'success';
-                            trackEvent('video_uploaded', { size: file.size });
-                        } else {
-                            uploadStatus.textContent = t('upload_err');
-                            uploadStatus.className = 'error';
-                        }
-                    } catch {
-                        uploadStatus.textContent = t('upload_invalid');
-                        uploadStatus.className = 'error';
-                    }
-                };
-                xhr.onerror = () => {
-                    uploadStatus.textContent = t('upload_net');
-                    uploadStatus.className = 'error';
-                };
-                xhr.open('POST', WORKER_URL);
-                xhr.send(fd);
-            };
-        }
-
-        dropZone.addEventListener('click', () => fileInput.click());
-        fileInput.addEventListener('change', (e) => handleFile(e.target.files[0]));
-
-        ['dragenter', 'dragover'].forEach(ev => {
-            dropZone.addEventListener(ev, (e) => {
-                e.preventDefault(); e.stopPropagation();
-                dropZone.classList.add('dragover');
-            });
-        });
-        ['dragleave', 'drop'].forEach(ev => {
-            dropZone.addEventListener(ev, (e) => {
-                e.preventDefault(); e.stopPropagation();
-                dropZone.classList.remove('dragover');
-            });
-        });
-        dropZone.addEventListener('drop', (e) => {
-            const file = e.dataTransfer?.files?.[0];
-            if (file) handleFile(file);
-        });
-
-        document.getElementById('copy-link').addEventListener('click', () => {
-            if (!currentQrUrl) return;
-            if (navigator.clipboard?.writeText) {
-                navigator.clipboard.writeText(currentQrUrl)
-                    .then(() => showToast(t('copy_done')))
-                    .catch(() => showToast(t('copied_fail'), 'error'));
-            }
-        });
-        document.getElementById('share-link').addEventListener('click', async () => {
-            if (!currentQrUrl) return;
-            if (navigator.share) {
-                try {
-                    await navigator.share({
-                        title: 'AR Studio SmartLessa',
-                        text: titleInput.value.trim() || 'AR Experience',
-                        url: currentQrUrl
-                    });
-                    trackEvent('share_used');
-                } catch(e) {}
-            } else {
-                document.getElementById('copy-link').click();
-            }
-        });
-
-        goStep(0);
-        trackEvent('setup_opened');
+        dropZone.onclick = () => fileInput.click();
+        fileInput.onchange = (e) => {
+            const f = e.target.files[0]; if (!f) return;
+            uploadStatus.textContent = 'Завантаження...';
+            const xhr = new XMLHttpRequest(); const fd = new FormData(); fd.append('file', f);
+            xhr.upload.onprogress = (ev) => { if (ev.lengthComputable) uploadStatus.textContent = `Завантаження ${Math.round((ev.loaded / ev.total) * 100)}%`; };
+            xhr.onload = () => { try { const d = JSON.parse(xhr.responseText); if (d.url) { urlInput.value = d.url; uploadStatus.textContent = '✅ Готово'; } } catch { uploadStatus.textContent = '❌ Помилка'; } };
+            xhr.open('POST', WORKER_URL); xhr.send(fd);
+        };
     }
 
-    // ═══════════ DESKTOP PREVIEW ═══════════
-    function showDesktopPreview() {
-        document.getElementById('debug-info').style.display = 'none';
-        document.getElementById('onboarding').style.display = 'none';
-        document.getElementById('video-controls').style.display = 'none';
-        document.getElementById('loading').classList.remove('visible');
-        const topBar = document.getElementById('ar-topbar');
-        if (topBar) topBar.style.display = 'none';
-
-        const panel = document.createElement('div');
-        panel.style.cssText = 'position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;background:radial-gradient(circle at 50% 10%, #13131F, #09090F);z-index:999;padding:24px;overflow-y:auto;font-family:"Inter",system-ui,sans-serif;';
-
-        panel.innerHTML = `
-            <div style="font-size:0.85rem;letter-spacing:0.3em;color:#E6D3B3;opacity:0.7;text-transform:uppercase;margin-bottom:6px;">AR STUDIO</div>
-            <h1 style="background:linear-gradient(135deg,#F0F0F2,#C9A96E);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;font-size:1.8rem;font-weight:700;margin-bottom:8px;text-align:center;letter-spacing:-0.01em;">
-                ${t('desktop_title')}
-            </h1>
-            <p style="color:rgba(240,240,242,0.7);font-size:14px;margin-bottom:24px;text-align:center;max-width:480px;line-height:1.6;">
-                ${t('desktop_sub')}
-            </p>
-            <div style="display:flex;gap:24px;flex-wrap:wrap;justify-content:center;align-items:center;margin-bottom:24px;max-width:900px;">
-                <div style="flex:1;min-width:280px;max-width:480px;">
-                    <div style="font-size:11px;color:rgba(230,211,179,0.6);letter-spacing:0.2em;text-transform:uppercase;margin-bottom:8px;text-align:center;">${t('desktop_video')}</div>
-                    <video id="desktop-video" controls autoplay loop playsinline style="width:100%;border-radius:16px;box-shadow:0 20px 60px rgba(0,0,0,0.6);background:#000;display:block;"></video>
-                </div>
-                <div style="flex:1;min-width:220px;max-width:280px;text-align:center;">
-                    <div style="font-size:11px;color:rgba(230,211,179,0.6);letter-spacing:0.2em;text-transform:uppercase;margin-bottom:8px;">${t('desktop_scan')}</div>
-                    <div id="desktop-qr" style="background:#fff;padding:16px;border-radius:16px;display:inline-block;box-shadow:0 8px 32px rgba(0,0,0,0.5);"></div>
-                    <div id="desktop-qr-caption" style="font-size:11px;color:rgba(240,240,242,0.5);margin-top:12px;line-height:1.5;text-align:center;"></div>
-                </div>
-            </div>
-            <div style="display:flex;gap:12px;flex-wrap:wrap;justify-content:center;">
-                <button id="desktop-back" style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.2);color:#F0F0F2;padding:14px 28px;border-radius:60px;font-weight:500;font-size:14px;cursor:pointer;text-transform:uppercase;letter-spacing:0.04em;transition:all 0.25s;">${t('desktop_back')}</button>
-                <button id="desktop-copy-link" style="background:#1E1E2A;border:1px solid #C9A96E;color:#F0F0F2;padding:14px 28px;border-radius:60px;font-weight:500;font-size:14px;cursor:pointer;text-transform:uppercase;letter-spacing:0.04em;transition:all 0.25s;box-shadow:0 8px 24px rgba(0,0,0,0.3);">${t('desktop_copy')}</button>
-            </div>
-            <div style="font-size:11px;color:rgba(230,211,179,0.4);margin-top:24px;letter-spacing:0.05em;text-align:center;">Авторка: Олеся Бохонок · SmartLessa 2026</div>
-        `;
-        document.body.appendChild(panel);
-
-        const desktopVideo = document.getElementById('desktop-video');
-        desktopVideo.src = params.video;
-        desktopVideo.play().catch(() => {});
-
-        try {
-            new QRCode(document.getElementById('desktop-qr'), {
-                text: window.location.href,
-                width: 180, height: 180,
-                colorDark: "#0B0B12", colorLight: "#FFFFFF",
-                correctLevel: QRCode.CorrectLevel.M
-            });
-            const cap = document.getElementById('desktop-qr-caption');
-            let capText = '';
-            if (params.title) capText += `<strong>${escapeHtml(params.title)}</strong><br>`;
-            capText += '<span style="opacity:0.7;">Олеся Бохонок · SmartLessa 2026</span>';
-            cap.innerHTML = capText;
-        } catch(e) {
-            const q = document.getElementById('desktop-qr');
-            if (q) q.style.display = 'none';
-        }
-
-        document.getElementById('desktop-back').addEventListener('click', () => {
-            window.location.href = window.location.origin + window.location.pathname;
-        });
-        document.getElementById('desktop-copy-link').addEventListener('click', () => {
-            if (navigator.clipboard?.writeText) {
-                navigator.clipboard.writeText(window.location.href)
-                    .then(() => showToast(t('desktop_copied')))
-                    .catch(() => showToast(t('copied_fail'), 'error'));
-            }
-        });
-
-        cleanup.add(() => {
-            try { desktopVideo.pause(); desktopVideo.src = ''; desktopVideo.load(); } catch(e) {}
-            panel.remove();
-        });
-
-        trackEvent('desktop_preview_opened');
-    }
-
-    // ═══════════ AR MODE ═══════════
-    let rafId = null;
-    let heartbeatId = null;
-
-    function initARMode() {
-        applyI18n();
-
+    // ── AR MODE ──
+    async function initAR() {
+        document.getElementById('setup-screen').style.display = 'none';
+        document.getElementById('loading').classList.add('visible');
+        document.getElementById('ar-topbar').style.display = 'flex';
         trackEvent('ar_started');
 
         const debugInfo = document.getElementById('debug-info');
-        const CFG = {
-            hologramOffsetY: 0.35,
-            hologramScale: deviceCap.useSimpleDetection ? 0.9 : 1.1,
-            videoSrc: params.video,
-            chromaEnabled: params.chroma,
-            particleCount: deviceCap.prefersReducedMotion ? 0 : (deviceCap.useSimpleDetection ? 8 : 20),
-            detectionInterval: deviceCap.useSimpleDetection ? 80 : 33,
-            cameraQuality: deviceCap.cameraQuality
-        };
-        debugInfo.innerHTML = `<span class="status-dot"></span> ${deviceCap.useSimpleDetection ? 'Optimized' : 'Full'} mode`;
+        const videoEl = document.getElementById('video'), canvasEl = document.getElementById('canvas');
+        const hVideo = document.createElement('video');
+        hVideo.setAttribute('playsinline', ''); hVideo.setAttribute('crossorigin', 'anonymous');
+        hVideo.muted = true; hVideo.loop = false; hVideo.src = params.video; hVideo.load();
 
-        const videoEl = document.getElementById('video');
-        const canvasEl = document.getElementById('canvas');
-        const loadingEl = document.getElementById('loading');
-        const autoplayOverlay = document.getElementById('autoplay-overlay');
-        const autoplayBtn = document.getElementById('autoplay-btn');
-        const resetBtn = document.getElementById('reset');
-        const cameraToggleBtn = document.getElementById('camera-toggle');
-        const pauseBtn = document.getElementById('pause-btn');
-        const restartBtn = document.getElementById('restart-btn');
-        const videoControls = document.getElementById('video-controls');
-        const stepEmoji = document.getElementById('step-emoji');
-        const stepNum = document.getElementById('step-num');
-        const stepTitle = document.getElementById('step-title');
-        const stepSub = document.getElementById('step-sub');
-        const onboardingEl = document.getElementById('onboarding');
-
-        function showStep(s) {
-            if (s === 0) {
-                onboardingEl.classList.add('visible');
-                stepEmoji.textContent = '🖐️';
-                stepNum.textContent = t('step1');
-                stepTitle.textContent = t('step_hand');
-                stepSub.textContent = t('step_hand_sub');
-            } else if (s === 1) {
-                onboardingEl.classList.add('visible');
-                stepEmoji.textContent = '👌';
-                stepNum.textContent = t('step2');
-                stepTitle.textContent = t('step_ok');
-                stepSub.textContent = t('step_ok_sub');
-            } else {
-                onboardingEl.classList.remove('visible'); // Ховаємо підказки
-            }
-        }
-
+        // 3D Scene
         const scene = new THREE.Scene();
         const cam3 = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
         cam3.position.set(0, 0, 3.2);
+        const renderer = new THREE.WebGLRenderer({ canvas: canvasEl, alpha: true, antialias: true });
+        renderer.setClearColor(0, 0); renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2)); renderer.setSize(window.innerWidth, window.innerHeight);
+        window.addEventListener('resize', () => { cam3.aspect = window.innerWidth / window.innerHeight; cam3.updateProjectionMatrix(); renderer.setSize(window.innerWidth, window.innerHeight); });
 
-        function getOptimalDPR() {
-            if (deviceCap.useSimpleDetection) return 1;
-            const dpr = window.devicePixelRatio || 1;
-            const maxPixels = 1920 * 1080;
-            const screenPixels = window.innerWidth * window.innerHeight * dpr * dpr;
-            if (screenPixels > maxPixels) {
-                return Math.max(1, Math.sqrt(maxPixels / (window.innerWidth * window.innerHeight)));
-            }
-            return Math.min(dpr, 2.5);
-        }
-
-        const renderer = new THREE.WebGLRenderer({
-            canvas: canvasEl, alpha: true,
-            antialias: !deviceCap.useSimpleDetection,
-            powerPreference: 'high-performance',
-            stencil: false, depth: false
-        });
-        renderer.setClearColor(0, 0);
-        renderer.setPixelRatio(getOptimalDPR());
-        renderer.setSize(window.innerWidth, window.innerHeight);
-
-        function onWindowResize() {
-            cam3.aspect = window.innerWidth / window.innerHeight;
-            cam3.updateProjectionMatrix();
-            renderer.setPixelRatio(getOptimalDPR());
-            renderer.setSize(window.innerWidth, window.innerHeight);
-        }
-        window.addEventListener('resize', onWindowResize);
-        cleanup.add(() => window.removeEventListener('resize', onWindowResize));
-
-        const hologramGroup = new THREE.Group();
-        scene.add(hologramGroup);
-
-        const hVideo = document.createElement('video');
-        hVideo.setAttribute('playsinline', '');
-        hVideo.setAttribute('crossorigin', 'anonymous');
-        hVideo.muted = true; // початково без звуку
-        hVideo.loop = false;
-        hVideo.preload = 'auto';
-        hVideo.src = CFG.videoSrc;
-        hVideo.load();
-
+        const hologramGroup = new THREE.Group(); scene.add(hologramGroup);
         const vTex = new THREE.VideoTexture(hVideo);
-        vTex.minFilter = THREE.LinearFilter;
-        vTex.magFilter = THREE.LinearFilter;
-        vTex.generateMipmaps = false;
-
-        const vShader = `varying vec2 vUv; void main(){ vUv = uv; gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }`;
-        const fShader = `
-        uniform sampler2D uTex; uniform float uPlaying; uniform float uChroma; varying vec2 vUv;
-        vec3 rgb2hsv(vec3 c){
-            vec4 K=vec4(0.,-1./3.,2./3.,-1.);
-            vec4 p=mix(vec4(c.bg,K.wz),vec4(c.gb,K.xy),step(c.b,c.g));
-            vec4 q=mix(vec4(p.xyw,c.r),vec4(c.r,p.yzx),step(p.x,c.r));
-            float d=q.x-min(q.w,q.y); float e=1e-10;
-            return vec3(abs(q.z+(q.w-q.y)/(6.*d+e)),d/(q.x+e),q.x);
-        }
-        void main(){
-            if(uPlaying < 0.5) discard;
-            vec4 col = texture2D(uTex, vUv);
-            if(uChroma > 0.5){
-                vec3 hsv = rgb2hsv(col.rgb);
-                float hDeg = hsv.x * 360.0;
-                if(hDeg > 75.0 && hDeg < 170.0 && hsv.y > 0.24 && hsv.z > 0.08) discard;
-                float edgeMask = 1.0;
-                if(hDeg > 70.0 && hDeg < 175.0 && hsv.y > 0.14 && hsv.z > 0.06){
-                    edgeMask = 1.0 - smoothstep(0.14, 0.28, hsv.y);
-                    if(edgeMask < 0.05) discard;
-                }
-                gl_FragColor = vec4(col.rgb, edgeMask);
-            } else {
-                gl_FragColor = col;
-            }
-        }`;
-
+        
         const hMat = new THREE.ShaderMaterial({
-            uniforms: {
-                uTex: { value: vTex },
-                uPlaying: { value: 0 },
-                uChroma: { value: CFG.chromaEnabled ? 1.0 : 0.0 }
-            },
-            vertexShader: vShader,
-            fragmentShader: fShader,
-            transparent: true,
-            side: THREE.DoubleSide,
-            depthWrite: false
+            uniforms: { uTex: { value: vTex }, uPlaying: { value: 0 }, uChroma: { value: params.chroma ? 1.0 : 0.0 } },
+            vertexShader: `varying vec2 vUv; void main(){ vUv = uv; gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }`,
+            fragmentShader: `
+                uniform sampler2D uTex; uniform float uPlaying; uniform float uChroma; varying vec2 vUv;
+                vec3 rgb2hsv(vec3 c){ vec4 K=vec4(0.,-1./3.,2./3.,-1.); vec4 p=mix(vec4(c.bg,K.wz),vec4(c.gb,K.xy),step(c.b,c.g)); vec4 q=mix(vec4(p.xyw,c.r),vec4(c.r,p.yzx),step(p.x,c.r)); float d=q.x-min(q.w,q.y); float e=1e-10; return vec3(abs(q.z+(q.w-q.y)/(6.*d+e)),d/(q.x+e),q.x); }
+                void main(){
+                    if(uPlaying < 0.5) discard;
+                    vec4 col = texture2D(uTex, vUv);
+                    if(uChroma > 0.5){
+                        vec3 hsv = rgb2hsv(col.rgb); float hDeg = hsv.x * 360.0;
+                        if(hDeg > 75.0 && hDeg < 170.0 && hsv.y > 0.24 && hsv.z > 0.08) discard;
+                        float edgeMask = 1.0;
+                        if(hDeg > 70.0 && hDeg < 175.0 && hsv.y > 0.14 && hsv.z > 0.06){ edgeMask = 1.0 - smoothstep(0.14, 0.28, hsv.y); if(edgeMask < 0.05) discard; }
+                        gl_FragColor = vec4(col.rgb, edgeMask);
+                    } else { gl_FragColor = col; }
+                }`,
+            transparent: true, side: THREE.DoubleSide, depthWrite: false
         });
 
-        const hPlane = new THREE.Mesh(
-            new THREE.PlaneGeometry(CFG.hologramScale, CFG.hologramScale * 0.75),
-            hMat
-        );
-        hPlane.position.y = CFG.hologramOffsetY;
-        hologramGroup.add(hPlane);
+        const hPlane = new THREE.Mesh(new THREE.PlaneGeometry(1.1, 0.825), hMat);
+        hPlane.position.y = 0.35; hologramGroup.add(hPlane);
+        
+        hVideo.addEventListener('loadedmetadata', () => { const asp = hVideo.videoWidth / hVideo.videoHeight || 1.33; hPlane.scale.set(1, 1 / asp * (4/3), 1); });
 
-        hVideo.addEventListener('loadedmetadata', () => {
-            const asp = hVideo.videoWidth / hVideo.videoHeight || 1.333;
-            hPlane.scale.set(1, 1 / asp * (4/3), 1);
-        });
+        let hologramActive = false, isPaused = false, videoPlayed = false;
 
-        const particles = new THREE.Group();
-        hologramGroup.add(particles);
-        const pGeo = new THREE.SphereGeometry(deviceCap.useSimpleDetection ? 0.01 : 0.008, 4, 4);
-        const pMat = new THREE.MeshStandardMaterial({
-            color: 0xC9A96E, emissive: 0x8C6E3F,
-            emissiveIntensity: deviceCap.useSimpleDetection ? 0.2 : 0.3,
-            roughness: 0.6, metalness: 0.4
-        });
-        for (let i = 0; i < CFG.particleCount; i++) {
-            const p = new THREE.Mesh(pGeo, pMat);
-            p.userData = {
-                angle: (i / CFG.particleCount) * Math.PI * 2,
-                radius: 0.65,
-                speed: 0.3 + Math.random() * 0.4
-            };
-            particles.add(p);
-        }
-        scene.add(new THREE.AmbientLight(0xffffff, 0.8));
-        const ptLight = new THREE.PointLight(0xC9A96E, 0.6);
-        ptLight.position.set(0, 1, 2);
-        scene.add(ptLight);
-
-        let videoPlayed = false, hologramActive = false, isPaused = false;
-
-        function updatePauseButton() {
-            pauseBtn.textContent = isPaused ? 'Продовжити' : 'Пауза';
-        }
-
-        pauseBtn.addEventListener('click', () => {
-            if (!videoPlayed) return;
-            if (isPaused) {
-                hVideo.play().catch(() => {});
-                hMat.uniforms.uPlaying.value = 1;
-                isPaused = false;
-                trackEvent('video_resumed');
-            } else {
-                hVideo.pause();
-                hMat.uniforms.uPlaying.value = 0;
-                isPaused = true;
-                trackEvent('video_paused');
-            }
-            updatePauseButton();
-        });
-
-        restartBtn.addEventListener('click', () => {
-            hVideo.currentTime = 0;
-            if (isPaused) { isPaused = false; updatePauseButton(); }
-            hVideo.play().catch(() => {});
-            hMat.uniforms.uPlaying.value = 1;
-            videoPlayed = true;
-            trackEvent('video_restarted');
-        });
-
-        function resetVideoState() {
-            videoPlayed = false;
-            isPaused = false;
-            try { hVideo.pause(); hVideo.currentTime = 0; } catch(e) {}
-            hMat.uniforms.uPlaying.value = 0;
-            autoplayOverlay.classList.remove('visible');
-            videoControls.style.display = 'none';
-            updatePauseButton();
-        }
-
-        hVideo.addEventListener('ended', () => {
-            if (!hologramActive) return;
-            hMat.uniforms.uPlaying.value = 0;
-            isPaused = false;
-            updatePauseButton();
-            trackEvent('video_ended');
-        });
-
-        // 🔥 ФУНКЦІЯ ДЛЯ ЗАПУСКУ ЗІ ЗВУКОМ (викликається через жест руки)
-        async function tryAutoplay() {
-            hVideo.muted = false; // Вмикаємо звук!
+        // Камера
+        let facingMode = 'user';
+        async function startCamera() {
             try {
-                await hVideo.play();
-                videoPlayed = true;
-                hMat.uniforms.uPlaying.value = 1;
-                videoControls.style.display = 'flex';
-                debugInfo.innerHTML = `<span class="status-dot"></span> Video + Audio`;
-            } catch(e) {
-                // Якщо браузер все одно блокує (рідко, але буває на iOS)
-                hVideo.muted = true;
-                try {
-                    await hVideo.play();
-                    videoPlayed = true;
-                    hMat.uniforms.uPlaying.value = 1;
-                    videoControls.style.display = 'flex';
-                    debugInfo.innerHTML = `<span class="status-dot"></span> Video (muted)`;
-                } catch(e2) {
-                    autoplayOverlay.classList.add('visible');
-                }
-            }
+                const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode } });
+                videoEl.srcObject = stream; await videoEl.play();
+                videoEl.style.transform = facingMode === 'user' ? 'scaleX(-1)' : 'none';
+                return true;
+            } catch { return false; }
         }
 
-        autoplayBtn.addEventListener('click', async () => {
-            autoplayOverlay.classList.remove('visible');
+        document.getElementById('camera-toggle').onclick = async () => { facingMode = facingMode === 'user' ? 'environment' : 'user'; await startCamera(); };
+        document.getElementById('reset').onclick = () => { hologramActive = false; hologramGroup.visible = false; hVideo.pause(); hVideo.currentTime = 0; hMat.uniforms.uPlaying.value = 0; document.getElementById('onboarding').classList.add('visible'); showStep(0); };
+
+        function showStep(s) {
+            const emoji = document.getElementById('step-emoji'), title = document.getElementById('step-title'), sub = document.getElementById('step-sub'), num = document.getElementById('step-num');
+            if (s === 0) { emoji.textContent = '🖐️'; num.textContent = 'КРОК 1'; title.textContent = 'Покажіть долоню'; sub.textContent = 'Підніміть руку перед камерою'; }
+            else if (s === 1) { emoji.textContent = '👌'; num.textContent = 'КРОК 2'; title.textContent = 'Жест OK'; sub.textContent = "З'єднайте пальці"; }
+        }
+
+        const pauseBtn = document.getElementById('pause-btn'), restartBtn = document.getElementById('restart-btn'), videoControls = document.getElementById('video-controls');
+        const unmuteBtn = document.getElementById('unmute-btn');
+
+        pauseBtn.onclick = () => { if (isPaused) { hVideo.play(); hMat.uniforms.uPlaying.value = 1; isPaused = false; pauseBtn.textContent = 'Пауза'; } else { hVideo.pause(); hMat.uniforms.uPlaying.value = 0; isPaused = true; pauseBtn.textContent = 'Продовжити'; } };
+        restartBtn.onclick = () => { hVideo.currentTime = 0; hVideo.play(); hMat.uniforms.uPlaying.value = 1; };
+
+        // ✅ ГОЛОВНА ФУНКЦІЯ ЗАПУСКУ (Безпечна)
+        async function activateHologram() {
+            if (hologramActive) return;
+            hologramActive = true;
+            hologramGroup.visible = true;
+            document.getElementById('onboarding').classList.remove('visible'); // Ховаємо підказки
+            debugInfo.innerHTML = 'Голограма активована';
+
+            // 1. Пробуємо зі звуком (жест - це дозвіл)
             hVideo.muted = false;
             try {
                 await hVideo.play();
-                videoPlayed = true;
-                hMat.uniforms.uPlaying.value = 1;
-                videoControls.style.display = 'flex';
-                debugInfo.innerHTML = `<span class="status-dot"></span> Video + Audio`;
-            } catch(e) {
-                hVideo.muted = true;
-                try {
-                    await hVideo.play();
-                    videoPlayed = true;
-                    hMat.uniforms.uPlaying.value = 1;
-                    videoControls.style.display = 'flex';
-                } catch(e2) {}
-            }
-        });
-
-        function activateHologram() {
-            if (hologramActive || videoPlayed) return;
-            hologramActive = true;
-            hologramGroup.visible = true;
-            showStep(2); // Ховає підказки
-            if ('vibrate' in navigator) { try { navigator.vibrate(100); } catch(e) {} }
-            debugInfo.innerHTML = `<span class="status-dot"></span> Hologram activated`;
-            trackEvent('hologram_activated');
-            tryAutoplay(); // Запуск відео ЗІ ЗВУКОМ
-        }
-
-        let facingMode = 'user';
-
-        function updateVideoMirror() {
-            videoEl.style.transform = facingMode === 'user' ? 'scaleX(-1)' : 'none';
-        }
-        function getCameraConstraints() {
-            const q = CFG.cameraQuality;
-            let w, h;
-            switch(q) {
-                case 'low': w = 240; h = 180; break;
-                case 'medium': w = 320; h = 240; break;
-                default: w = 480; h = 360;
-            }
-            return {
-                video: {
-                    facingMode,
-                    width: { ideal: w, max: w * 1.5 },
-                    height: { ideal: h, max: h * 1.5 }
-                }
-            };
-        }
-
-        async function startCamera() {
-            const camStep = document.getElementById('ls-cam');
-            camStep.classList.add('active');
-
-            if (videoEl.srcObject) {
-                videoEl.srcObject.getTracks().forEach(track => track.stop());
-                videoEl.srcObject = null;
-            }
-            if (!navigator.mediaDevices?.getUserMedia) {
-                return false;
-            }
-            const tryC = async (c) => {
-                const s = await navigator.mediaDevices.getUserMedia(c);
-                videoEl.srcObject = s;
-                await videoEl.play();
-                return s;
-            };
-            try {
-                await tryC(getCameraConstraints());
-            } catch(e) {
-                try { await tryC({ video: { facingMode } }); }
-                catch { return false; }
-            }
-            await new Promise(r => {
-                if (videoEl.readyState >= 2 && videoEl.videoWidth > 0) r();
-                else videoEl.addEventListener('loadedmetadata', r, { once: true });
-            });
-            onWindowResize();
-            camStep.classList.replace('active', 'done');
-            setPb(80);
-            updateVideoMirror();
-            debugInfo.innerHTML = `<span class="status-dot"></span> Camera ready (${CFG.cameraQuality})`;
-            return true;
-        }
-
-        function detectHandSimple(imageData) {
-            const data = imageData.data, w = imageData.width, h = imageData.height, step = 4;
-            let skinPixels = [];
-            for (let y = 0; y < h; y += step) {
-                for (let x = 0; x < w; x += step) {
-                    const i = (y * w + x) * 4;
-                    const r = data[i], g = data[i+1], b = data[i+2];
-                    if (r > 60 && g > 40 && b > 20 && r > g && r > b &&
-                        (r - g) / (r + 1) > 0.05 && r > 80 && g > 50) {
-                        skinPixels.push({ x, y });
-                    }
-                }
-            }
-            if (skinPixels.length < 15) return null;
-            let cx = 0, cy = 0;
-            for (const p of skinPixels) { cx += p.x; cy += p.y; }
-            cx /= skinPixels.length; cy /= skinPixels.length;
-            let spread = 0;
-            for (const p of skinPixels) {
-                const dx = p.x - cx, dy = p.y - cy;
-                spread += Math.sqrt(dx*dx + dy*dy);
-            }
-            spread /= skinPixels.length;
-            const handRatio = spread / Math.max(w, h);
-            if (handRatio < 0.01 || handRatio > 0.4) return null;
-            return { x: cx / w, y: cy / h, confidence: Math.min(1, skinPixels.length / 80) };
-        }
-
-        let handLandmarker = null;
-        let handVisible = false;
-        let handStableCount = 0;
-        let lastDetectTime = 0;
-        let detectionRunning = false;
-        let frameCount = 0;
-        let useFallback = deviceCap.useSimpleDetection;
-        let detectionPaused = false;
-        let detectCanvas = null, detectCtx = null;
-
-        async function initDetection() {
-            const modelStep = document.getElementById('ls-model');
-            modelStep.classList.add('active');
-            setPb(10);
-
-            if (useFallback) {
-                modelStep.classList.replace('active', 'done');
-                debugInfo.innerHTML = `<span class="status-dot"></span> Simple detection (${CFG.cameraQuality})`;
-                setPb(60);
+                videoPlayed = true; hMat.uniforms.uPlaying.value = 1; videoControls.style.display = 'flex';
+                debugInfo.innerHTML = 'Відео + Звук';
                 return;
+            } catch(e) {
+                // 2. Якщо браузер заблокував - запускаємо БЕЗ ЗВУКУ (100% спрацює)
+                hVideo.muted = true;
+                await hVideo.play();
+                videoPlayed = true; hMat.uniforms.uPlaying.value = 1; videoControls.style.display = 'flex';
+                debugInfo.innerHTML = 'Відео (без звуку)';
+                unmuteBtn.classList.add('visible'); // Показуємо кнопку "Увімкнути звук"
             }
+        }
+
+        unmuteBtn.onclick = () => {
+            hVideo.muted = false;
+            unmuteBtn.classList.remove('visible');
+            debugInfo.innerHTML = 'Звук увімкнено';
+        };
+
+        // Детекція руки (MediaPipe)
+        let handLandmarker = null;
+        try {
+            const { FilesetResolver, HandLandmarker } = await import('https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.3/+esm');
+            const vision = await FilesetResolver.forVisionTasks('https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.3/wasm');
+            handLandmarker = await HandLandmarker.createFromOptions(vision, { baseOptions: { modelAssetPath: 'https://storage.googleapis.com/mediapipe-models/hand_landmarker/hand_landmarker/float16/1/hand_landmarker.task' }, runningMode: 'VIDEO', numHands: 1 });
+        } catch(e) { console.warn('MediaPipe failed', e); }
+
+        const ok = await startCamera();
+        if (!ok) { debugInfo.innerHTML = 'Помилка камери'; return; }
+
+        document.getElementById('loading').classList.remove('visible');
+        document.getElementById('onboarding').classList.add('visible');
+        showStep(0);
+
+        // Запуск циклу детекції
+        let lastDetectTime = 0;
+        function detectLoop() {
+            requestAnimationFrame(detectLoop);
+            if (!handLandmarker || hologramActive || videoEl.readyState < 2) return;
+            const now = performance.now();
+            if (now - lastDetectTime < 100) return;
+            lastDetectTime = now;
 
             try {
-                const importPromise = import('https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.3/+esm');
-                const timeoutPromise = new Promise((_, reject) =>
-                    setTimeout(() => reject(new Error('timeout')), 10000)
-                );
-                const { FilesetResolver, HandLandmarker } = await Promise.race([importPromise, timeoutPromise]);
-                const vision = await FilesetResolver.forVisionTasks('https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.3/wasm');
-                setPb(40);
-
-                handLandmarker = await HandLandmarker.createFromOptions(vision, {
-                    baseOptions: {
-                        modelAssetPath: 'https://storage.googleapis.com/mediapipe-models/hand_landmarker/hand_landmarker/float16/1/hand_landmarker.task',
-                        delegate: deviceCap.useGPU ? 'GPU' : 'CPU'
-                    },
-                    runningMode: 'VIDEO',
-                    numHands: 1
-                });
-                setPb(60);
-                modelStep.classList.replace('active', 'done');
-                debugInfo.innerHTML = `<span class="status-dot"></span> MediaPipe (${deviceCap.useGPU ? 'GPU' : 'CPU'})`;
-            } catch(e) {
-                modelStep.classList.replace('active', 'done');
-                useFallback = true;
-                debugInfo.innerHTML = `<span class="status-dot"></span> Fallback detection`;
-                setPb(60);
-            }
-        }
-
-        function detectionLoop() {
-            if (!detectionPaused) {
-                if (detectionRunning) {
-                    rafId = requestAnimationFrame(detectionLoop);
-                    return;
-                }
-                detectionRunning = true;
-                const now = performance.now();
-                const interval = handVisible ? CFG.detectionInterval : (useFallback ? 100 : 66);
-
-                if (now - lastDetectTime >= interval && !document.hidden) {
-                    lastDetectTime = now;
-                    frameCount++;
-                    if (videoEl.readyState >= 2 && videoEl.videoWidth > 0) {
-                        try {
-                            let detected = false, normX = 0.5, normY = 0.5, isOk = false;
-
-                            if (handLandmarker && !useFallback) {
-                                try {
-                                    const res = handLandmarker.detectForVideo(videoEl, now);
-                                    if (res.landmarks?.length > 0) {
-                                        const lm = res.landmarks[0];
-                                        detected = true;
-                                        normX = (lm[0].x + lm[17].x) / 2;
-                                        normY = (lm[0].y + lm[17].y) / 2;
-
-                                        const okD = Math.hypot(lm[4].x - lm[8].x, lm[4].y - lm[8].y, lm[4].z - lm[8].z);
-                                        const palmSz = Math.hypot(lm[0].x - lm[9].x, lm[0].y - lm[9].y, lm[0].z - lm[9].z) || 0.001;
-                                        const circle = okD < palmSz * 0.45;
-                                        const ext3 = [12, 16, 20].filter(tip => {
-                                            const dTip = Math.hypot(lm[tip].x - lm[0].x, lm[tip].y - lm[0].y, lm[tip].z - lm[0].z);
-                                            const dPip = Math.hypot(lm[tip-2].x - lm[0].x, lm[tip-2].y - lm[0].y, lm[tip-2].z - lm[0].z);
-                                            return dTip > dPip;
-                                        }).length >= 2;
-                                        isOk = circle && ext3;
-                                    }
-                                } catch(e) { useFallback = true; }
-                            }
-
-                            if (!detected && useFallback) {
-                                if (!detectCanvas) {
-                                    detectCanvas = document.createElement('canvas');
-                                    detectCanvas.width = 160; detectCanvas.height = 120;
-                                    detectCtx = detectCanvas.getContext('2d', { willReadFrequently: true });
-                                }
-                                detectCtx.drawImage(videoEl, 0, 0, 160, 120);
-                                const h = detectHandSimple(detectCtx.getImageData(0, 0, 160, 120));
-                                if (h && h.confidence > 0.25) {
-                                    detected = true; normX = h.x; normY = h.y;
-                                }
-                            }
-
-                            if (detected) {
-                                if (!handVisible) {
-                                    handVisible = true;
-                                    handStableCount = 0;
-                                    debugInfo.innerHTML = `<span class="status-dot"></span> Hand detected`;
-                                    showStep(1);
-                                }
-                                handStableCount++;
-                                const shouldActivate = (!useFallback && isOk) || (useFallback && handStableCount > 5);
-                                if (shouldActivate && !hologramActive && !videoPlayed) {
-                                    activateHologram();
-                                }
-                                const mir = facingMode === 'user', dir = mir ? -1 : 1;
-                                hologramGroup.position.x += (dir * (normX * 2 - 1) - hologramGroup.position.x) * 0.12;
-                                hologramGroup.position.y += ((0.5 - normY) * 1.5 + CFG.hologramOffsetY - hologramGroup.position.y) * 0.12;
-                                if (!hologramGroup.visible && !hologramActive) hologramGroup.visible = true;
-                            } else {
-                                if (handVisible) {
-                                    handVisible = false;
-                                    handStableCount = 0;
-                                    if (!hologramActive) {
-                                        hologramGroup.visible = false;
-                                        showStep(0);
-                                        debugInfo.innerHTML = `<span class="status-dot"></span> Looking for hand`;
-                                    }
-                                }
-                            }
-                        } catch(e) {
-                            if (frameCount % 60 === 0) debugInfo.innerHTML = `<span class="status-dot"></span> Detection error`;
-                        }
+                const res = handLandmarker.detectForVideo(videoEl, now);
+                if (res.landmarks?.length > 0) {
+                    const lm = res.landmarks[0];
+                    // Перевірка жесту OK
+                    const okD = Math.hypot(lm[4].x - lm[8].x, lm[4].y - lm[8].y);
+                    const palmSz = Math.hypot(lm[0].x - lm[9].x, lm[0].y - lm[9].y) || 0.001;
+                    if (okD < palmSz * 0.5) {
+                        activateHologram();
                     }
+                    // Рух голограми за рукою
+                    const mir = facingMode === 'user', dir = mir ? -1 : 1;
+                    hologramGroup.position.x += (dir * ((lm[0].x + lm[17].x)/2 * 2 - 1) - hologramGroup.position.x) * 0.1;
+                    hologramGroup.position.y += ((0.5 - (lm[0].y + lm[17].y)/2) * 1.5 + 0.35 - hologramGroup.position.y) * 0.1;
                 }
-                detectionRunning = false;
-            }
-            rafId = requestAnimationFrame(detectionLoop);
+            } catch(e) {}
         }
 
+        // Анімація
         function animate() {
-            rafId = requestAnimationFrame(animate);
-            if (hologramGroup.visible) {
-                const t2 = performance.now() / 1000;
-                particles.children.forEach(p => {
-                    const a = t2 * p.userData.speed + p.userData.angle;
-                    p.position.set(
-                        Math.cos(a) * p.userData.radius,
-                        Math.sin(a * 2) * 0.05,
-                        Math.sin(a) * p.userData.radius
-                    );
-                });
-            }
+            requestAnimationFrame(animate);
             renderer.render(scene, cam3);
         }
-
-        document.addEventListener('visibilitychange', () => {
-            detectionPaused = document.hidden;
-        });
-
-        cameraToggleBtn.addEventListener('click', async () => {
-            facingMode = facingMode === 'environment' ? 'user' : 'environment';
-            await startCamera();
-            updateVideoMirror();
-        });
-
-        resetBtn.addEventListener('click', () => {
-            handVisible = false;
-            hologramActive = false;
-            handStableCount = 0;
-            hologramGroup.visible = false;
-            resetVideoState();
-            showStep(0);
-            debugInfo.innerHTML = `<span class="status-dot"></span> Reset`;
-        });
-
-        cleanup.add(() => {
-            if (rafId) cancelAnimationFrame(rafId);
-            if (heartbeatId) clearInterval(heartbeatId);
-            try { vTex.dispose(); hMat.dispose(); pGeo.dispose(); pMat.dispose(); renderer.dispose(); } catch(e) {}
-            if (videoEl.srcObject) {
-                videoEl.srcObject.getTracks().forEach(track => track.stop());
-            }
-            if (hVideo.src) { try { hVideo.pause(); hVideo.src = ''; hVideo.load(); } catch(e) {} }
-        });
-
-        function setPb(v) {
-            const pb = document.getElementById('pb');
-            if (pb) pb.style.width = v + '%';
-        }
-
-        function initCaption() {
-            if (!params.title && !params.date) return;
-            const caption = document.getElementById('ar-caption');
-            const titleEl = document.getElementById('ar-caption-title');
-            const dateEl = document.getElementById('ar-caption-date');
-
-            if (params.title) {
-                titleEl.textContent = params.title;
-                const len = params.title.length;
-                if (len > 60) titleEl.style.fontSize = 'clamp(12px, 3vw, 18px)';
-                else if (len > 40) titleEl.style.fontSize = 'clamp(14px, 3.5vw, 20px)';
-                else titleEl.style.fontSize = 'clamp(16px, 4vw, 24px)';
-            } else {
-                titleEl.style.display = 'none';
-            }
-            if (params.date) {
-                dateEl.textContent = '📅 ' + formatCaptionDate(params.date, params.time);
-            }
-            caption.style.display = 'block';
-        }
-
-        async function init() {
-            try {
-                loadingEl.classList.add('visible');
-                onboardingEl.classList.add('visible');
-
-                await initDetection();
-                document.getElementById('ls-scene').classList.add('active');
-
-                const ok = await startCamera();
-                if (!ok) {
-                    loadingEl.classList.remove('visible');
-                    onboardingEl.classList.remove('visible');
-                    document.getElementById('setup-screen').style.display = 'none';
-                    document.getElementById('debug-info').style.display = 'none';
-                    showDesktopPreview();
-                    return;
-                }
-
-                setPb(95);
-                hologramGroup.visible = false;
-                document.getElementById('ls-scene').classList.replace('active', 'done');
-                setPb(100);
-                await new Promise(r => setTimeout(r, 300));
-                loadingEl.classList.remove('visible');
-
-                document.getElementById('setup-screen').style.display = 'none';
-                document.getElementById('ar-topbar').style.display = 'flex';
-
-                showStep(0);
-                initCaption();
-                animate();
-                detectionLoop();
-                heartbeatId = setInterval(() => trackEvent('session_heartbeat'), 30000);
-            } catch(e) {
-                debugInfo.innerHTML = `<span class="status-dot"></span> ${e.message || 'Error'}`;
-                loadingEl.innerHTML = '<div style="color:#f44;text-align:center;padding:24px">Error loading.<br>Reload the page.</div>';
-            }
-        }
-
-        init();
+        animate();
+        detectLoop();
     }
 
-    // ═══════════ BOOT ═══════════
-    if (!params.video) {
-        enterSetupMode();
-    } else {
-        initARMode();
-    }
-
-    // ═══════════ SERVICE WORKER (безпечна реєстрація) ═══════════
-    if ('serviceWorker' in navigator) {
-        window.addEventListener('load', () => {
-            fetch('sw.js', { method: 'HEAD' })
-                .then(r => { if (r.ok) navigator.serviceWorker.register('sw.js').catch(() => {}); })
-                .catch(() => {});
-        });
-        window.addEventListener('appinstalled', () => {
-            try { if (typeof gtag === 'function') gtag('event', 'pwa_installed', { app: 'AR_Studio_2026' }); } catch(e) {}
-        });
-    }
+    if (!params.video) initSetup();
+    else initAR();
 </script>
 </body>
 </html>
