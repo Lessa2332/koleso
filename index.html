@@ -2,734 +2,1301 @@
 <html lang="uk">
 <head>
     <meta charset="UTF-8">
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-LZ2J670JDT"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-LZ2J670JDT');
+    </script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Golden Wheel · SmartLessa</title>
-    
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
-    
+    <title>AR Студія | SmartLessa 2026</title>
+
+    <!-- PWA -->
+    <link rel="manifest" href="manifest.json">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <link rel="apple-touch-icon" href="icon-192.png">
+    <meta name="description" content="AR Студія SmartLessa — створіть доповнену реальність для уроків за хвилину. Завантажте MP4-відео, отримайте QR-код, а учні побачать голограму через камеру телефону. Безплатно, без реєстрації.">
+
+    <!-- Open Graph -->
+    <meta property="og:title" content="AR Студія SmartLessa 2026">
+    <meta property="og:description" content="Доповнена реальність нового покоління – безшовна інтеграція в освіту">
+    <meta property="og:image" content="https://lessa2332.github.io/ar-generator/icon-512.png">
+    <meta property="og:url" content="https://lessa2332.github.io/ar-generator/">
+
+    <!-- Cloudflare Web Analytics -->
+    <script defer src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{"token": "64df0e53a7f64e188d3eb86c8918389d"}'></script>
+
+    <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; user-select: none; }
-        
-        html, body {
+        :root {
+            --accent-primary: #C9A96E;
+            --accent-soft: #E6D3B3;
+            --accent-deep: #8C6E3F;
+            --accent-faint: rgba(201, 169, 110, 0.18);
+            --bg-deep: #0B0B12;
+            --bg-panel: rgba(15, 15, 25, 0.92);
+            --text-primary: #F0F0F2;
+            --text-secondary: rgba(240, 240, 242, 0.7);
+            --border-subtle: rgba(201, 169, 110, 0.35);
+            --shadow-soft: 0 8px 28px rgba(0, 0, 0, 0.5);
+            --radius-l: 28px;
+            --radius-m: 18px;
+            --radius-s: 12px;
+            --font-main: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
+            --transition: 0.25s cubic-bezier(0.2, 0, 0, 1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            user-select: none;
+            -webkit-user-select: none;
+            -webkit-touch-callout: none;
+            font-family: var(--font-main);
+        }
+        body, html {
             width: 100%;
             height: 100%;
             overflow: hidden;
-            background: #0b0e14;
-            font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
-            background-image: radial-gradient(circle at 20% 30%, #1e252f 0%, #0a0d12 100%);
-            position: fixed;
+            background: var(--bg-deep);
+            letter-spacing: 0.01em;
+        }
+        button:focus-visible, input:focus-visible, a:focus-visible {
+            outline: 2px solid var(--accent-primary);
+            outline-offset: 3px;
+            border-radius: 4px;
         }
 
         #video {
-            position: fixed;
-            inset: 0;
+            position: absolute;
+            top: 0;
+            left: 0;
             width: 100%;
             height: 100%;
             object-fit: cover;
             z-index: 0;
-            transform: scaleX(-1);
         }
-
-        .ui-overlay {
-            position: fixed;
-            z-index: 10;
-            pointer-events: none;
-        }
-        .ui-overlay * { pointer-events: auto; }
-
-        .top-bar {
+        #canvas {
+            position: absolute;
             top: 0;
             left: 0;
-            right: 0;
-            padding: max(12px, env(safe-area-inset-top)) max(16px, env(safe-area-inset-right)) 0 max(16px, env(safe-area-inset-left));
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+            pointer-events: none;
+        }
+
+        .top-bar {
+            position: absolute;
+            top: max(18px, env(safe-area-inset-top, 18px));
+            left: 18px;
+            right: 18px;
             display: flex;
             justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
-            gap: 8px;
+            z-index: 200;
+            gap: 12px;
         }
-
-        .alphabet-selector {
-            display: flex;
-            gap: 4px;
-            background: rgba(0,0,0,0.5);
-            padding: 4px 8px;
-            border-radius: 40px;
-            backdrop-filter: blur(8px);
-            border: 1px solid rgba(212,175,55,0.15);
-        }
-
-        .alphabet-btn {
-            background: transparent;
-            border: 1px solid rgba(212,175,55,0.1);
-            color: #8899aa;
-            padding: 4px 12px;
-            border-radius: 30px;
-            font-size: 0.7rem;
-            font-weight: 600;
+        .top-bar button {
+            background: rgba(18, 18, 28, 0.75);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            color: var(--accent-soft);
+            padding: 10px 22px;
+            border-radius: 60px;
+            font-weight: 500;
+            font-size: 13px;
+            letter-spacing: 0.04em;
             cursor: pointer;
-            transition: all 0.2s;
-            font-family: inherit;
+            transition: all var(--transition);
+            box-shadow: 0 4px 14px rgba(0,0,0,0.3);
+            -webkit-tap-highlight-color: transparent;
             text-transform: uppercase;
-            letter-spacing: 0.5px;
+        }
+        .top-bar button:active {
+            transform: scale(0.96);
+            background: rgba(201, 169, 110, 0.12);
+            border-color: var(--accent-primary);
+            color: #fff;
         }
 
-        .alphabet-btn.active {
-            background: rgba(212,175,55,0.2);
-            border-color: #d4af37;
-            color: #f5e7c8;
-        }
-
-        .alphabet-btn:hover {
-            border-color: #d4af37;
-            color: #d4af37;
-        }
-
-        .stars-bar {
-            display: flex;
-            gap: 2px;
-            background: rgba(0,0,0,0.5);
-            padding: 4px 10px;
-            border-radius: 40px;
-            backdrop-filter: blur(8px);
-        }
-
-        .star-icon {
-            font-size: 1.3rem;
-            opacity: 0.2;
-            transition: all 0.4s cubic-bezier(.68,-0.55,.27,1.55);
-            cursor: pointer;
-        }
-
-        .star-icon.earned {
-            opacity: 1;
-            filter: drop-shadow(0 0 12px #FFD700);
-            transform: scale(1.2);
-        }
-
-        .wheel-container {
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            z-index: 5;
-            width: min(70vh, 70vw, 500px);
-            aspect-ratio: 1/1;
-            pointer-events: none;
-        }
-
-        /* --- НАПІВПРОЗОРИЙ ФОН ДЛЯ БУКВИ --- */
-        .letter-wrapper {
+        #video-controls {
             position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 70%;
-            aspect-ratio: 1/1;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: 50%;
-            background: radial-gradient(circle at center, rgba(11,14,20,0.7) 30%, rgba(11,14,20,0.3) 70%, transparent 100%);
-            backdrop-filter: blur(4px);
-            -webkit-backdrop-filter: blur(4px);
-            border: 1px solid rgba(212,175,55,0.08);
-            box-shadow: 0 0 60px rgba(0,0,0,0.3), inset 0 0 60px rgba(212,175,55,0.02);
-            transition: all 0.3s ease;
-        }
-
-        .letter-wrapper.pulse {
-            animation: pulseWrapper 0.4s ease 2;
-        }
-
-        @keyframes pulseWrapper {
-            0% { transform: translate(-50%, -50%) scale(1); box-shadow: 0 0 40px rgba(212,175,55,0.05); }
-            50% { transform: translate(-50%, -50%) scale(1.08); box-shadow: 0 0 80px rgba(212,175,55,0.15); }
-            100% { transform: translate(-50%, -50%) scale(1); box-shadow: 0 0 40px rgba(212,175,55,0.05); }
-        }
-
-        .letter-display {
-            font-size: clamp(5rem, 13vh, 10rem);
-            font-weight: 800;
-            color: #f5e7c8;
-            text-shadow: 0 0 40px rgba(212,175,55,0.2), 0 4px 20px rgba(0,0,0,0.8);
-            letter-spacing: 4px;
-            line-height: 1;
-            text-align: center;
-            font-family: 'Inter', sans-serif;
-        }
-
-        #hand-bubble {
-            position: fixed;
-            z-index: 20;
-            background: #d4af37;
-            color: #0b0e14;
-            border-radius: 50%;
-            width: 60px;
-            height: 60px;
-            display: none;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.8rem;
-            font-weight: 900;
-            transform: translate(-50%, -50%);
-            border: 3px solid #f5e7c8;
-            box-shadow: 0 5px 25px rgba(0,0,0,0.4);
-            pointer-events: none;
-            font-family: 'Inter', sans-serif;
-        }
-
-        #hand-bubble.correct {
-            background: #00C170;
-            border-color: #fff;
-        }
-
-        .bottom-bar {
-            bottom: 0;
+            bottom: max(100px, env(safe-area-inset-bottom, 100px));
             left: 0;
             right: 0;
-            padding: 0 max(16px, env(safe-area-inset-left)) max(16px, env(safe-area-inset-bottom)) max(16px, env(safe-area-inset-right));
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-        }
-
-        .status-box {
-            background: rgba(0,0,0,0.6);
-            backdrop-filter: blur(12px);
-            border-radius: 20px;
-            padding: 12px 16px;
-            border: 1px solid rgba(212,175,55,0.08);
-            text-align: center;
-        }
-
-        .status-text {
-            font-size: clamp(0.85rem, 2vh, 1.1rem);
-            font-weight: 400;
-            color: #b8c7d9;
-            letter-spacing: 0.3px;
-            line-height: 1.4;
-        }
-
-        .status-text strong {
-            color: #f5e7c8;
-            font-weight: 600;
-        }
-
-        .status-text .hint {
-            color: #97adc2;
-            font-size: 0.85em;
-        }
-
-        .action-row {
-            display: flex;
-            gap: 8px;
+            display: none;
             justify-content: center;
-            flex-wrap: wrap;
+            gap: 16px;
+            z-index: 300;
         }
-
-        .action-btn {
-            background: linear-gradient(145deg, #d4af37, #b38f2c);
-            border: none;
-            color: #0b0e14;
-            font-weight: 600;
-            padding: 10px 24px;
-            border-radius: 40px;
-            font-size: clamp(0.8rem, 1.5vh, 0.95rem);
-            letter-spacing: 0.5px;
-            box-shadow: 0 4px 0 #7a621f, 0 8px 24px rgba(0,0,0,0.3);
+        #video-controls button {
+            background: rgba(18, 18, 28, 0.8);
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            color: var(--text-primary);
+            padding: 12px 24px;
+            border-radius: 60px;
+            font-weight: 500;
+            font-size: 14px;
             cursor: pointer;
-            transition: 0.08s linear;
-            font-family: inherit;
+            transition: all var(--transition);
+            box-shadow: 0 4px 18px rgba(0,0,0,0.4);
+            -webkit-tap-highlight-color: transparent;
             text-transform: uppercase;
+            letter-spacing: 0.04em;
+        }
+        #video-controls button.pause-btn {
+            background: linear-gradient(135deg, #2A2A3A, #1A1A28);
+            border: 1px solid rgba(201, 169, 110, 0.4);
+            color: #E6D3B3;
+            min-width: 130px;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
         }
 
-        .action-btn:active {
-            transform: translateY(4px);
-            box-shadow: 0 1px 0 #5f4b18, 0 8px 24px rgba(0,0,0,0.4);
-        }
-
-        .action-btn.secondary {
-            background: rgba(255,255,255,0.04);
-            border: 1px solid rgba(212,175,55,0.15);
-            color: #d4c5aa;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-            backdrop-filter: blur(4px);
-        }
-
-        .action-btn.secondary:active {
-            transform: translateY(4px);
-        }
-
-        .gesture-hint {
-            display: flex;
+        #loading {
+            position: fixed;
+            inset: 0;
+            background: radial-gradient(circle at 30% 40%, #1A1A28, #0B0B12);
+            display: none;
+            flex-direction: column;
+            align-items: center;
             justify-content: center;
-            gap: 12px 20px;
-            flex-wrap: wrap;
-            font-size: clamp(0.65rem, 1.2vh, 0.8rem);
-            color: #6a7f94;
-            padding: 4px 0;
+            z-index: 1000;
+            color: var(--accent-soft);
+            padding: 24px;
         }
-
-        .gesture-hint span {
+        #loading-title {
+            font-size: 1.7rem;
+            font-weight: 600;
+            letter-spacing: 0.2em;
+            margin-bottom: 40px;
+            text-shadow: 0 0 25px rgba(201, 169, 110, 0.4);
+            text-transform: uppercase;
+            color: #E6D3B3;
+        }
+        .load-steps {
+            width: 100%;
+            max-width: 320px;
+        }
+        .load-step {
             display: flex;
             align-items: center;
-            gap: 4px;
+            gap: 16px;
+            padding: 10px 0;
+            font-size: 15px;
+            color: rgba(230, 211, 179, 0.4);
+            transition: color 0.4s;
+            letter-spacing: 0.02em;
         }
-
-        .gesture-hint .dot {
-            display: inline-block;
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            margin-right: 4px;
-        }
-
-        .dot-left { background: #d4af37; }
-        .dot-right { background: #f5e7c8; }
-        .dot-stop { background: #00C170; }
-
-        .footer {
+        .load-step .si {
+            font-size: 18px;
+            width: 32px;
             text-align: center;
-            padding: 4px 0 8px 0;
-            font-size: clamp(0.55rem, 1vh, 0.7rem);
-            color: #3a4f64;
-            letter-spacing: 0.5px;
+            font-weight: 600;
+            color: inherit;
+            letter-spacing: 0.02em;
+        }
+        .load-step.active {
+            color: #F5F5F0;
+            font-weight: 500;
+        }
+        .load-step.done {
+            color: var(--accent-primary);
+        }
+        .pbwrap {
+            width: 100%;
+            max-width: 320px;
+            background: rgba(255, 255, 255, 0.06);
+            border-radius: 30px;
+            height: 6px;
+            margin-top: 28px;
+            overflow: hidden;
+            box-shadow: inset 0 1px 4px rgba(0,0,0,0.4);
+        }
+        .pb {
+            height: 100%;
+            background: linear-gradient(90deg, #8C6E3F, #C9A96E);
+            width: 0%;
+            transition: width 0.35s ease;
+            border-radius: 30px;
         }
 
-        .footer strong {
-            color: #d4af37;
+        #setup-screen {
+            position: fixed;
+            inset: 0;
+            background: radial-gradient(circle at 50% 10%, #13131F, #09090F);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 999;
+            color: var(--text-primary);
+            padding: max(28px, env(safe-area-inset-top)) 24px max(28px, env(safe-area-inset-bottom));
+            overflow-y: auto;
+        }
+        #setup-screen .logo {
+            font-size: 2rem;
+            margin-bottom: 10px;
+            letter-spacing: 0.2em;
+            font-weight: 500;
+            color: var(--accent-soft);
+            line-height: 1;
+            text-transform: uppercase;
+        }
+        #setup-screen h2 {
+            background: linear-gradient(135deg, #F0F0F2, #C9A96E);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-size: 2rem;
+            margin-bottom: 6px;
+            font-weight: 700;
+            text-align: center;
+            letter-spacing: -0.01em;
+            text-transform: uppercase;
+        }
+        #setup-screen .author {
+            color: rgba(230, 211, 179, 0.65);
+            font-size: 12px;
+            margin-bottom: 18px;
+            letter-spacing: 0.06em;
+            font-weight: 400;
+        }
+        #setup-screen .subtitle {
+            color: var(--text-secondary);
+            font-size: 14px;
+            text-align: center;
+            margin-bottom: 24px;
+            letter-spacing: 0.04em;
+            font-weight: 400;
+        }
+        #setup-screen .hint-box {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: var(--radius-m);
+            padding: 18px 22px;
+            margin-bottom: 22px;
+            width: 100%;
+            max-width: 420px;
+            text-align: center;
+            font-size: 16px;
+            color: var(--text-secondary);
+            line-height: 1.8;
+        }
+        #setup-screen .hint-box b {
+            color: var(--accent-soft);
+            font-weight: 600;
+        }
+        #setup-screen .hint-box .warn {
+            color: #D4AF37;
             font-weight: 500;
         }
 
-        #start-screen {
-            position: fixed;
-            inset: 0;
-            z-index: 100;
-            background: radial-gradient(circle at 50% 30%, #1e252f, #0a0d12);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            gap: 20px;
-            color: #e6dcc8;
+        .privacy-note {
+            background: rgba(201, 169, 110, 0.06);
+            border: 1px solid rgba(201, 169, 110, 0.2);
+            border-radius: var(--radius-s);
+            padding: 12px 18px;
+            margin-bottom: 18px;
+            width: 100%;
+            max-width: 420px;
+            font-size: 12px;
+            color: var(--text-secondary);
+            line-height: 1.6;
             text-align: center;
-            padding: 20px;
         }
-
-        #start-screen .icon { font-size: 4rem; }
-        #start-screen h1 {
-            font-size: clamp(2rem, 5vh, 3rem);
-            font-weight: 300;
-            letter-spacing: 4px;
-        }
-        #start-screen h1 span {
-            background: linear-gradient(135deg, #d4af37, #f5d98f);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
+        .privacy-note strong {
+            color: var(--accent-soft);
             font-weight: 600;
         }
-        #start-screen p {
-            color: #97adc2;
-            font-size: clamp(0.9rem, 1.8vh, 1.1rem);
-            max-width: 400px;
-            line-height: 1.6;
-        }
 
-        .start-btn {
-            background: linear-gradient(145deg, #d4af37, #b38f2c);
-            border: none;
-            color: #0b0e14;
-            font-weight: 700;
-            padding: 16px 50px;
-            border-radius: 60px;
-            font-size: clamp(1.2rem, 2.5vh, 1.6rem);
+        .toggle-box {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 18px;
+            font-size: 14px;
+            color: var(--text-secondary);
+            font-weight: 400;
             cursor: pointer;
-            box-shadow: 0 6px 0 #7a621f, 0 12px 40px rgba(0,0,0,0.4);
-            transition: 0.08s linear;
-            font-family: inherit;
-            letter-spacing: 2px;
+            letter-spacing: 0.02em;
+        }
+        .toggle-box input {
+            accent-color: var(--accent-primary);
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
         }
 
-        .start-btn:active {
-            transform: translateY(6px);
-            box-shadow: 0 2px 0 #5f4b18, 0 12px 40px rgba(0,0,0,0.4);
+        #event-meta input,
+        #video-url {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            color: #fff;
+            padding: 14px 22px;
+            border-radius: 60px;
+            width: 100%;
+            max-width: 420px;
+            font-size: 15px;
+            outline: none;
+            margin-bottom: 10px;
+            transition: all var(--transition);
+            letter-spacing: 0.02em;
+            font-weight: 400;
+            caret-color: var(--accent-primary);
+        }
+        #event-meta input:focus,
+        #video-url:focus {
+            border-color: var(--accent-primary);
+            background: rgba(255, 255, 255, 0.05);
+            box-shadow: 0 0 0 3px rgba(201, 169, 110, 0.15);
+        }
+        #event-meta input::placeholder,
+        #video-url::placeholder {
+            color: rgba(255, 255, 255, 0.25);
+            font-weight: 300;
+        }
+        #event-meta input[type="date"],
+        #event-meta input[type="time"] {
+            color-scheme: dark;
         }
 
-        .legal-note {
-            font-size: clamp(0.6rem, 1vh, 0.7rem);
-            color: #4a5f74;
-            max-width: 380px;
+        .setup-buttons {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin-bottom: 18px;
+            width: 100%;
+            max-width: 420px;
+        }
+        .setup-buttons button {
+            flex: 1;
+            min-width: 150px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: var(--text-primary);
+            padding: 14px 20px;
+            border-radius: 60px;
+            font-weight: 500;
+            font-size: 16px;
+            cursor: pointer;
+            letter-spacing: 0.04em;
+            transition: all var(--transition);
+            -webkit-tap-highlight-color: transparent;
+            text-transform: uppercase;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+        }
+        .setup-buttons button.primary {
+            background: #1E1E2A;
+            border: 1px solid var(--accent-primary);
+            color: #F0F0F2;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+        }
+        .setup-buttons button:active {
+            transform: translateY(1px);
+            border-color: var(--accent-primary);
+        }
+
+        #upload-video-btn {
+            background: transparent;
+            border: 1.5px dashed rgba(255, 255, 255, 0.25);
+            color: var(--text-secondary);
+            padding: 20px 32px;
+            border-radius: 60px;
+            font-weight: 500;
+            font-size: 18px;
+            cursor: pointer;
+            margin-bottom: 10px;
+            width: 100%;
+            max-width: 420px;
+            transition: all var(--transition);
+            letter-spacing: 0.04em;
+            -webkit-tap-highlight-color: transparent;
+            text-transform: uppercase;
+        }
+        #upload-video-btn:hover {
+            background: rgba(255, 255, 255, 0.04);
+            border-color: var(--accent-primary);
+            color: #fff;
+        }
+        #upload-status {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--accent-soft);
+            margin-bottom: 12px;
+            min-height: 22px;
+            text-align: center;
+            letter-spacing: 0.03em;
+            padding: 12px;
+            border-radius: 8px;
+        }
+        #upload-status.success {
+            background: rgba(76, 175, 80, 0.2);
+            color: #4CAF50;
+        }
+        #upload-status.error {
+            background: rgba(244, 67, 54, 0.2);
+            color: #F44336;
+        }
+        #compress-link {
+            color: var(--accent-soft);
+            font-size: 11px;
+            text-decoration: underline;
+            cursor: pointer;
+            letter-spacing: 0.03em;
+            transition: color 0.2s;
+        }
+        #compress-link:hover {
+            color: #fff;
+        }
+
+        #qrcode-wrapper {
+            margin-top: 16px;
+            display: none;
+            text-align: center;
+        }
+        #qrcode-container {
+            display: inline-block;
+            padding: 20px;
+            background: white;
+            border-radius: var(--radius-m);
+            box-shadow: 0 0 40px rgba(0,0,0,0.5);
+            border: 1px solid rgba(201, 169, 110, 0.2);
+        }
+        #qrcode-author {
+            color: var(--text-secondary);
+            font-size: 10px;
+            margin-top: 10px;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+        }
+        #copy-link {
+            margin-top: 14px;
+            color: var(--accent-soft);
+            font-size: 13px;
+            cursor: pointer;
+            text-decoration: underline;
+            letter-spacing: 0.04em;
+            font-weight: 400;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .footer {
+            position: absolute;
+            bottom: max(12px, env(safe-area-inset-bottom, 12px));
+            left: 0;
+            right: 0;
+            color: rgba(255, 255, 255, 0.25);
+            font-size: 10px;
+            text-align: center;
+            z-index: 999;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+        }
+        .footer a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-weight: 400;
+            border-bottom: 1px solid transparent;
+            transition: border-color 0.2s;
+        }
+        .footer a:hover {
+            border-bottom-color: var(--accent-primary);
+        }
+
+        #ar-author {
+            position: absolute;
+            top: max(78px, env(safe-area-inset-top, 78px));
+            left: 0;
+            right: 0;
+            text-align: center;
+            z-index: 250;
+            display: none;
+            pointer-events: none;
+        }
+        #ar-author span {
+            background: rgba(10, 10, 18, 0.7);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            color: rgba(230, 211, 179, 0.8);
+            font-size: 11px;
+            padding: 8px 20px;
+            border-radius: 40px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            font-weight: 500;
+        }
+
+        #ar-caption {
+            position: absolute;
+            bottom: max(180px, env(safe-area-inset-bottom, 180px));
+            left: 20px;
+            right: 20px;
+            z-index: 250;
+            display: none;
+            text-align: center;
+            pointer-events: none;
+            animation: fadeInCaption 0.8s ease-out;
+        }
+
+        @keyframes fadeInCaption {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        #ar-caption-title {
+            font-family: var(--font-main);
+            color: #F0F0F2;
+            font-weight: 600;
+            letter-spacing: 0.02em;
+            text-shadow: 0 2px 12px rgba(0,0,0,0.8), 0 0 20px rgba(201, 169, 110, 0.3);
+            background: rgba(10, 10, 18, 0.55);
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+            border: 1px solid rgba(201, 169, 110, 0.3);
+            border-radius: 16px;
+            padding: 12px 18px;
+            margin-bottom: 8px;
+            font-size: clamp(14px, 4vw, 24px);
+            line-height: 1.3;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+        }
+
+        #ar-caption-date {
+            font-family: var(--font-main);
+            color: var(--accent-soft);
+            font-size: clamp(11px, 2.5vw, 14px);
+            font-weight: 500;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            text-shadow: 0 1px 8px rgba(0,0,0,0.8);
+        }
+
+        #onboarding {
+            position: absolute;
+            bottom: max(18px, env(safe-area-inset-bottom, 18px));
+            left: 18px;
+            right: 18px;
+            z-index: 200;
+            display: none;
+            flex-direction: column;
+            gap: 12px;
+            pointer-events: none;
+        }
+        #step-card {
+            background: rgba(12, 12, 20, 0.9);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: var(--radius-l);
+            padding: 16px 22px;
+            display: flex;
+            align-items: center;
+            gap: 18px;
+            box-shadow: var(--shadow-soft);
+            transition: all 0.35s ease;
+        }
+        #step-emoji {
+            font-size: 38px;
+            filter: drop-shadow(0 0 8px rgba(201, 169, 110, 0.3));
+            flex-shrink: 0;
+            width: 60px;
+            text-align: center;
+            font-weight: 400;
+            letter-spacing: 0.04em;
+            color: var(--accent-soft);
+        }
+        #step-body {
+            flex: 1;
+        }
+        #step-num {
+            font-size: 10px;
+            color: rgba(230, 211, 179, 0.6);
+            letter-spacing: 0.2em;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+        #step-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #F0F0F2;
+            letter-spacing: 0.02em;
+        }
+        #step-sub {
+            font-size: 13px;
+            color: var(--text-secondary);
+            font-weight: 400;
+            letter-spacing: 0.02em;
+        }
+
+        #autoplay-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(8, 8, 14, 0.9);
+            backdrop-filter: blur(18px);
+            -webkit-backdrop-filter: blur(18px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 500;
+            flex-direction: column;
+            gap: 28px;
+        }
+        #autoplay-overlay.visible {
+            display: flex;
+        }
+        #autoplay-lbl {
+            color: rgba(245, 245, 245, 0.9);
+            font-size: 20px;
+            text-align: center;
             line-height: 1.6;
+            font-weight: 400;
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
+        }
+        #autoplay-btn {
+            background: #1A1A28;
+            color: #E6D3B3;
+            font-size: 18px;
+            font-weight: 500;
+            padding: 18px 44px;
+            border-radius: 60px;
+            border: 1px solid var(--accent-primary);
+            cursor: pointer;
+            letter-spacing: 0.1em;
+            transition: all var(--transition);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            -webkit-tap-highlight-color: transparent;
+            text-transform: uppercase;
+        }
+        #autoplay-btn:active {
+            transform: scale(0.97);
+            background: #242435;
         }
 
-        @media (max-width: 480px) {
-            #hand-bubble { width: 44px; height: 44px; font-size: 1.2rem; }
-            .top-bar { padding-top: 8px; }
-            .alphabet-btn { font-size: 0.6rem; padding: 3px 8px; }
-            .star-icon { font-size: 1rem; }
-            .action-btn { padding: 8px 16px; font-size: 0.7rem; }
-            .letter-wrapper { width: 80%; }
-            .letter-display { font-size: clamp(3.5rem, 10vh, 6rem); }
+        #debug-info {
+            position: absolute;
+            bottom: 70px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 150;
+            background: rgba(10, 10, 18, 0.8);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            color: var(--accent-soft);
+            padding: 10px 24px;
+            border-radius: 40px;
+            font-size: 12px;
+            font-weight: 400;
+            display: block;
+            pointer-events: none;
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            min-width: 180px;
+            letter-spacing: 0.03em;
         }
-
-        @media (orientation: landscape) and (max-height: 500px) {
-            .wheel-container { width: min(50vh, 50vw, 350px); }
-            .letter-wrapper { width: 75%; }
-            .letter-display { font-size: clamp(2.5rem, 8vh, 4.5rem); }
-            #hand-bubble { width: 36px; height: 36px; font-size: 1rem; }
-            .bottom-bar { padding-bottom: 8px; }
-            .status-box { padding: 6px 12px; }
-            .status-text { font-size: 0.75rem; }
-            .gesture-hint { font-size: 0.6rem; }
+        #debug-info .status-dot {
+            display: inline-block;
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            margin-right: 10px;
+            background: var(--accent-primary);
+            animation: pulseSoft 1.4s ease-in-out infinite;
         }
-
-        @media (min-width: 1200px) {
-            .letter-wrapper { width: 65%; }
-            .letter-display { font-size: clamp(8rem, 16vh, 14rem); }
+        @keyframes pulseSoft {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.4; }
         }
     </style>
 </head>
 <body>
+<video id="video" autoplay playsinline muted></video>
+<canvas id="canvas"></canvas>
 
-    <video id="video" autoplay playsinline muted></video>
+<div id="ar-author"><span>SmartLessa AR 2026</span></div>
+<div id="ar-caption">
+    <div id="ar-caption-title"></div>
+    <div id="ar-caption-date"></div>
+</div>
+<div id="debug-info"><span class="status-dot"></span>Ініціалізація</div>
 
-    <div id="hand-bubble">0</div>
+<div id="setup-screen">
+    <div class="logo">AR STUDIO</div>
+    <h2>Генератор реальності</h2>
+    <p class="author">Автор <b>Олеся Бохонок | SmartLessa</b></p>
+    <p class="subtitle">Доповнена реальність для уроків майбутнього</p>
 
-    <div class="wheel-container">
-        <!-- Напівпрозорий фон для букви -->
-        <div class="letter-wrapper" id="letterWrapper">
-            <div class="letter-display" id="letterDisplay">А</div>
+    <div class="privacy-note">
+        🔒 <strong>Безпека:</strong> Ваше відео залишається на вашому телефоні. Ніхто його не побачить, крім тих, кому ви покажете QR.
+    </div>
+
+    <div class="hint-box">
+        <div style="font-size: 48px; margin-bottom: 12px;">📹</div>
+        <div style="text-align: center; font-size: 16px; line-height: 1.8;">
+            <b>Крок 1:</b> Зніміть відео на телефон<br>
+            <b>Крок 2:</b> Завантажте його сюди<br>
+            <b>Крок 3:</b> Отримайте QR-код<br>
+            <b>Крок 4:</b> Роздрукуйте та покажіть друзям!
         </div>
     </div>
 
-    <div class="ui-overlay top-bar">
-        <div class="alphabet-selector" id="alphabetSelector">
-            <button class="alphabet-btn active" data-alphabet="uk">UA</button>
-            <button class="alphabet-btn" data-alphabet="en">EN</button>
-            <button class="alphabet-btn" data-alphabet="de">DE</button>
-            <button class="alphabet-btn" data-alphabet="pl">PL</button>
-        </div>
-        <div class="stars-bar" id="starsBar">
-            <span class="star-icon" data-i="0">⭐</span>
-            <span class="star-icon" data-i="1">⭐</span>
-            <span class="star-icon" data-i="2">⭐</span>
-            <span class="star-icon" data-i="3">⭐</span>
-            <span class="star-icon" data-i="4">⭐</span>
+    <!-- 📝 Метадані події -->
+    <div id="event-meta">
+        <input type="text" id="event-title" 
+               placeholder="📌 Назва події (напр. Захист робіт шкільного МАН)" 
+               maxlength="80" />
+        
+        <div style="display: flex; gap: 10px; max-width: 420px; width: 100%;">
+            <input type="date" id="event-date" />
+            <input type="time" id="event-time" />
         </div>
     </div>
 
-    <div class="ui-overlay bottom-bar">
-        <div class="status-box">
-            <div class="status-text" id="statusText">
-                👆 покажи пальчики перед камерою
-                <div class="hint">вказівний ← · два пальці → · долоня стоп</div>
-            </div>
-        </div>
-        <div class="action-row">
-            <button class="action-btn secondary" id="spinBtn">🎲 Нова літера</button>
-        </div>
-        <div class="gesture-hint">
-            <span><span class="dot dot-left"></span> Вказівний = вліво</span>
-            <span><span class="dot dot-right"></span> Два пальці = вправо</span>
-            <span><span class="dot dot-stop"></span> Долоня = стоп</span>
-            <span>⌨️ ← → Пробіл</span>
-        </div>
-        <div class="footer">
-            ✦ <strong>Smart</strong>Lessa · Автор: <strong>Олеся Бохонок</strong> · 2026
-            <span style="margin:0 6px;">·</span>
-            <span style="color:#3a4f64;">відео локально · дані не зберігаються</span>
-        </div>
+    <div class="toggle-box">
+        <input type="checkbox" id="chromakey-toggle" checked>
+        <label for="chromakey-toggle">🎨 Видалити зелений екран (ChromaKey)</label>
     </div>
 
-    <div id="start-screen">
-        <div class="icon">✦</div>
-        <h1>Golden <span>Wheel</span></h1>
-        <p>Показуй пальчики перед камерою, щоб обертати колесо.<br>Назви слово на літеру, що випала!</p>
-        <button class="start-btn" id="btnStart">Почати</button>
-        <div class="legal-note">
-            📷 Камера використовується лише для жестів.<br>
-            Відео обробляється локально — <strong>нікуди не передається</strong>
-        </div>
+    <input type="url" id="video-url" placeholder="🔗 Або вставте пряме посилання (.mp4)" aria-label="Посилання на відео" />
+    <input type="file" id="video-file-input" accept="video/mp4" style="display:none;" />
+    <button id="upload-video-btn" aria-label="Завантажити відео з пристрою">📁 Вибрати відео з телефону</button>
+    <p id="upload-status" role="status" aria-live="polite"></p>
+
+    <div class="setup-buttons">
+        <button id="go-ar-btn" class="primary">👀 Подивитися, що вийшло</button>
+        <button id="show-qr-btn">📱 Отримати QR-код для друку</button>
     </div>
 
-    <!-- MediaPipe через CDN -->
-    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands@0.4.1675469240/hands.js" crossorigin="anonymous"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils@0.3.1675466862/camera_utils.js" crossorigin="anonymous"></script>
+    <div id="qrcode-wrapper">
+        <div id="qrcode-container"></div>
+        <p id="qrcode-author">SmartLessa AR 2026</p>
+        <div style="margin-top: 20px; text-align: center; font-size: 14px; line-height: 1.6; color: var(--text-secondary);">
+            <b>Що робити далі:</b><br>
+            1️⃣ Зробіть скріншот цього коду<br>
+            2️⃣ Роздрукуйте або покажіть на телефоні<br>
+            3️⃣ Наведіть камеру → покажіть долоню → дивіться магію! ✨
+        </div>
+    </div>
+    <div id="copy-link" style="display:none;">Скопіювати посилання</div>
+</div>
 
-    <script>
-        // ---- КОНФІГУРАЦІЯ ----
-        const ALPHABETS = {
-            uk: 'АБВГҐДЕЄЖЗИІЇЙКЛМНОПРСТУФХЦЧШЩЬЮЯ'.split(''),
-            en: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split(''),
-            de: 'ABCDEFGHIJKLMNOPQRSTUVWXYZÄÖÜß'.split(''),
-            pl: 'AĄBCĆDEĘFGHIJKLŁMNŃOÓPRSŚTUWYZŹŻ'.split('')
+<div class="footer">© <a href="https://github.com/lessa2332" target="_blank" rel="noopener">Олеся Бохонок | SmartLessa 2026</a></div>
+
+<div id="loading">
+    <div id="loading-title">AR STUDIO 2026</div>
+    <div class="load-steps">
+        <div class="load-step" id="ls-model"><span class="si">AI</span><span>Завантаження моделі руки</span></div>
+        <div class="load-step" id="ls-cam"><span class="si">CAM</span><span>Ініціалізація камери</span></div>
+        <div class="load-step" id="ls-scene"><span class="si">3D</span><span>Формування голограми</span></div>
+    </div>
+    <div class="pbwrap"><div class="pb" id="pb"></div></div>
+</div>
+
+<div class="top-bar">
+    <button id="camera-toggle" aria-label="Перемкнути камеру">Камера</button>
+    <button id="reset" aria-label="Скинути AR">Скинути</button>
+</div>
+
+<div id="video-controls">
+    <button id="restart-btn" aria-label="Переглянути спочатку">Спочатку</button>
+    <button id="pause-btn" class="pause-btn" aria-label="Пауза або продовжити">Пауза</button>
+</div>
+
+<div id="autoplay-overlay">
+    <div id="autoplay-lbl">Голограма готова!<br>Торкніться для запуску</div>
+    <button id="autoplay-btn">Запустити</button>
+</div>
+
+<div id="onboarding">
+    <div id="step-card" role="status" aria-live="polite">
+        <div id="step-emoji">🖐️</div>
+        <div id="step-body">
+            <div id="step-num">КРОК 1</div>
+            <div id="step-title">Покажіть долоню</div>
+            <div id="step-sub">Підніміть руку перед камерою</div>
+        </div>
+    </div>
+</div>
+
+<script type="module">
+    import * as THREE from 'https://unpkg.com/three@0.158.0/build/three.module.js';
+
+    // ═══════════ КОНФІГУРАЦІЯ ═══════════
+    const WORKER_URL = 'https://ar-videoo.23lessa32.workers.dev';
+
+    // ═══════════ АНАЛІТИКА ═══════════
+    function trackEvent(name, data = {}) {
+        try { if (window.cfBeacon?.trackEvent) window.cfBeacon.trackEvent(name, data); } catch(e) {}
+        try { if (typeof gtag === 'function') gtag('event', name, data); } catch(e) {}
+    }
+
+    // ═══════════ АВТОМАТИЧНЕ ВИЗНАЧЕННЯ МОЖЛИВОСТЕЙ ПРИСТРОЮ ═══════════
+    function getDeviceCapabilities() {
+        const ua = navigator.userAgent;
+        const isAndroid = /Android/i.test(ua);
+        const isIOS = /iPhone|iPad|iPod/i.test(ua);
+        let androidVersion = 0;
+        if (isAndroid) { const m = ua.match(/Android\s([0-9.]+)/); if (m) androidVersion = parseFloat(m[1]); }
+        let webgl2Support = false;
+        try { const c = document.createElement('canvas'); webgl2Support = !!c.getContext('webgl2'); } catch(e) {}
+        let memoryLimit = ('deviceMemory' in navigator) ? navigator.deviceMemory < 2 : false;
+        let useSimpleDetection = false, useGPU = false, cameraQuality = 'high';
+        if (isAndroid && androidVersion > 0 && androidVersion <= 8) { useSimpleDetection = true; cameraQuality = 'low'; }
+        else if (isAndroid && androidVersion > 0 && androidVersion <= 10 && !webgl2Support) { useSimpleDetection = true; cameraQuality = 'medium'; }
+        else if (memoryLimit) { useSimpleDetection = true; cameraQuality = 'low'; }
+        else if (isIOS && /iPhone OS ([0-9_]+)/.test(ua)) { const m = ua.match(/iPhone OS ([0-9_]+)/); if (m && parseFloat(m[1].replace(/_/g, '.')) < 13) { useSimpleDetection = true; cameraQuality = 'low'; } }
+        else { useGPU = webgl2Support && !memoryLimit; cameraQuality = webgl2Support ? 'high' : 'medium'; }
+        return { useSimpleDetection, useGPU, cameraQuality, androidVersion, isAndroid, isIOS, webgl2Support, memoryLimit };
+    }
+
+    const deviceCap = getDeviceCapabilities();
+
+    // ═══════════ СЕРВІСНІ ФУНКЦІЇ ═══════════
+    function sanitizeUrl(str) {
+        if (!str || typeof str !== 'string') return '';
+        try { const u = new URL(str.trim(), window.location.href); return (u.protocol === 'http:' || u.protocol === 'https:') ? u.href : ''; } catch { return ''; }
+    }
+    function getParams() {
+        const p = new URLSearchParams(window.location.search);
+        return { 
+            video: sanitizeUrl(p.get('video')), 
+            chroma: p.get('chroma') !== '0',
+            title: decodeURIComponent(p.get('title') || ''),
+            date: p.get('date') || '',
+            time: p.get('time') || ''
         };
+    }
+    const params = getParams();
 
-        let currentAlphabet = 'uk';
-        let letters = ALPHABETS['uk'];
-        let currentLetter = 'А';
-        let isSpinning = false;
-        let spinDirection = 0;
-        let animationId = null;
-        let score = 0;
-        const totalLessons = 5;
-        let countBuffer = [];
-        let wheelAngle = 0;
-        let gestureCooldown = 0;
-        let lastGesture = 'none';
+    // ═══════════ ФОРМАТУВАННЯ ДАТИ ═══════════
+    function formatCaptionDate(dateStr, timeStr) {
+        if (!dateStr) return '';
+        try {
+            const d = new Date(dateStr + (timeStr ? 'T' + timeStr : ''));
+            return d.toLocaleDateString('uk-UA', { 
+                day: '2-digit', month: 'long', year: 'numeric' 
+            }) + (timeStr ? ' • ' + timeStr : '');
+        } catch { return dateStr + (timeStr ? ' • ' + timeStr : ''); }
+    }
 
-        const video = document.getElementById('video');
-        const letterDisplay = document.getElementById('letterDisplay');
-        const letterWrapper = document.getElementById('letterWrapper');
-        const statusText = document.getElementById('statusText');
-        const handBubble = document.getElementById('hand-bubble');
-        const spinBtn = document.getElementById('spinBtn');
-        const startBtn = document.getElementById('btnStart');
-        const startScreen = document.getElementById('start-screen');
-        const alphabetBtns = document.querySelectorAll('.alphabet-btn');
-        const starIcons = document.querySelectorAll('.star-icon');
+    // ═══════════ РЕЖИМ НАЛАШТУВАННЯ ═══════════
+    if (!params.video) {
+        document.getElementById('setup-screen').style.display = 'flex';
 
-        // ---- РОЗПІЗНАВАННЯ ПАЛЬЦІВ ----
-        function countFingers(landmarks) {
-            let count = 0;
-            const wrist = landmarks[0];
-            const getDist = (p1, p2) => Math.hypot(p1.x - p2.x, p1.y - p2.y);
-            const fingers = [
-                { tip: 8, mid: 6 },
-                { tip: 12, mid: 10 },
-                { tip: 16, mid: 14 },
-                { tip: 20, mid: 18 }
-            ];
-            fingers.forEach(f => {
-                if (getDist(landmarks[f.tip], wrist) > getDist(landmarks[f.mid], wrist)) count++;
-            });
-            if (getDist(landmarks[4], landmarks[5]) > 0.08) count++;
-            return count;
-        }
+        const urlInput = document.getElementById('video-url');
+        const goARBtn = document.getElementById('go-ar-btn');
+        const showQrBtn = document.getElementById('show-qr-btn');
+        const qrWrapper = document.getElementById('qrcode-wrapper');
+        const qrContainer = document.getElementById('qrcode-container');
+        const copyLink = document.getElementById('copy-link');
+        const uploadBtn = document.getElementById('upload-video-btn');
+        const fileInput = document.getElementById('video-file-input');
+        const uploadStatus = document.getElementById('upload-status');
+        const chromaToggle = document.getElementById('chromakey-toggle');
+        
+        // 📅 Метадані події
+        const titleInput = document.getElementById('event-title');
+        const dateInput = document.getElementById('event-date');
+        const timeInput = document.getElementById('event-time');
+        
+        // Автоматичне заповнення поточною датою і часом
+        const now = new Date();
+        dateInput.value = now.toISOString().split('T')[0];
+        timeInput.value = now.toTimeString().slice(0, 5);
+        
+        // Збереження останньої назви в localStorage
+        const savedTitle = localStorage.getItem('lastEventTitle');
+        if (savedTitle) titleInput.value = savedTitle;
+        titleInput.addEventListener('input', () => localStorage.setItem('lastEventTitle', titleInput.value));
+        
+        let currentQrUrl = '';
 
-        function detectGesture(landmarks) {
-            const raw = countFingers(landmarks);
-            countBuffer.push(raw);
-            if (countBuffer.length > 15) countBuffer.shift();
-            const smooth = Math.round(countBuffer.reduce((a, b) => a + b, 0) / countBuffer.length);
-            const wrist = landmarks[0];
-            
-            handBubble.style.display = 'flex';
-            handBubble.style.left = `${(1 - wrist.x) * 100}%`;
-            handBubble.style.top = `${wrist.y * 100}%`;
-            handBubble.textContent = smooth;
-            handBubble.classList.remove('correct');
-            
-            if (smooth === 5) return 'stop';
-            if (smooth === 1) return 'left';
-            if (smooth === 2) return 'right';
-            return 'none';
-        }
-
-        // ---- ОБЕРТАННЯ ----
-        function spinLoop() {
-            if (!isSpinning || spinDirection === 0) {
-                isSpinning = false;
-                return;
-            }
-            const speed = 0.04;
-            const delta = spinDirection === -1 ? -speed : speed;
-            const total = letters.length;
-            if (total > 0) {
-                const angle = (wheelAngle || 0) + delta;
-                let a = ((angle % (2 * Math.PI)) + 2 * Math.PI) % (2 * Math.PI);
-                let idx = Math.floor((a / (2 * Math.PI)) * total);
-                if (idx >= total) idx = total - 1;
-                currentLetter = letters[idx] || '?';
-                letterDisplay.textContent = currentLetter;
-                wheelAngle = angle;
-            }
-            animationId = requestAnimationFrame(spinLoop);
-        }
-
-        function startSpin(direction) {
-            if (direction === 0) { stopSpin(); return; }
-            if (isSpinning && spinDirection === direction) return;
-            if (animationId) { cancelAnimationFrame(animationId); animationId = null; }
-            spinDirection = direction;
-            isSpinning = true;
-            statusText.innerHTML = direction === -1 ? '🔄 вліво...' : '🔄 вправо...';
-            animationId = requestAnimationFrame(spinLoop);
-        }
-
-        function stopSpin() {
-            isSpinning = false;
-            spinDirection = 0;
-            if (animationId) { cancelAnimationFrame(animationId); animationId = null; }
-            letterWrapper.classList.remove('pulse');
-            void letterWrapper.offsetWidth;
-            letterWrapper.classList.add('pulse');
-            statusText.innerHTML = `⏸️ літера <strong>${currentLetter}</strong> · назви слово!`;
-        }
-
-        function handleGesture(gesture) {
-            const now = Date.now();
-            if (now - gestureCooldown < 200) return;
-            gestureCooldown = now;
-
-            if (gesture === 'left') {
-                startSpin(-1);
-                lastGesture = 'left';
-            } else if (gesture === 'right') {
-                startSpin(1);
-                lastGesture = 'right';
-            } else if (gesture === 'stop') {
-                if (isSpinning) { stopSpin(); }
-                handBubble.classList.add('correct');
-                lastGesture = 'stop';
+        function updateQR(url) {
+            qrContainer.innerHTML = '';
+            if (url) {
+                try { 
+                    new QRCode(qrContainer, { text: url, width: 180, height: 180, colorDark: "#0B0B12", colorLight: "#FFFFFF" }); 
+                    qrWrapper.style.display = 'block'; 
+                    copyLink.style.display = 'block'; 
+                    currentQrUrl = url; 
+                    
+                    // 📜 Додаємо підпис на картку
+                    const metaBlock = document.getElementById('qr-meta-block');
+                    if (metaBlock) metaBlock.remove();
+                    
+                    const meta = document.createElement('div');
+                    meta.id = 'qr-meta-block';
+                    meta.style.cssText = 'margin-top: 12px; font-size: 11px; color: #333; line-height: 1.4; text-align: center;';
+                    
+                    let metaText = '';
+                    if (titleInput.value.trim()) metaText += `<div style="font-weight: 600; font-size: 13px; margin-bottom: 4px;">${titleInput.value.trim()}</div>`;
+                    if (dateInput.value) metaText += `<div>${formatCaptionDate(dateInput.value, timeInput.value)}</div>`;
+                    
+                    meta.innerHTML = metaText;
+                    qrWrapper.appendChild(meta);
+                    
+                    trackEvent('qr_generated'); 
+                } catch(e) {}
+            } else { 
+                qrWrapper.style.display = 'none'; 
+                copyLink.style.display = 'none'; 
             }
         }
 
-        // ---- MediaPipe Hands ----
-        function initGestureDetection() {
-            const hands = new Hands({
-                locateFile: (file) => {
-                    return `https://cdn.jsdelivr.net/npm/@mediapipe/hands@0.4.1675469240/${file}`;
+        uploadBtn.addEventListener('click', () => fileInput.click());
+        fileInput.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (!file || !file.name.toLowerCase().endsWith('.mp4')) { 
+                uploadStatus.textContent = '❌ Помилка: тільки файли .mp4'; 
+                uploadStatus.className = 'error';
+                return; 
+            }
+            if (file.size > 50 * 1024 * 1024) { 
+                uploadStatus.textContent = '❌ Помилка: файл перевищує 50 МБ'; 
+                uploadStatus.className = 'error';
+                return; 
+            }
+            uploadStatus.textContent = '⏳ Перевірка тривалості...';
+            uploadStatus.className = '';
+            const tv = document.createElement('video'); tv.preload = 'metadata'; tv.src = URL.createObjectURL(file);
+            tv.onloadedmetadata = () => {
+                if (tv.duration > 65) { 
+                    uploadStatus.textContent = '❌ Помилка: відео довше 1 хвилини'; 
+                    uploadStatus.className = 'error';
+                    URL.revokeObjectURL(tv.src); 
+                    return; 
                 }
-            });
+                uploadStatus.textContent = '⏳ Завантажую... зачекайте';
+                uploadStatus.className = '';
+                const xhr = new XMLHttpRequest(); const fd = new FormData(); fd.append('file', file);
+                xhr.upload.onprogress = (ev) => { if (ev.lengthComputable) uploadStatus.textContent = `⏳ Завантаження: ${Math.round((ev.loaded / ev.total) * 100)}%`; };
+                xhr.onload = () => {
+                    try { 
+                        const d = JSON.parse(xhr.responseText); 
+                        if (d.url) { 
+                            urlInput.value = d.url; 
+                            uploadStatus.textContent = '✅ Готово! Тепер натисніть "Отримати QR-код"'; 
+                            uploadStatus.className = 'success';
+                            trackEvent('video_uploaded', { size: file.size }); 
+                        } else {
+                            uploadStatus.textContent = '❌ Помилка сервера.';
+                            uploadStatus.className = 'error';
+                        }
+                    } catch { 
+                        uploadStatus.textContent = '❌ Некоректна відповідь.'; 
+                        uploadStatus.className = 'error';
+                    }
+                };
+                xhr.onerror = () => { 
+                    uploadStatus.textContent = '❌ Помилка мережі.'; 
+                    uploadStatus.className = 'error';
+                };
+                xhr.open('POST', WORKER_URL); xhr.send(fd);
+            };
+        });
 
-            hands.setOptions({
-                maxNumHands: 1,
-                modelComplexity: 1,
-                minDetectionConfidence: 0.7,
-                minTrackingConfidence: 0.6
-            });
+        function buildARLink(rawUrl) {
+            const clean = sanitizeUrl(rawUrl); 
+            if (!clean) return '';
+            
+            const title = encodeURIComponent(titleInput.value.trim() || '');
+            const date = encodeURIComponent(dateInput.value || '');
+            const time = encodeURIComponent(timeInput.value || '');
+            
+            return `${window.location.origin}${window.location.pathname}?video=${encodeURIComponent(clean)}&chroma=${chromaToggle.checked ? '1' : '0'}&title=${title}&date=${date}&time=${time}`;
+        }
 
-            hands.onResults((results) => {
-                if (results.multiHandLandmarks && results.multiHandLandmarks.length > 0) {
-                    const landmarks = results.multiHandLandmarks[0];
-                    const gesture = detectGesture(landmarks);
-                    handleGesture(gesture);
+        goARBtn.addEventListener('click', () => { 
+            const t = buildARLink(urlInput.value.trim()); 
+            if (!t) { 
+                alert('Завантажте відео або вставте валідне посилання.'); 
+                return; 
+            } 
+            window.location.href = t; 
+        });
+        showQrBtn.addEventListener('click', () => { 
+            const t = buildARLink(urlInput.value.trim()); 
+            if (!t) { 
+                alert('Спочатку завантажте або вставте відео.'); 
+                return; 
+            } 
+            updateQR(t); 
+        });
+        copyLink.addEventListener('click', () => { 
+            if (currentQrUrl && navigator.clipboard?.writeText) {
+                navigator.clipboard.writeText(currentQrUrl).then(() => {
+                    copyLink.textContent = '✅ Скопійовано!';
+                    setTimeout(() => copyLink.textContent = 'Скопіювати посилання', 2000);
+                }).catch(() => {});
+            }
+        });
+
+        throw new Error('Setup Mode');
+    }
+
+    // ═══════════ AR РЕЖИМ ═══════════
+    document.getElementById('setup-screen').style.display = 'none';
+    document.getElementById('ar-author').style.display = 'block';
+    trackEvent('ar_started');
+
+    const debugInfo = document.getElementById('debug-info');
+    const CFG = {
+        hologramOffsetY: 0.35, hologramScale: deviceCap.useSimpleDetection ? 0.9 : 1.1,
+        videoSrc: params.video, chromaEnabled: params.chroma,
+        particleCount: deviceCap.useSimpleDetection ? 8 : 20,
+        detectionInterval: deviceCap.useSimpleDetection ? 80 : 33,
+        cameraQuality: deviceCap.cameraQuality
+    };
+    debugInfo.innerHTML = `<span class="status-dot" style="background:#C9A96E;"></span> Режим: ${deviceCap.useSimpleDetection ? 'Оптимізований' : 'Повний'}`;
+
+    const videoEl = document.getElementById('video'), canvasEl = document.getElementById('canvas');
+    const loadingEl = document.getElementById('loading'), autoplayOverlay = document.getElementById('autoplay-overlay');
+    const autoplayBtn = document.getElementById('autoplay-btn'), resetBtn = document.getElementById('reset');
+    const cameraToggleBtn = document.getElementById('camera-toggle');
+    const pauseBtn = document.getElementById('pause-btn'), restartBtn = document.getElementById('restart-btn');
+    const videoControls = document.getElementById('video-controls');
+    const stepEmoji = document.getElementById('step-emoji'), stepNum = document.getElementById('step-num');
+    const stepTitle = document.getElementById('step-title'), stepSub = document.getElementById('step-sub');
+    const onboardingEl = document.getElementById('onboarding');
+
+    function showStep(s) {
+        if (s === 0) {
+            stepEmoji.textContent = '🖐️';
+            stepNum.textContent = 'КРОК 1';
+            stepTitle.textContent = 'Покажіть долоню';
+            stepSub.textContent = 'Підніміть руку перед камерою';
+        } else if (s === 1) {
+            stepEmoji.textContent = '👌';
+            stepNum.textContent = 'КРОК 2';
+            stepTitle.textContent = 'Покажіть жест OK';
+            stepSub.textContent = 'З'єднайте великий та вказівний пальці';
+        } else {
+            onboardingEl.style.display = 'none';
+        }
+    }
+
+    const scene = new THREE.Scene(), cam3 = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
+    cam3.position.set(0, 0, 3.2);
+    const renderer = new THREE.WebGLRenderer({ canvas: canvasEl, alpha: true, antialias: !deviceCap.useSimpleDetection, powerPreference: 'high-performance', stencil: false, depth: false });
+    renderer.setClearColor(0, 0); renderer.setPixelRatio(deviceCap.useSimpleDetection ? Math.min(window.devicePixelRatio, 1.2) : Math.min(window.devicePixelRatio, 1.5)); renderer.setSize(window.innerWidth, window.innerHeight);
+    function onWindowResize() { cam3.aspect = window.innerWidth / window.innerHeight; cam3.updateProjectionMatrix(); renderer.setSize(window.innerWidth, window.innerHeight); }
+    window.addEventListener('resize', onWindowResize);
+
+    const hologramGroup = new THREE.Group(); scene.add(hologramGroup);
+    const hVideo = document.createElement('video'); hVideo.setAttribute('playsinline', ''); hVideo.setAttribute('crossorigin', 'anonymous');
+    hVideo.muted = true; hVideo.loop = false; hVideo.preload = 'auto'; hVideo.src = CFG.videoSrc; hVideo.load();
+    const vTex = new THREE.VideoTexture(hVideo); vTex.minFilter = THREE.LinearFilter; vTex.magFilter = THREE.LinearFilter; vTex.generateMipmaps = false;
+
+    const vShader = `varying vec2 vUv; void main(){ vUv = uv; gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }`;
+    const fShader = `
+    uniform sampler2D uTex; uniform float uPlaying; uniform float uChroma; varying vec2 vUv;
+    vec3 rgb2hsv(vec3 c){ vec4 K=vec4(0.,-1./3.,2./3.,-1.); vec4 p=mix(vec4(c.bg,K.wz),vec4(c.gb,K.xy),step(c.b,c.g)); vec4 q=mix(vec4(p.xyw,c.r),vec4(c.r,p.yzx),step(p.x,c.r)); float d=q.x-min(q.w,q.y); float e=1e-10; return vec3(abs(q.z+(q.w-q.y)/(6.*d+e)),d/(q.x+e),q.x); }
+    void main(){ if(uPlaying < 0.5) discard; vec4 col = texture2D(uTex, vUv); if(uChroma > 0.5){ vec3 hsv = rgb2hsv(col.rgb); float hDeg = hsv.x * 360.0; if(hDeg > 75.0 && hDeg < 170.0 && hsv.y > 0.24 && hsv.z > 0.08) discard; float edgeMask = 1.0; if(hDeg > 70.0 && hDeg < 175.0 && hsv.y > 0.14 && hsv.z > 0.06){ edgeMask = 1.0 - smoothstep(0.14, 0.28, hsv.y); if(edgeMask < 0.05) discard; } gl_FragColor = vec4(col.rgb, edgeMask); } else { gl_FragColor = col; } }`;
+
+    const hMat = new THREE.ShaderMaterial({ uniforms: { uTex: { value: vTex }, uPlaying: { value: 0 }, uChroma: { value: CFG.chromaEnabled ? 1.0 : 0.0 } }, vertexShader: vShader, fragmentShader: fShader, transparent: true, side: THREE.DoubleSide, depthWrite: false });
+    const hPlane = new THREE.Mesh(new THREE.PlaneGeometry(CFG.hologramScale, CFG.hologramScale * .75), hMat); hPlane.position.y = CFG.hologramOffsetY; hologramGroup.add(hPlane);
+    hVideo.addEventListener('loadedmetadata', () => { const asp = hVideo.videoWidth / hVideo.videoHeight || 1.33; hPlane.scale.set(CFG.hologramScale, CFG.hologramScale / asp, 1); });
+
+    const particles = new THREE.Group(); hologramGroup.add(particles);
+    const pGeo = new THREE.SphereGeometry(deviceCap.useSimpleDetection ? 0.01 : 0.008, 4, 4);
+    const pMat = new THREE.MeshStandardMaterial({ color: 0xC9A96E, emissive: 0x8C6E3F, emissiveIntensity: deviceCap.useSimpleDetection ? 0.2 : 0.3, roughness: 0.6, metalness: 0.4 });
+    for (let i = 0; i < CFG.particleCount; i++) { const p = new THREE.Mesh(pGeo, pMat); p.userData = { angle: (i / CFG.particleCount) * Math.PI * 2, radius: 0.65, speed: 0.3 + Math.random() * 0.4 }; particles.add(p); }
+
+    let videoPlayed = false, hologramActive = false, isPaused = false;
+    function updatePauseButton() { pauseBtn.textContent = isPaused ? 'Продовжити' : 'Пауза'; }
+    pauseBtn.addEventListener('click', () => { if (!videoPlayed) return; if (isPaused) { hVideo.play().catch(() => {}); hMat.uniforms.uPlaying.value = 1; isPaused = false; trackEvent('video_resumed'); } else { hVideo.pause(); hMat.uniforms.uPlaying.value = 0; isPaused = true; trackEvent('video_paused'); } updatePauseButton(); });
+    restartBtn.addEventListener('click', () => { hVideo.currentTime = 0; if (isPaused) { isPaused = false; updatePauseButton(); } hVideo.play().catch(() => {}); hMat.uniforms.uPlaying.value = 1; videoPlayed = true; trackEvent('video_restarted'); });
+    function resetVideoState() { videoPlayed = false; isPaused = false; hVideo.pause(); hVideo.currentTime = 0; hMat.uniforms.uPlaying.value = 0; autoplayOverlay.classList.remove('visible'); videoControls.style.display = 'none'; updatePauseButton(); }
+    hVideo.addEventListener('ended', () => { if (!hologramActive) return; hMat.uniforms.uPlaying.value = 0; isPaused = false; updatePauseButton(); trackEvent('video_ended'); });
+    autoplayBtn.addEventListener('click', () => { autoplayOverlay.classList.remove('visible'); hVideo.muted = false; hVideo.play().then(() => { videoPlayed = true; hMat.uniforms.uPlaying.value = 1; videoControls.style.display = 'flex'; debugInfo.innerHTML = '<span class="status-dot" style="background:#C9A96E;"></span> Відео відтворюється'; }).catch(() => { hVideo.muted = true; hVideo.play().then(() => { videoPlayed = true; hMat.uniforms.uPlaying.value = 1; videoControls.style.display = 'flex'; debugInfo.innerHTML = '<span class="status-dot" style="background:#C9A96E;"></span> Відео (без звуку)'; }).catch(() => {}); }); });
+    function tryAutoplay() { hVideo.muted = false; hVideo.play().then(() => { videoPlayed = true; hMat.uniforms.uPlaying.value = 1; videoControls.style.display = 'flex'; debugInfo.innerHTML = '<span class="status-dot" style="background:#C9A96E;"></span> Відео відтворюється'; }).catch(() => { hVideo.muted = true; hVideo.play().then(() => { videoPlayed = true; hMat.uniforms.uPlaying.value = 1; videoControls.style.display = 'flex'; debugInfo.innerHTML = '<span class="status-dot" style="background:#C9A96E;"></span> Відео (без звуку)'; }).catch(() => {}); autoplayOverlay.classList.add('visible'); }); }
+    function activateHologram() { if (hologramActive || videoPlayed) return; hologramActive = true; hologramGroup.visible = true; showStep(2); if ('vibrate' in navigator) navigator.vibrate(100); debugInfo.innerHTML = '<span class="status-dot" style="background:#C9A96E;"></span> Голограма активована'; trackEvent('hologram_activated'); tryAutoplay(); }
+
+    let facingMode = 'user';
+    function updateVideoMirror() { videoEl.style.transform = facingMode === 'user' ? 'scaleX(-1)' : 'none'; }
+    function getCameraConstraints() { const q = CFG.cameraQuality; let w, h; switch(q) { case 'low': w=240; h=180; break; case 'medium': w=320; h=240; break; default: w=480; h=360; } return { video: { facingMode, width: { ideal: w, max: w*1.5 }, height: { ideal: h, max: h*1.5 } } }; }
+
+    async function startCamera() {
+        document.getElementById('ls-cam').classList.add('active');
+        if (videoEl.srcObject) { videoEl.srcObject.getTracks().forEach(t => t.stop()); videoEl.srcObject = null; }
+        if (!navigator.mediaDevices?.getUserMedia) { stepSub.textContent = 'Камера недоступна'; return false; }
+        const tryC = async c => { const s = await navigator.mediaDevices.getUserMedia(c); videoEl.srcObject = s; await videoEl.play(); return s; };
+        try { await tryC(getCameraConstraints()); } catch(e) { try { await tryC({ video: { facingMode } }); } catch { stepSub.textContent = 'Доступ до камери заборонено'; return false; } }
+        await new Promise(r => { if (videoEl.readyState >= 2) r(); else videoEl.addEventListener('loadedmetadata', r, { once: true }); });
+        onWindowResize(); document.getElementById('ls-cam').classList.replace('active', 'done'); setPb(80); updateVideoMirror();
+        debugInfo.innerHTML = `<span class="status-dot" style="background:#C9A96E;"></span> Камера готова (${CFG.cameraQuality})`; return true;
+    }
+
+    function detectHandSimple(imageData) {
+        const data = imageData.data, w = imageData.width, h = imageData.height, step = 4;
+        let skinPixels = [];
+        for (let y = 0; y < h; y += step) { for (let x = 0; x < w; x += step) { const i = (y * w + x) * 4, r = data[i], g = data[i+1], b = data[i+2]; if (r > 60 && g > 40 && b > 20 && r > g && r > b && (r-g)/(r+1) > 0.05 && r > 80 && g > 50) skinPixels.push({x, y}); } }
+        if (skinPixels.length < 15) return null;
+        let cx = 0, cy = 0; for (const p of skinPixels) { cx += p.x; cy += p.y; } cx /= skinPixels.length; cy /= skinPixels.length;
+        let spread = 0; for (const p of skinPixels) { const dx = p.x - cx, dy = p.y - cy; spread += Math.sqrt(dx*dx + dy*dy); } spread /= skinPixels.length;
+        const handRatio = spread / Math.max(w, h); if (handRatio < 0.01 || handRatio > 0.4) return null;
+        return { x: cx / w, y: cy / h, confidence: Math.min(1, skinPixels.length / 80) };
+    }
+
+    let handLandmarker = null, handVisible = false, handStableCount = 0, lastDetectTime = 0, detectionRunning = false, frameCount = 0, useFallback = deviceCap.useSimpleDetection;
+
+    async function initDetection() {
+        document.getElementById('ls-model').classList.add('active'); setPb(10);
+        if (useFallback) { document.getElementById('ls-model').classList.replace('active', 'done'); debugInfo.innerHTML = `<span class="status-dot" style="background:#C9A96E;"></span> Спрощена детекція (${CFG.cameraQuality})`; setPb(60); return; }
+        try {
+            const { FilesetResolver, HandLandmarker } = await import('https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.3/+esm');
+            const vision = await FilesetResolver.forVisionTasks('https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.3/wasm'); setPb(40);
+            handLandmarker = await HandLandmarker.createFromOptions(vision, { baseOptions: { modelAssetPath: 'https://storage.googleapis.com/mediapipe-models/hand_landmarker/hand_landmarker/float16/1/hand_landmarker.task', delegate: deviceCap.useGPU ? 'GPU' : 'CPU' }, runningMode: 'VIDEO', numHands: 1 });
+            setPb(60); document.getElementById('ls-model').classList.replace('active', 'done'); debugInfo.innerHTML = `<span class="status-dot" style="background:#C9A96E;"></span> MediaPipe завантажено (${deviceCap.useGPU ? 'GPU' : 'CPU'})`;
+        } catch(e) { document.getElementById('ls-model').classList.replace('active', 'done'); useFallback = true; debugInfo.innerHTML = `<span class="status-dot" style="background:#C9A96E;"></span> Переключено на спрощену детекцію`; setPb(60); }
+    }
+
+    function detectionLoop() {
+        if (detectionRunning) return; detectionRunning = true;
+        const now = performance.now(); const interval = handVisible ? CFG.detectionInterval : (useFallback ? 100 : 66);
+        if (now - lastDetectTime >= interval) { lastDetectTime = now; frameCount++;
+            if (videoEl.readyState >= 2 && videoEl.videoWidth > 0) { try {
+                let detected = false, normX = 0.5, normY = 0.5;
+                let isOk = false;
+
+                if (handLandmarker && !useFallback) {
+                    try {
+                        const res = handLandmarker.detectForVideo(videoEl, now);
+                        if (res.landmarks?.length > 0) {
+                            const lm = res.landmarks[0];
+                            detected = true;
+                            normX = (lm[0].x + lm[17].x) / 2;
+                            normY = (lm[0].y + lm[17].y) / 2;
+
+                            const okD = Math.hypot(lm[4].x - lm[8].x, lm[4].y - lm[8].y, lm[4].z - lm[8].z);
+                            const palmSz = Math.hypot(lm[0].x - lm[9].x, lm[0].y - lm[9].y, lm[0].z - lm[9].z) || .001;
+                            const circle = okD < palmSz * 0.45;
+                            const ext3 = [12, 16, 20].filter(tip => {
+                                const dTip = Math.hypot(lm[tip].x - lm[0].x, lm[tip].y - lm[0].y, lm[tip].z - lm[0].z);
+                                const dPip = Math.hypot(lm[tip-2].x - lm[0].x, lm[tip-2].y - lm[0].y, lm[tip-2].z - lm[0].z);
+                                return dTip > dPip;
+                            }).length >= 2;
+                            isOk = circle && ext3;
+                        }
+                    } catch(e) { useFallback = true; }
+                }
+
+                if (!detected && useFallback) {
+                    const tc = document.createElement('canvas'); tc.width = 160; tc.height = 120;
+                    const ctx = tc.getContext('2d'); ctx.drawImage(videoEl, 0, 0, 160, 120);
+                    const h = detectHandSimple(ctx.getImageData(0, 0, 160, 120));
+                    if (h && h.confidence > 0.25) { detected = true; normX = h.x; normY = h.y; }
+                }
+
+                if (detected) {
+                    if (!handVisible) {
+                        handVisible = true;
+                        handStableCount = 0;
+                        debugInfo.innerHTML = '<span class="status-dot" style="background:#C9A96E;"></span> Руку виявлено';
+                        showStep(1);
+                    }
+                    handStableCount++;
+                    const shouldActivate = (!useFallback && isOk) || (useFallback && handStableCount > 5);
+                    if (shouldActivate && !hologramActive && !videoPlayed) {
+                        activateHologram();
+                    }
+                    const mir = facingMode === 'user', dir = mir ? -1 : 1;
+                    hologramGroup.position.x += (dir * (normX * 2 - 1) - hologramGroup.position.x) * 0.12;
+                    hologramGroup.position.y += ((0.5 - normY) * 1.5 + CFG.hologramOffsetY - hologramGroup.position.y) * 0.12;
+                    if (!hologramGroup.visible && !hologramActive) hologramGroup.visible = true;
                 } else {
-                    handBubble.style.display = 'none';
-                }
-            });
-
-            const camera = new Camera(video, {
-                onFrame: async () => {
-                    await hands.send({image: video});
-                },
-                width: 640,
-                height: 480
-            });
-
-            camera.start().then(() => {
-                document.querySelector('#start-screen').style.display = 'none';
-                statusText.innerHTML = '👆 покажи пальчики перед камерою';
-                pickRandomLetter();
-            }).catch((err) => {
-                console.error('Camera error:', err);
-                statusText.innerHTML = '❌ Помилка камери. Використовуйте клавіатуру: ← → Пробіл';
-                document.querySelector('#start-screen').style.display = 'none';
-                pickRandomLetter();
-            });
-        }
-
-        // ---- ФУНКЦІЇ ГРИ ----
-        function pickRandomLetter() {
-            stopSpin();
-            const letter = letters[Math.floor(Math.random() * letters.length)];
-            const idx = letters.indexOf(letter);
-            wheelAngle = (idx / letters.length) * 2 * Math.PI;
-            currentLetter = letter;
-            letterDisplay.textContent = currentLetter;
-            statusText.innerHTML = `🎯 літера <strong>${currentLetter}</strong> · назви слово!`;
-            letterWrapper.classList.remove('pulse');
-            void letterWrapper.offsetWidth;
-            letterWrapper.classList.add('pulse');
-        }
-
-        function setAlphabet(key) {
-            if (key === currentAlphabet) return;
-            if (!ALPHABETS[key]) return;
-            stopSpin();
-            currentAlphabet = key;
-            letters = ALPHABETS[key];
-            alphabetBtns.forEach(btn => {
-                btn.classList.toggle('active', btn.dataset.alphabet === key);
-            });
-            pickRandomLetter();
-        }
-
-        function earnStar() {
-            if (score < totalLessons) {
-                starIcons[score].classList.add('earned');
-                score++;
-                if (score >= totalLessons) {
-                    statusText.innerHTML = '🏆 ВІТАЮ! Ти вивчив усі літери! 🎉';
-                }
-            }
-        }
-
-        // ---- КЛАВІАТУРА ----
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'ArrowLeft') { e.preventDefault(); startSpin(-1); }
-            else if (e.key === 'ArrowRight') { e.preventDefault(); startSpin(1); }
-            else if (e.key === ' ' || e.key === 'Space') {
-                e.preventDefault();
-                if (isSpinning) { stopSpin(); }
-                earnStar();
-            }
-        });
-
-        // ---- СТАРТ ----
-        startBtn.addEventListener('click', () => {
-            startBtn.textContent = 'Завантаження...';
-            startBtn.disabled = true;
-            
-            navigator.mediaDevices.getUserMedia({
-                video: { facingMode: "user", width: { ideal: 640 }, height: { ideal: 480 } },
-                audio: false
-            }).then(stream => {
-                video.srcObject = stream;
-                return video.play();
-            }).then(() => {
-                initGestureDetection();
-            }).catch((err) => {
-                console.error('Camera error:', err);
-                statusText.innerHTML = '❌ Помилка камери. Використовуйте клавіатуру: ← → Пробіл';
-                startScreen.style.display = 'none';
-                pickRandomLetter();
-                startBtn.textContent = 'Почати';
-                startBtn.disabled = false;
-            });
-        });
-
-        // ---- ПОДІЇ ----
-        alphabetBtns.forEach(btn => {
-            btn.addEventListener('click', () => {
-                const key = btn.dataset.alphabet;
-                if (key) setAlphabet(key);
-            });
-        });
-
-        spinBtn.addEventListener('click', pickRandomLetter);
-
-        starIcons.forEach((star, i) => {
-            star.addEventListener('click', () => {
-                if (i === score && score < totalLessons) {
-                    star.classList.add('earned');
-                    score++;
-                    if (score >= totalLessons) {
-                        statusText.innerHTML = '🏆 ВІТАЮ! Ти вивчив усі літери! 🎉';
+                    if (handVisible) {
+                        handVisible = false; handStableCount = 0;
+                        if (!hologramActive) { hologramGroup.visible = false; showStep(0); debugInfo.innerHTML = `<span class="status-dot" style="background:#C9A96E;"></span> Шукаємо руку`; }
                     }
                 }
-            });
-        });
+            } catch(e) { if (frameCount % 60 === 0) debugInfo.innerHTML = `<span class="status-dot" style="background:#C9A96E;"></span> Помилка детекції`; } }
+        } detectionRunning = false;
+        requestAnimationFrame(detectionLoop);
+    }
 
-        document.addEventListener('visibilitychange', () => {
-            if (document.hidden && isSpinning) { stopSpin(); }
-        });
+    function animate() { requestAnimationFrame(animate); if (hologramGroup.visible) { vTex.needsUpdate = true; const t = performance.now() / 1000; particles.children.forEach(p => { const a = t * p.userData.speed + p.userData.angle; p.position.set(Math.cos(a) * p.userData.radius, Math.sin(a * 2) * 0.05, Math.sin(a) * p.userData.radius); }); } renderer.render(scene, cam3); }
 
-        console.log('✦ Golden Wheel · SmartLessa v2.0');
-        console.log('👤 Автор: Олеся Бохонок / SmartLessa');
-        console.log('📷 Відео обробляється локально. Жодні дані не передаються.');
-    </script>
+    cameraToggleBtn.addEventListener('click', async () => { facingMode = facingMode === 'environment' ? 'user' : 'environment'; await startCamera(); updateVideoMirror(); });
+    resetBtn.addEventListener('click', () => { handVisible = false; hologramActive = false; handStableCount = 0; hologramGroup.visible = false; resetVideoState(); showStep(0); debugInfo.innerHTML = `<span class="status-dot" style="background:#C9A96E;"></span> Скинуто, шукаємо руку`; });
+    window.addEventListener('pagehide', () => { vTex.dispose(); hMat.dispose(); pGeo.dispose(); pMat.dispose(); renderer.dispose(); if (videoEl.srcObject) videoEl.srcObject.getTracks().forEach(t => t.stop()); });
+    function setPb(v) { document.getElementById('pb').style.width = v + '%'; }
+
+    // ═══════════ ПОКАЗ МЕТАДАНИХ У AR ═══════════
+    function initCaption() {
+        if (!params.title && !params.date) return;
+        
+        const caption = document.getElementById('ar-caption');
+        const titleEl = document.getElementById('ar-caption-title');
+        const dateEl = document.getElementById('ar-caption-date');
+        
+        if (params.title) {
+            titleEl.textContent = params.title;
+            const len = params.title.length;
+            if (len > 60) titleEl.style.fontSize = 'clamp(12px, 3vw, 18px)';
+            else if (len > 40) titleEl.style.fontSize = 'clamp(14px, 3.5vw, 20px)';
+            else titleEl.style.fontSize = 'clamp(16px, 4vw, 24px)';
+        } else {
+            titleEl.style.display = 'none';
+        }
+        
+        if (params.date) {
+            dateEl.textContent = '📅 ' + formatCaptionDate(params.date, params.time);
+        }
+        
+        caption.style.display = 'block';
+    }
+
+    async function initAR() { 
+        try { 
+            loadingEl.style.display = 'flex'; 
+            onboardingEl.style.display = 'flex'; 
+            await initDetection(); 
+            document.getElementById('ls-scene').classList.add('active'); 
+            const ok = await startCamera(); 
+            if (!ok) { 
+                debugInfo.innerHTML = '<span class="status-dot" style="background:#C9A96E;"></span> Помилка камери'; 
+                return; 
+            } 
+            setPb(95); 
+            hologramGroup.visible = false; 
+            document.getElementById('ls-scene').classList.replace('active', 'done'); 
+            setPb(100); 
+            await new Promise(r => setTimeout(r, 300)); 
+            loadingEl.style.display = 'none'; 
+            showStep(0); 
+            initCaption(); // ← Показ метаданих
+            animate(); 
+            detectionLoop(); 
+            setInterval(() => trackEvent('session_heartbeat'), 30000); 
+        } catch(e) { 
+            debugInfo.innerHTML = `<span class="status-dot" style="background:#C9A96E;"></span> ${e.message || 'Помилка'}`; 
+            loadingEl.innerHTML = '<div style="color:#f44;text-align:center;padding:24px">Помилка завантаження.<br>Оновіть сторінку.</div>'; 
+        } 
+    }
+
+    if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js');
+
+    initAR();
+</script>
+<script>
+    if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(() => {});
+    window.addEventListener('appinstalled', () => {
+        if (typeof gtag === 'function') gtag('event', 'pwa_installed', { app: 'AR_Studio_2026' });
+    });
+</script>
 </body>
 </html>
