@@ -2,23 +2,20 @@
 <html lang="uk">
 <head>
     <meta charset="UTF-8">
-    <!-- Google Analytics -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-LZ2J670JDT"></script>
     <script>window.dataLayer = window.dataLayer || []; function gtag(){dataLayer.push(arguments);} gtag('js', new Date()); gtag('config', 'G-LZ2J670JDT');</script>
-    
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+
+    <!-- FIX: прибрано maximum-scale та user-scalable=no (WCAG 1.4.4) -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <meta name="theme-color" content="#0B0B12">
     <title>AR Studio | Олеся Бохонок · SmartLessa 2026</title>
-
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="author" content="Олеся Бохонок">
 
-    <!-- Cloudflare Analytics -->
     <script defer src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{"token": "64df0e53a7f64e188d3eb86c8918389d"}'></script>
 
-    <!-- Fonts & QR -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -33,23 +30,20 @@
             --text-secondary: rgba(240, 240, 242, 0.7);
             --font-main: 'Inter', system-ui, -apple-system, sans-serif;
         }
-
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: var(--font-main); -webkit-tap-highlight-color: transparent; }
         body, html { width: 100%; height: 100%; overflow: hidden; background: var(--bg-deep); color: var(--text-primary); }
 
         #video { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; z-index: 0; }
         #canvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; pointer-events: none; }
 
-        /* Top Bar */
         .top-bar { position: absolute; top: max(18px, env(safe-area-inset-top, 18px)); left: 18px; right: 18px; display: flex; justify-content: space-between; z-index: 200; gap: 12px; }
         .top-bar button { background: rgba(18, 18, 28, 0.75); backdrop-filter: blur(16px); border: 1px solid rgba(255, 255, 255, 0.12); color: var(--accent-soft); padding: 10px 22px; border-radius: 60px; font-weight: 500; font-size: 13px; cursor: pointer; text-transform: uppercase; }
-        
-        /* Video Controls */
-        #video-controls { position: absolute; bottom: max(140px, calc(env(safe-area-inset-bottom, 0px) + 120px)); left: 0; right: 0; display: none; justify-content: center; gap: 16px; z-index: 300; padding: 0 20px; }
+
+        /* FIX: піднято вище, щоб не перекриватися з підписом */
+        #video-controls { position: absolute; bottom: max(100px, calc(env(safe-area-inset-bottom, 0px) + 80px)); left: 0; right: 0; display: none; justify-content: center; gap: 16px; z-index: 300; padding: 0 20px; }
         #video-controls button { background: rgba(18, 18, 28, 0.8); backdrop-filter: blur(14px); border: 1px solid rgba(255, 255, 255, 0.15); color: #fff; padding: 12px 24px; border-radius: 60px; font-weight: 500; font-size: 14px; cursor: pointer; text-transform: uppercase; }
         #video-controls button.pause-btn { background: #1A1A28; border: 1px solid var(--accent-primary); color: var(--accent-soft); min-width: 130px; }
 
-        /* Loading */
         #loading { position: fixed; inset: 0; background: radial-gradient(circle at 30% 40%, #1A1A28, #0B0B12); display: none; flex-direction: column; align-items: center; justify-content: center; z-index: 1000; color: var(--accent-soft); padding: 24px; }
         #loading.visible { display: flex; }
         #loading-title { font-size: 1.7rem; font-weight: 600; letter-spacing: 0.2em; margin-bottom: 40px; text-transform: uppercase; color: #E6D3B3; }
@@ -59,7 +53,6 @@
         .pbwrap { width: 100%; max-width: 320px; background: rgba(255, 255, 255, 0.06); border-radius: 30px; height: 6px; margin-top: 28px; overflow: hidden; }
         .pb { height: 100%; background: linear-gradient(90deg, #8C6E3F, #C9A96E); width: 0%; transition: width 0.35s ease; }
 
-        /* Setup */
         #setup-screen { position: fixed; inset: 0; background: radial-gradient(circle at 50% 10%, #13131F, #09090F); display: flex; flex-direction: column; align-items: center; z-index: 999; padding: max(24px, env(safe-area-inset-top)) 20px; overflow-y: auto; }
         .setup-container { width: 100%; max-width: 440px; display: flex; flex-direction: column; align-items: center; margin: auto 0; }
         @media (min-width: 900px) { .setup-container { max-width: 1040px; display: grid; grid-template-columns: 1fr 1fr; gap: 60px; align-items: center; } .setup-header { text-align: left; } }
@@ -67,11 +60,11 @@
         .setup-header .logo { font-size: 0.85rem; letter-spacing: 0.3em; color: var(--accent-soft); text-transform: uppercase; opacity: 0.7; }
         .setup-header h1 { font-size: clamp(1.3rem, 5vw, 1.8rem); font-weight: 700; margin-top: 4px; }
         .setup-author { font-size: 12px; color: rgba(230, 211, 179, 0.6); margin-top: 10px; }
-        
+
         .wizard-progress { display: flex; gap: 6px; margin-bottom: 20px; }
         .wizard-dot { width: 6px; height: 6px; border-radius: 50%; background: rgba(255,255,255,0.15); }
         .wizard-dot.active { background: var(--accent-primary); width: 20px; border-radius: 3px; }
-        
+
         .wizard-step { display: none; width: 100%; }
         .wizard-step.active { display: block; }
         .step-title { font-size: 1.1rem; font-weight: 600; margin-bottom: 16px; text-align: center; }
@@ -79,26 +72,28 @@
 
         .drop-zone { border: 1.5px dashed rgba(255, 255, 255, 0.25); border-radius: 18px; padding: 32px 20px; text-align: center; margin-bottom: 10px; background: rgba(255, 255, 255, 0.02); cursor: pointer; }
         .drop-zone-icon { font-size: 32px; margin-bottom: 10px; }
-        #video-url, #event-meta input { background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.15); color: #fff; padding: 14px 20px; border-radius: 60px; width: 100%; font-size: 14px; margin-bottom: 10px; outline: none; }
+
+        /* FIX: додано label для полів */
+        .field-label { display: block; font-size: 12px; color: var(--text-secondary); margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.05em; }
+        #video-url, #event-meta input, #event-title { background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.15); color: #fff; padding: 14px 20px; border-radius: 60px; width: 100%; font-size: 16px; /* FIX: 16px запобігає auto-zoom на iOS */ margin-bottom: 10px; outline: none; }
         .toggle-box { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; font-size: 13px; color: var(--text-secondary); }
-        
+
         .setup-buttons { display: flex; gap: 10px; width: 100%; }
         .setup-buttons button { flex: 1; background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.2); color: #fff; padding: 14px; border-radius: 60px; font-size: 15px; cursor: pointer; text-transform: uppercase; }
         .setup-buttons button.primary { background: #1E1E2A; border-color: var(--accent-primary); }
         #upload-status { font-size: 13px; text-align: center; margin-bottom: 8px; min-height: 18px; }
-        
+
         #qrcode-wrapper { display: none; text-align: center; margin-top: 10px; }
         #qrcode-wrapper.visible { display: block; }
         #qrcode-container { padding: 16px; background: white; border-radius: 18px; display: inline-block; }
 
         .footer { position: absolute; bottom: 10px; left: 0; right: 0; text-align: center; font-size: 10px; color: rgba(255,255,255,0.3); }
-        
-        /* AR Overlays */
-        #ar-caption { position: absolute; bottom: max(170px, calc(env(safe-area-inset-bottom, 0px) + 140px)); left: 20px; right: 20px; z-index: 200; display: none; text-align: center; pointer-events: none; }
+
+        /* FIX: підпис піднято вище контролів */
+        #ar-caption { position: absolute; bottom: max(200px, calc(env(safe-area-inset-bottom, 0px) + 170px)); left: 20px; right: 20px; z-index: 200; display: none; text-align: center; pointer-events: none; }
         #ar-caption-title { color: #F0F0F2; font-weight: 600; background: rgba(10, 10, 18, 0.65); backdrop-filter: blur(14px); border: 1px solid rgba(201, 169, 110, 0.4); border-radius: 16px; padding: 12px 18px; margin-bottom: 6px; font-size: clamp(14px, 4vw, 20px); display: inline-block; }
         #ar-caption-date { color: var(--accent-soft); font-size: clamp(11px, 2.5vw, 13px); text-transform: uppercase; text-shadow: 0 2px 8px rgba(0,0,0,0.9); }
 
-        /* Onboarding (Центр) */
         #onboarding { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 250; display: none; flex-direction: column; align-items: center; width: 90%; max-width: 350px; pointer-events: none; }
         #onboarding.visible { display: flex; }
         #step-card { background: rgba(12, 12, 20, 0.85); backdrop-filter: blur(20px); border: 1px solid rgba(201, 169, 110, 0.4); border-radius: 28px; padding: 30px 24px; text-align: center; box-shadow: 0 10px 40px rgba(0, 0, 0, 0.7); }
@@ -112,7 +107,7 @@
         .toast.visible { opacity: 1; transform: translateX(-50%) translateY(0); }
 
         @keyframes pulseSoft { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.6; transform: scale(0.95); } }
-        
+
         #unmute-btn { position: absolute; top: max(80px, calc(env(safe-area-inset-top, 0px) + 60px)); left: 50%; transform: translateX(-50%); z-index: 350; background: var(--accent-primary); color: #000; padding: 12px 24px; border-radius: 30px; border: none; font-weight: 700; font-size: 14px; cursor: pointer; box-shadow: 0 4px 15px rgba(0,0,0,0.5); display: none; text-transform: uppercase; }
         #unmute-btn.visible { display: block; animation: pulseSoft 2s infinite; }
     </style>
@@ -128,7 +123,6 @@
 <div id="debug-info">Ініціалізація</div>
 <button id="unmute-btn">🔊 Увімкнути звук</button>
 
-<!-- SETUP SCREEN -->
 <div id="setup-screen">
     <div class="setup-container">
         <div class="setup-header">
@@ -145,7 +139,6 @@
             </div>
 
             <div class="setup-wizard">
-                <!-- КРОК 1 -->
                 <div class="wizard-step active" data-step="0">
                     <div class="step-title">Додайте відео</div>
                     <div class="drop-zone" id="drop-zone">
@@ -154,7 +147,8 @@
                         <input type="file" id="video-file-input" accept="video/mp4" style="display:none;" />
                     </div>
                     <p id="upload-status"></p>
-                    <input type="url" id="video-url" placeholder="🔗 або посилання .mp4" />
+                    <label class="field-label" for="video-url">Посилання на відео</label>
+                    <input type="url" id="video-url" placeholder="https://..." />
                     <div class="toggle-box">
                         <input type="checkbox" id="chromakey-toggle" checked>
                         <label for="chromakey-toggle">Видалити зелений екран</label>
@@ -164,13 +158,20 @@
                     </div>
                 </div>
 
-                <!-- КРОК 2 -->
                 <div class="wizard-step" data-step="1">
                     <div class="step-title">Підпис події</div>
-                    <input type="text" id="event-title" placeholder="Назва (напр. МАН 2026)" maxlength="80" />
+                    <!-- FIX: додано <label> для доступності -->
+                    <label class="field-label" for="event-title">Назва події</label>
+                    <input type="text" id="event-title" placeholder="Напр. МАН 2026" maxlength="80" />
                     <div style="display: flex; gap: 10px;">
-                        <input type="date" id="event-date" style="flex:1;" />
-                        <input type="time" id="event-time" style="flex:1;" />
+                        <div style="flex:1;">
+                            <label class="field-label" for="event-date">Дата</label>
+                            <input type="date" id="event-date" style="width:100%;" />
+                        </div>
+                        <div style="flex:1;">
+                            <label class="field-label" for="event-time">Час</label>
+                            <input type="time" id="event-time" style="width:100%;" />
+                        </div>
                     </div>
                     <div class="setup-buttons">
                         <button id="prev-1">←</button>
@@ -178,7 +179,6 @@
                     </div>
                 </div>
 
-                <!-- КРОК 3 -->
                 <div class="wizard-step" data-step="2">
                     <div class="step-title">Готово</div>
                     <div id="qrcode-wrapper">
@@ -196,7 +196,6 @@
     <div class="footer">© 2026 <a href="https://github.com/lessa2332" target="_blank" style="color:#C9A96E;text-decoration:none;">Олеся Бохонок</a> · SmartLessa</div>
 </div>
 
-<!-- LOADING -->
 <div id="loading">
     <div id="loading-title">AR STUDIO 2026</div>
     <div class="load-step" id="ls-model"><span>AI</span><span>Модель руки</span></div>
@@ -204,7 +203,6 @@
     <div class="pbwrap"><div class="pb" id="pb"></div></div>
 </div>
 
-<!-- AR OVERLAYS -->
 <div class="top-bar" id="ar-topbar" style="display:none;">
     <button id="camera-toggle">Камера</button>
     <button id="reset">Скинути</button>
@@ -240,7 +238,6 @@
     function formatCaptionDate(d, t) { if (!d) return ''; try { const dt = new Date(d + (t ? 'T' + t : '')); return dt.toLocaleDateString('uk-UA', { day: '2-digit', month: 'long', year: 'numeric' }) + (t ? ' • ' + t : ''); } catch { return d; } }
     function showToast(msg) { const el = document.getElementById('toast'); el.textContent = msg; el.classList.add('visible'); setTimeout(() => el.classList.remove('visible'), 2500); }
 
-    // ── SETUP MODE ──
     function initSetup() {
         const urlInput = document.getElementById('video-url');
         const fileInput = document.getElementById('video-file-input');
@@ -299,7 +296,6 @@
         };
     }
 
-    // ── AR MODE ──
     async function initAR() {
         document.getElementById('setup-screen').style.display = 'none';
         document.getElementById('loading').classList.add('visible');
@@ -312,24 +308,26 @@
         hVideo.setAttribute('playsinline', ''); hVideo.setAttribute('crossorigin', 'anonymous');
         hVideo.muted = true; hVideo.loop = false; hVideo.src = params.video; hVideo.load();
 
-        // Відображення назви та дати
         if (params.title || params.date) {
             document.getElementById('ar-caption').style.display = 'block';
             if (params.title) document.getElementById('ar-caption-title').textContent = params.title;
             if (params.date) document.getElementById('ar-caption-date').textContent = '📅 ' + formatCaptionDate(params.date, params.time);
         }
 
-        // 3D Scene
         const scene = new THREE.Scene();
         const cam3 = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
         cam3.position.set(0, 0, 3.2);
         const renderer = new THREE.WebGLRenderer({ canvas: canvasEl, alpha: true, antialias: true });
-        renderer.setClearColor(0, 0); renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2)); renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setClearColor(0, 0);
+        // FIX: обмеження pixel ratio для слабких гаджетів
+        const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, isMobile ? 1.5 : 2));
+        renderer.setSize(window.innerWidth, window.innerHeight);
         window.addEventListener('resize', () => { cam3.aspect = window.innerWidth / window.innerHeight; cam3.updateProjectionMatrix(); renderer.setSize(window.innerWidth, window.innerHeight); });
 
         const hologramGroup = new THREE.Group(); scene.add(hologramGroup);
         const vTex = new THREE.VideoTexture(hVideo);
-        
+
         const hMat = new THREE.ShaderMaterial({
             uniforms: { uTex: { value: vTex }, uPlaying: { value: 0 }, uChroma: { value: params.chroma ? 1.0 : 0.0 } },
             vertexShader: `varying vec2 vUv; void main(){ vUv = uv; gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }`,
@@ -354,32 +352,76 @@
         hPlane.position.y = 0.35; hologramGroup.add(hPlane);
         hVideo.addEventListener('loadedmetadata', () => { const asp = hVideo.videoWidth / hVideo.videoHeight || 1.33; hPlane.scale.set(1, 1 / asp * (4/3), 1); });
 
-        // ✨ ЗОЛОТІ ЧАСТИНКИ (Повертаємо вау-ефект)
-        const particles = new THREE.Group(); hologramGroup.add(particles);
-        const pGeo = new THREE.SphereGeometry(0.01, 4, 4);
-        const pMat = new THREE.MeshStandardMaterial({ color: 0xC9A96E, emissive: 0x8C6E3F, emissiveIntensity: 0.5 });
-        for (let i = 0; i < 15; i++) {
-            const p = new THREE.Mesh(pGeo, pMat);
-            p.userData = { angle: (i / 15) * Math.PI * 2, radius: 0.65, speed: 0.3 + Math.random() * 0.4 };
-            particles.add(p);
+        // FIX: замінено 15 Mesh-частинок на THREE.Points (1 draw call)
+        const particleCount = 15;
+        const pGeo = new THREE.BufferGeometry();
+        const positions = new Float32Array(particleCount * 3);
+        pGeo.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+        const pMat = new THREE.PointsMaterial({ color: 0xC9A96E, size: 0.02, transparent: true, blending: THREE.AdditiveBlending });
+        const particles = new THREE.Points(pGeo, pMat);
+        particles.userData = { angles: [], radii: [], speeds: [] };
+        for (let i = 0; i < particleCount; i++) {
+            particles.userData.angles.push((i / particleCount) * Math.PI * 2);
+            particles.userData.radii.push(0.65);
+            particles.userData.speeds.push(0.3 + Math.random() * 0.4);
         }
+        hologramGroup.add(particles);
         scene.add(new THREE.AmbientLight(0xffffff, 1));
 
-        let hologramActive = false, isPaused = false, videoPlayed = false;
+        let hologramActive = false, isPaused = false;
 
-        // Камера
         let facingMode = 'user';
         async function startCamera() {
             try {
                 const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode } });
                 videoEl.srcObject = stream; await videoEl.play();
                 videoEl.style.transform = facingMode === 'user' ? 'scaleX(-1)' : 'none';
-                return true;
-            } catch { return false; }
+                return { ok: true, stream };
+            } catch (e) {
+                // FIX: розрізняємо причини помилки
+                let reason = 'unknown';
+                if (e.name === 'NotAllowedError') reason = 'denied';
+                else if (e.name === 'NotFoundError') reason = 'notfound';
+                else if (e.name === 'NotReadableError') reason = 'busy';
+                return { ok: false, reason };
+            }
         }
 
-        document.getElementById('camera-toggle').onclick = async () => { facingMode = facingMode === 'user' ? 'environment' : 'user'; await startCamera(); };
-        document.getElementById('reset').onclick = () => { hologramActive = false; hologramGroup.visible = false; hVideo.pause(); hVideo.currentTime = 0; hMat.uniforms.uPlaying.value = 0; document.getElementById('onboarding').classList.add('visible'); showStep(0); };
+        // FIX: активація без камери — показуємо відео в центрі
+        function activateWithoutCamera(reason) {
+            hologramActive = true;
+            hologramGroup.visible = true;
+            hologramGroup.position.set(0, 0.35, 0);
+            document.getElementById('onboarding').classList.remove('visible');
+            hVideo.muted = false;
+            hVideo.play().then(() => {
+                hMat.uniforms.uPlaying.value = 1;
+                document.getElementById('video-controls').style.display = 'flex';
+                debugInfo.innerHTML = reason === 'denied' ? 'Камеру відхилено — відео по центру' : 'Камера недоступна — відео по центру';
+            }).catch(() => {
+                hVideo.muted = true;
+                hVideo.play();
+                hMat.uniforms.uPlaying.value = 1;
+                document.getElementById('video-controls').style.display = 'flex';
+                document.getElementById('unmute-btn').classList.add('visible');
+                debugInfo.innerHTML = 'Відео без звуку (камера недоступна)';
+            });
+        }
+
+        document.getElementById('camera-toggle').onclick = async () => {
+            facingMode = facingMode === 'user' ? 'environment' : 'user';
+            const r = await startCamera();
+            if (!r.ok) showToast('Не вдалося перемкнути камеру');
+        };
+        document.getElementById('reset').onclick = () => {
+            hologramActive = false; hologramGroup.visible = false;
+            hVideo.pause(); hVideo.currentTime = 0;
+            hMat.uniforms.uPlaying.value = 0;
+            document.getElementById('video-controls').style.display = 'none';
+            document.getElementById('unmute-btn').classList.remove('visible');
+            document.getElementById('onboarding').classList.add('visible');
+            showStep(0);
+        };
 
         function showStep(s) {
             const emoji = document.getElementById('step-emoji'), title = document.getElementById('step-title'), sub = document.getElementById('step-sub'), num = document.getElementById('step-num');
@@ -387,13 +429,12 @@
             else if (s === 1) { emoji.textContent = '👌'; num.textContent = 'КРОК 2'; title.textContent = 'Жест OK'; sub.textContent = "З'єднайте великий та вказівний палець"; }
         }
 
-        const pauseBtn = document.getElementById('pause-btn'), restartBtn = document.getElementById('restart-btn'), videoControls = document.getElementById('video-controls');
+        const pauseBtn = document.getElementById('pause-btn'), restartBtn = document.getElementById('restart-btn');
         const unmuteBtn = document.getElementById('unmute-btn');
 
         pauseBtn.onclick = () => { if (isPaused) { hVideo.play(); hMat.uniforms.uPlaying.value = 1; isPaused = false; pauseBtn.textContent = 'Пауза'; } else { hVideo.pause(); hMat.uniforms.uPlaying.value = 0; isPaused = true; pauseBtn.textContent = 'Продовжити'; } };
-        restartBtn.onclick = () => { hVideo.currentTime = 0; hVideo.play(); hMat.uniforms.uPlaying.value = 1; };
+        restartBtn.onclick = () => { hVideo.currentTime = 0; hVideo.play(); hMat.uniforms.uPlaying.value = 1; isPaused = false; pauseBtn.textContent = 'Пауза'; };
 
-        // ✅ БЕЗПЕЧНИЙ ЗАПУСК
         async function activateHologram() {
             if (hologramActive) return;
             hologramActive = true;
@@ -404,13 +445,15 @@
             hVideo.muted = false;
             try {
                 await hVideo.play();
-                videoPlayed = true; hMat.uniforms.uPlaying.value = 1; videoControls.style.display = 'flex';
+                hMat.uniforms.uPlaying.value = 1;
+                document.getElementById('video-controls').style.display = 'flex';
                 debugInfo.innerHTML = 'Відео + Звук';
                 return;
             } catch(e) {
                 hVideo.muted = true;
                 await hVideo.play();
-                videoPlayed = true; hMat.uniforms.uPlaying.value = 1; videoControls.style.display = 'flex';
+                hMat.uniforms.uPlaying.value = 1;
+                document.getElementById('video-controls').style.display = 'flex';
                 debugInfo.innerHTML = 'Відео (без звуку)';
                 unmuteBtn.classList.add('visible');
             }
@@ -418,16 +461,22 @@
 
         unmuteBtn.onclick = () => { hVideo.muted = false; unmuteBtn.classList.remove('visible'); debugInfo.innerHTML = 'Звук увімкнено'; };
 
-        // Детекція руки
+        // FIX: якщо камери немає — одразу показуємо відео без трекінгу
+        const camResult = await startCamera();
+        if (!camResult.ok) {
+            document.getElementById('loading').classList.remove('visible');
+            activateWithoutCamera(camResult.reason);
+            animate();
+            return;
+        }
+
+        // Далі — з камерою: MediaPipe
         let handLandmarker = null;
         try {
             const { FilesetResolver, HandLandmarker } = await import('https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.3/+esm');
             const vision = await FilesetResolver.forVisionTasks('https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.3/wasm');
             handLandmarker = await HandLandmarker.createFromOptions(vision, { baseOptions: { modelAssetPath: 'https://storage.googleapis.com/mediapipe-models/hand_landmarker/hand_landmarker/float16/1/hand_landmarker.task' }, runningMode: 'VIDEO', numHands: 1 });
         } catch(e) { console.warn('MediaPipe failed', e); }
-
-        const ok = await startCamera();
-        if (!ok) { debugInfo.innerHTML = 'Помилка камери'; return; }
 
         document.getElementById('loading').classList.remove('visible');
         document.getElementById('onboarding').classList.add('visible');
@@ -436,7 +485,8 @@
         let lastDetectTime = 0;
         function detectLoop() {
             requestAnimationFrame(detectLoop);
-            if (!handLandmarker || hologramActive || videoEl.readyState < 2) return;
+            // FIX: не зупиняємо трекінг після активації — рух за рукою продовжується
+            if (!handLandmarker || videoEl.readyState < 2) return;
             const now = performance.now();
             if (now - lastDetectTime < 100) return;
             lastDetectTime = now;
@@ -447,16 +497,14 @@
                     const lm = res.landmarks[0];
                     const okD = Math.hypot(lm[4].x - lm[8].x, lm[4].y - lm[8].y);
                     const palmSz = Math.hypot(lm[0].x - lm[9].x, lm[0].y - lm[9].y) || 0.001;
-                    
-                    // Перевірка жесту OK
-                    if (okD < palmSz * 0.5) {
+
+                    if (!hologramActive && okD < palmSz * 0.5) {
                         activateHologram();
-                    } else {
-                        // Якщо просто долоня — показуємо підказку для OK
-                        showStep(1); 
+                    } else if (!hologramActive) {
+                        showStep(1);
                     }
-                    
-                    // Рух голограми
+
+                    // FIX: рух голограми за рукою працює і після активації
                     const mir = facingMode === 'user', dir = mir ? -1 : 1;
                     hologramGroup.position.x += (dir * ((lm[0].x + lm[17].x)/2 * 2 - 1) - hologramGroup.position.x) * 0.1;
                     hologramGroup.position.y += ((0.5 - (lm[0].y + lm[17].y)/2) * 1.5 + 0.35 - hologramGroup.position.y) * 0.1;
@@ -468,10 +516,14 @@
             requestAnimationFrame(animate);
             if (hologramGroup.visible) {
                 const t = performance.now() / 1000;
-                particles.children.forEach(p => {
-                    const a = t * p.userData.speed + p.userData.angle;
-                    p.position.set(Math.cos(a) * p.userData.radius, Math.sin(a * 2) * 0.05, Math.sin(a) * p.userData.radius);
-                });
+                // FIX: оновлення однієї BufferGeometry замість 15 Mesh
+                const posAttr = pGeo.attributes.position;
+                for (let i = 0; i < particleCount; i++) {
+                    const a = t * particles.userData.speeds[i] + particles.userData.angles[i];
+                    const r = particles.userData.radii[i];
+                    posAttr.setXYZ(i, Math.cos(a) * r, Math.sin(a * 2) * 0.05, Math.sin(a) * r);
+                }
+                posAttr.needsUpdate = true;
             }
             renderer.render(scene, cam3);
         }
