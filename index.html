@@ -5,7 +5,6 @@
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-LZ2J670JDT"></script>
     <script>window.dataLayer = window.dataLayer || []; function gtag(){dataLayer.push(arguments);} gtag('js', new Date()); gtag('config', 'G-LZ2J670JDT');</script>
 
-    <!-- FIX: прибрано maximum-scale та user-scalable=no (WCAG 1.4.4) -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <meta name="theme-color" content="#0B0B12">
     <title>AR Studio | Олеся Бохонок · SmartLessa 2026</title>
@@ -20,7 +19,8 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
+    <!-- FIX: QRCode з onerror для фолбеку -->
+    <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js" onerror="window.__qrFailed=true"></script>
 
     <style>
         :root {
@@ -39,12 +39,10 @@
         #video { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; z-index: 0; }
         #canvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; pointer-events: none; }
 
-        /* Top Bar — без змін */
         .top-bar { position: absolute; top: max(18px, env(safe-area-inset-top, 18px)); left: 18px; right: 18px; display: flex; justify-content: space-between; z-index: 200; gap: 12px; }
         .top-bar button { background: rgba(18, 18, 28, 0.75); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border: 1px solid rgba(255, 255, 255, 0.12); color: var(--accent-soft); padding: 10px 22px; border-radius: 60px; font-weight: 500; font-size: 13px; cursor: pointer; text-transform: uppercase; transition: transform 0.15s; }
         .top-bar button:active { transform: scale(0.96); }
 
-        /* FIX: піднято вище, щоб не перекриватися з підписом */
         #video-controls { position: absolute; bottom: max(100px, calc(env(safe-area-inset-bottom, 0px) + 80px)); left: 0; right: 0; display: none; justify-content: center; gap: 16px; z-index: 300; padding: 0 20px; }
         #video-controls button { background: rgba(18, 18, 28, 0.8); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); border: 1px solid rgba(255, 255, 255, 0.15); color: #fff; padding: 12px 24px; border-radius: 60px; font-weight: 500; font-size: 14px; cursor: pointer; text-transform: uppercase; }
         #video-controls button.pause-btn { background: #1A1A28; border: 1px solid var(--accent-primary); color: var(--accent-soft); min-width: 130px; }
@@ -58,7 +56,6 @@
         .pbwrap { width: 100%; max-width: 320px; background: rgba(255, 255, 255, 0.06); border-radius: 30px; height: 6px; margin-top: 28px; overflow: hidden; }
         .pb { height: 100%; background: linear-gradient(90deg, #8C6E3F, #C9A96E); width: 0%; transition: width 0.35s ease; }
 
-        /* FIX: setup-screen — прибрано justify-content:center, щоб не обрізалось на малих екранах */
         #setup-screen { position: fixed; inset: 0; background: radial-gradient(circle at 50% 10%, #13131F, #09090F); display: flex; flex-direction: column; align-items: center; z-index: 999; padding: max(24px, env(safe-area-inset-top)) 20px; overflow-y: auto; }
         .setup-container { width: 100%; max-width: 440px; display: flex; flex-direction: column; align-items: center; margin: auto 0; }
         @media (min-width: 900px) { .setup-container { max-width: 1040px; display: grid; grid-template-columns: 1fr 1fr; gap: 60px; align-items: center; } .setup-header { text-align: left; } }
@@ -80,7 +77,6 @@
         .drop-zone:hover { border-color: var(--accent-primary); background: rgba(201, 169, 110, 0.04); }
         .drop-zone-icon { font-size: 32px; margin-bottom: 10px; }
 
-        /* FIX: додано label-стилі + font-size 16px (проти iOS auto-zoom) */
         .field-label { display: block; font-size: 11px; color: var(--text-secondary); margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.05em; text-align: left; }
         #video-url, #event-title, #event-date, #event-time {
             background: rgba(255, 255, 255, 0.03);
@@ -107,7 +103,6 @@
         .footer { position: absolute; bottom: 10px; left: 0; right: 0; text-align: center; font-size: 10px; color: rgba(255,255,255,0.3); }
         .footer a { color: var(--accent-primary); text-decoration: none; }
 
-        /* FIX: підпис піднято вище контролів */
         #ar-caption { position: absolute; bottom: max(200px, calc(env(safe-area-inset-bottom, 0px) + 170px)); left: 20px; right: 20px; z-index: 200; display: none; text-align: center; pointer-events: none; }
         #ar-caption-title { color: #F0F0F2; font-weight: 600; background: rgba(10, 10, 18, 0.65); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); border: 1px solid rgba(201, 169, 110, 0.4); border-radius: 16px; padding: 12px 18px; margin-bottom: 6px; font-size: clamp(14px, 4vw, 20px); display: inline-block; }
         #ar-caption-date { color: var(--accent-soft); font-size: clamp(11px, 2.5vw, 13px); text-transform: uppercase; text-shadow: 0 2px 8px rgba(0,0,0,0.9); }
@@ -120,22 +115,31 @@
         #step-title { font-size: 22px; font-weight: 700; margin: 4px 0; }
         #step-sub { font-size: 14px; color: var(--text-secondary); }
 
-        /* FIX: debug-info приховано, показується лише з ?debug=1 */
         #debug-info { position: absolute; bottom: 70px; left: 50%; transform: translateX(-50%); background: rgba(10, 10, 18, 0.8); color: var(--accent-soft); padding: 8px 20px; border-radius: 40px; font-size: 11px; z-index: 150; pointer-events: none; border: 1px solid rgba(255,255,255,0.1); display: none; }
         body.debug #debug-info { display: block; }
 
-        .toast { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%) translateY(20px); background: rgba(20, 20, 30, 0.95); border: 1px solid var(--accent-primary); color: #fff; padding: 12px 22px; border-radius: 40px; font-size: 14px; z-index: 2000; opacity: 0; transition: all 0.3s; pointer-events: none; }
+        .toast { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%) translateY(20px); background: rgba(20, 20, 30, 0.95); border: 1px solid var(--accent-primary); color: #fff; padding: 12px 22px; border-radius: 40px; font-size: 14px; z-index: 2000; opacity: 0; transition: all 0.3s; pointer-events: none; max-width: 90vw; text-align: center; }
         .toast.visible { opacity: 1; transform: translateX(-50%) translateY(0); }
 
         @keyframes pulseSoft { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.6; transform: scale(0.95); } }
 
         #unmute-btn { position: absolute; top: max(80px, calc(env(safe-area-inset-top, 0px) + 60px)); left: 50%; transform: translateX(-50%); z-index: 350; background: var(--accent-primary); color: #000; padding: 12px 24px; border-radius: 30px; border: none; font-weight: 700; font-size: 14px; cursor: pointer; box-shadow: 0 4px 15px rgba(0,0,0,0.5); display: none; text-transform: uppercase; }
         #unmute-btn.visible { display: block; animation: pulseSoft 2s infinite; }
+
+        /* FIX: банер для in-app browser */
+        #inapp-banner { position: fixed; top: 0; left: 0; right: 0; background: #C9A96E; color: #0B0B12; padding: 12px 20px; z-index: 3000; font-size: 13px; text-align: center; font-weight: 500; display: none; }
+        #inapp-banner.visible { display: block; }
+        #inapp-banner button { background: #0B0B12; color: #E6D3B3; border: none; padding: 8px 16px; border-radius: 20px; margin-left: 10px; font-size: 12px; cursor: pointer; font-weight: 600; }
     </style>
 </head>
 <body>
 <video id="video" autoplay playsinline muted></video>
 <canvas id="canvas"></canvas>
+
+<div id="inapp-banner">
+    Відкрийте в Safari або Chrome для AR-режиму
+    <button id="copy-url-btn">Копіювати</button>
+</div>
 
 <div id="ar-caption">
     <div id="ar-caption-title"></div>
@@ -144,7 +148,6 @@
 <div id="debug-info">Ініціалізація</div>
 <button id="unmute-btn">🔊 Увімкнути звук</button>
 
-<!-- SETUP SCREEN — структура збережена -->
 <div id="setup-screen">
     <div class="setup-container">
         <div class="setup-header">
@@ -161,7 +164,6 @@
             </div>
 
             <div class="setup-wizard">
-                <!-- КРОК 1 -->
                 <div class="wizard-step active" data-step="0">
                     <div class="step-title">Додайте відео</div>
                     <div class="drop-zone" id="drop-zone">
@@ -170,7 +172,6 @@
                         <input type="file" id="video-file-input" accept="video/mp4" style="display:none;" />
                     </div>
                     <p id="upload-status" role="status" aria-live="polite"></p>
-                    <!-- FIX: label + aria-label -->
                     <label class="field-label" for="video-url">Посилання на відео</label>
                     <input type="url" id="video-url" placeholder="https://... .mp4" aria-label="Посилання на відео" />
                     <div class="toggle-box">
@@ -182,7 +183,6 @@
                     </div>
                 </div>
 
-                <!-- КРОК 2 -->
                 <div class="wizard-step" data-step="1">
                     <div class="step-title">Підпис події</div>
                     <label class="field-label" for="event-title">Назва події</label>
@@ -203,7 +203,6 @@
                     </div>
                 </div>
 
-                <!-- КРОК 3 -->
                 <div class="wizard-step" data-step="2">
                     <div class="step-title">Готово</div>
                     <div id="qrcode-wrapper">
@@ -221,7 +220,6 @@
     <div class="footer">© 2026 <a href="https://github.com/lessa2332" target="_blank" rel="noopener">Олеся Бохонок</a> · SmartLessa</div>
 </div>
 
-<!-- LOADING -->
 <div id="loading">
     <div id="loading-title">AR STUDIO 2026</div>
     <div class="load-step" id="ls-model"><span>AI</span><span>Модель руки</span></div>
@@ -229,7 +227,6 @@
     <div class="pbwrap"><div class="pb" id="pb"></div></div>
 </div>
 
-<!-- AR OVERLAYS -->
 <div class="top-bar" id="ar-topbar" style="display:none;">
     <button id="camera-toggle" aria-label="Перемкнути камеру">Камера</button>
     <button id="reset" aria-label="Скинути AR">Скинути</button>
@@ -258,10 +255,18 @@
     const DEBUG = new URLSearchParams(window.location.search).get('debug') === '1';
     if (DEBUG) document.body.classList.add('debug');
 
-    const safeStorage = {
-        get(k) { try { return localStorage.getItem(k); } catch { return null; } },
-        set(k, v) { try { localStorage.setItem(k, v); } catch {} }
-    };
+    // FIX: моніторинг помилок — власний endpoint через Worker
+    function logError(type, payload = {}) {
+        try {
+            const data = JSON.stringify({ type, ...payload, ua: navigator.userAgent, ts: Date.now() });
+            if (navigator.sendBeacon) {
+                navigator.sendBeacon(WORKER_URL + '/log', data);
+            } else {
+                fetch(WORKER_URL + '/log', { method: 'POST', body: data, keepalive: true }).catch(() => {});
+            }
+        } catch (e) {}
+        if (DEBUG) console.warn('[logError]', type, payload);
+    }
 
     // FIX: черга подій, якщо gtag ще не завантажився
     const eventQueue = [];
@@ -275,10 +280,27 @@
         }
     }
 
+    // FIX: визначення in-app browser
+    function isInAppBrowser() {
+        const ua = navigator.userAgent || '';
+        return /FBAN|FBAV|Instagram|Line|Viber|WhatsApp|Twitter|Snapchat/i.test(ua);
+    }
+
+    // FIX: sanitizeUrl приймає URL без протоколу
     function sanitizeUrl(str) {
         if (!str || typeof str !== 'string') return '';
-        try { const u = new URL(str.trim(), window.location.href); return (u.protocol === 'http:' || u.protocol === 'https:') ? u.href : ''; } catch { return ''; }
+        let s = str.trim();
+        if (!s) return '';
+        if (!/^https?:\/\//i.test(s)) {
+            if (/^[\w.-]+\.[a-z]{2,}/i.test(s)) s = 'https://' + s;
+            else return '';
+        }
+        try {
+            const u = new URL(s);
+            return (u.protocol === 'http:' || u.protocol === 'https:') ? u.href : '';
+        } catch { return ''; }
     }
+
     function getParams() {
         const p = new URLSearchParams(window.location.search);
         return {
@@ -298,11 +320,23 @@
             return dt.toLocaleDateString('uk-UA', { day: '2-digit', month: 'long', year: 'numeric' }) + (t ? ' • ' + t : '');
         } catch { return d; }
     }
+
     function showToast(msg) {
         const el = document.getElementById('toast');
         el.textContent = msg; el.classList.add('visible');
         clearTimeout(showToast._t);
-        showToast._t = setTimeout(() => el.classList.remove('visible'), 2500);
+        showToast._t = setTimeout(() => el.classList.remove('visible'), 3000);
+    }
+
+    // FIX: банер для in-app browser
+    if (isInAppBrowser()) {
+        const banner = document.getElementById('inapp-banner');
+        banner.classList.add('visible');
+        document.getElementById('copy-url-btn').onclick = () => {
+            if (navigator.clipboard?.writeText) {
+                navigator.clipboard.writeText(window.location.href).then(() => showToast('Посилання скопійовано')).catch(() => {});
+            }
+        };
     }
 
     // ── SETUP MODE ──
@@ -315,6 +349,15 @@
         const dateInput = document.getElementById('event-date');
         const timeInput = document.getElementById('event-time');
         const qrWrapper = document.getElementById('qrcode-wrapper');
+
+        // FIX: фолбек CDN для QRCode
+        if (typeof QRCode === 'undefined') {
+            const s = document.createElement('script');
+            s.src = 'https://unpkg.com/qrcodejs@1.0.0/qrcode.min.js';
+            s.onload = () => console.log('QRCode loaded from fallback CDN');
+            s.onerror = () => console.warn('QRCode unavailable — text fallback will be used');
+            document.head.appendChild(s);
+        }
 
         const now = new Date();
         dateInput.value = now.toISOString().split('T')[0];
@@ -337,24 +380,53 @@
         }
 
         function buildLink() {
-            const url = sanitizeUrl(urlInput.value.trim()); if (!url) return '';
-            return `${window.location.origin}${window.location.pathname}?video=${encodeURIComponent(url)}&chroma=${document.getElementById('chromakey-toggle').checked ? '1' : '0'}&title=${encodeURIComponent(titleInput.value)}&date=${dateInput.value}&time=${timeInput.value}`;
+            const raw = urlInput.value.trim();
+            const url = sanitizeUrl(raw);
+            if (!url) return '';
+            const chroma = document.getElementById('chromakey-toggle').checked ? '1' : '0';
+            const title = encodeURIComponent(titleInput.value || '');
+            const date = dateInput.value || '';
+            const time = timeInput.value || '';
+            return `${window.location.origin}${window.location.pathname}?video=${encodeURIComponent(url)}&chroma=${chroma}&title=${title}&date=${date}&time=${time}`;
         }
 
         function refreshQr() {
-            const link = buildLink(); if (!link) return;
+            const link = buildLink();
+            if (!link) { showToast('Спочатку додайте відео'); return; }
             const container = document.getElementById('qrcode-container');
             container.innerHTML = '';
-            try { new QRCode(container, { text: link, width: 160, height: 160, colorDark: "#0B0B12", colorLight: "#FFFFFF" }); } catch(e) {}
-            document.getElementById('qr-meta-block').innerHTML = `<strong>${titleInput.value || 'AR Studio'}</strong>`;
+            try {
+                if (typeof QRCode === 'undefined') throw new Error('QRCode not loaded');
+                new QRCode(container, {
+                    text: link, width: 180, height: 180,
+                    colorDark: "#0B0B12", colorLight: "#FFFFFF",
+                    correctLevel: QRCode.CorrectLevel.M
+                });
+            } catch (e) {
+                console.error('QR error:', e);
+                logError('qr_fail', { msg: String(e) });
+                container.innerHTML = `<div style="padding:12px;background:#fff;border-radius:12px;font-size:11px;word-break:break-all;color:#000;max-width:240px;">${link}</div>`;
+            }
             qrWrapper.classList.add('visible');
+            document.getElementById('qr-meta-block').innerHTML =
+                `<strong>${titleInput.value || 'AR Studio'}</strong><br><span style="font-size:10px;color:#888;">Натисніть і утримуйте QR, щоб зберегти</span>`;
+            trackEvent('qr_generated');
         }
 
-        document.getElementById('next-1').onclick = () => { if (!sanitizeUrl(urlInput.value.trim())) return showToast('Спочатку додайте відео'); goStep(1); };
+        document.getElementById('next-1').onclick = () => {
+            const raw = urlInput.value.trim();
+            if (!raw) return showToast('Спочатку додайте відео');
+            if (!sanitizeUrl(raw)) return showToast('Некоректне посилання на відео');
+            goStep(1);
+        };
         document.getElementById('prev-1').onclick = () => goStep(0);
         document.getElementById('next-2').onclick = () => goStep(2);
         document.getElementById('prev-2').onclick = () => goStep(1);
-        document.getElementById('go-ar-btn').onclick = () => { const l = buildLink(); if (l) window.location.href = l; else showToast('Спочатку додайте відео'); };
+        document.getElementById('go-ar-btn').onclick = () => {
+            const l = buildLink();
+            if (l) { window.location.href = l; }
+            else showToast('Спочатку додайте відео');
+        };
 
         dropZone.onclick = () => fileInput.click();
         fileInput.onchange = (e) => {
@@ -369,11 +441,22 @@
             xhr.onload = () => {
                 try {
                     const d = JSON.parse(xhr.responseText);
-                    if (d.url) { urlInput.value = d.url; uploadStatus.textContent = '✅ Готово'; trackEvent('video_uploaded', { size: f.size }); }
-                    else uploadStatus.textContent = '❌ Помилка сервера';
-                } catch { uploadStatus.textContent = '❌ Некоректна відповідь'; }
+                    const url = d.url || d.videoUrl || d.link || (d.result && d.result.url);
+                    if (url) {
+                        urlInput.value = url;
+                        uploadStatus.textContent = '✅ Готово';
+                        trackEvent('video_uploaded', { size: f.size });
+                        setTimeout(() => { if (currentStep === 0) goStep(1); }, 400);
+                    } else {
+                        uploadStatus.textContent = '❌ Сервер не повернув URL';
+                        logError('worker_no_url', { response: xhr.responseText.slice(0, 200) });
+                    }
+                } catch (err) {
+                    uploadStatus.textContent = '❌ Некоректна відповідь сервера';
+                    logError('worker_parse_fail', { msg: String(err) });
+                }
             };
-            xhr.onerror = () => { uploadStatus.textContent = '❌ Помилка мережі'; };
+            xhr.onerror = () => { uploadStatus.textContent = '❌ Помилка мережі'; logError('worker_network_fail', {}); };
             xhr.open('POST', WORKER_URL); xhr.send(fd);
         };
     }
@@ -391,14 +474,14 @@
         hVideo.setAttribute('playsinline', '');
         hVideo.setAttribute('crossorigin', 'anonymous');
         hVideo.muted = true; hVideo.loop = false;
-        hVideo.preload = 'metadata'; // FIX: metadata замість auto
+        hVideo.preload = 'metadata';
         hVideo.src = params.video;
         hVideo.load();
 
-        // FIX: обробка помилки завантаження відео
         hVideo.addEventListener('error', () => {
             debugInfo.innerHTML = 'Помилка відео';
             showToast('Не вдалося завантажити відео');
+            logError('video_load_fail', { src: params.video.slice(0, 100) });
         });
 
         if (params.title || params.date) {
@@ -412,7 +495,6 @@
         cam3.position.set(0, 0, 3.2);
         const renderer = new THREE.WebGLRenderer({ canvas: canvasEl, alpha: true, antialias: true, powerPreference: 'high-performance' });
         renderer.setClearColor(0, 0);
-        // FIX: обмеження pixel ratio для слабких гаджетів
         const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
         renderer.setPixelRatio(Math.min(window.devicePixelRatio, isMobile ? 1.5 : 2));
         renderer.setSize(window.innerWidth, window.innerHeight);
@@ -453,7 +535,6 @@
             hPlane.scale.set(1, 1 / asp * (4 / 3), 1);
         });
 
-        // FIX: THREE.Points замість 15 Mesh — 1 draw call
         const particleCount = isMobile ? 10 : 15;
         const pGeo = new THREE.BufferGeometry();
         const positions = new Float32Array(particleCount * 3);
@@ -491,11 +572,12 @@
                 if (e.name === 'NotAllowedError') reason = 'denied';
                 else if (e.name === 'NotFoundError') reason = 'notfound';
                 else if (e.name === 'NotReadableError') reason = 'busy';
+                logError('camera_fail', { reason, name: e.name, msg: e.message });
                 return { ok: false, reason };
             }
         }
 
-        // FIX: активація без камери — показуємо відео по центру
+        // FIX: активація без камери — відео по центру
         function activateWithoutCamera(reason) {
             hologramActive = true;
             hologramGroup.visible = true;
@@ -517,6 +599,7 @@
             });
             const msg = reason === 'denied' ? 'Камеру відхилено — відео по центру'
                      : reason === 'notfound' ? 'Камеру не знайдено — відео по центру'
+                     : reason === 'busy' ? 'Камера зайнята — відео по центру'
                      : 'Камера недоступна — відео по центру';
             showToast(msg);
         }
@@ -527,7 +610,6 @@
             if (!r.ok) showToast('Не вдалося перемкнути камеру');
         };
 
-        // FIX: reset скидає позицію і videoPlayed
         document.getElementById('reset').onclick = () => {
             hologramActive = false;
             hologramGroup.visible = false;
@@ -593,20 +675,38 @@
             debugInfo.innerHTML = 'Звук увімкнено';
         };
 
-        // Модель руки
+        // FIX: MediaPipe з подвійним CDN
         let handLandmarker = null;
-        try {
-            const { FilesetResolver, HandLandmarker } = await import('https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.3/+esm');
-            const vision = await FilesetResolver.forVisionTasks('https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.3/wasm');
-            handLandmarker = await HandLandmarker.createFromOptions(vision, {
-                baseOptions: { modelAssetPath: 'https://storage.googleapis.com/mediapipe-models/hand_landmarker/hand_landmarker/float16/1/hand_landmarker.task' },
-                runningMode: 'VIDEO', numHands: 1
-            });
-        } catch (e) { console.warn('MediaPipe failed', e); }
+        async function loadMediaPipe() {
+            const cdns = [
+                'https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.3/+esm',
+                'https://unpkg.com/@mediapipe/tasks-vision@0.10.3/+esm'
+            ];
+            const wasmCDNs = [
+                'https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.3/wasm',
+                'https://unpkg.com/@mediapipe/tasks-vision@0.10.3/wasm'
+            ];
+            for (let i = 0; i < cdns.length; i++) {
+                try {
+                    const { FilesetResolver, HandLandmarker } = await import(cdns[i]);
+                    const vision = await FilesetResolver.forVisionTasks(wasmCDNs[i]);
+                    handLandmarker = await HandLandmarker.createFromOptions(vision, {
+                        baseOptions: { modelAssetPath: 'https://storage.googleapis.com/mediapipe-models/hand_landmarker/hand_landmarker/float16/1/hand_landmarker.task' },
+                        runningMode: 'VIDEO', numHands: 1
+                    });
+                    console.log('MediaPipe loaded from', cdns[i]);
+                    return;
+                } catch (e) {
+                    console.warn('MediaPipe CDN failed:', cdns[i], e);
+                    logError('mediapipe_fail', { cdn: cdns[i] });
+                }
+            }
+            console.warn('All MediaPipe CDNs failed');
+        }
+        await loadMediaPipe();
 
         const camResult = await startCamera();
 
-        // FIX: якщо камери немає — одразу показуємо відео без трекінгу
         if (!camResult.ok) {
             document.getElementById('loading').classList.remove('visible');
             activateWithoutCamera(camResult.reason);
@@ -619,16 +719,34 @@
         showStep(0);
 
         let lastDetectTime = 0;
-        // FIX: трекінг працює і після активації — рух за рукою не зупиняється
+        // FIX: динамічна частота детекції
+        let detectInterval = isMobile ? 40 : 25;
+        let slowFrameCount = 0;
+
         function detectLoop() {
             requestAnimationFrame(detectLoop);
             if (!handLandmarker || videoEl.readyState < 2) return;
             const now = performance.now();
-            if (now - lastDetectTime < (isMobile ? 60 : 33)) return;
+            if (now - lastDetectTime < detectInterval) return;
             lastDetectTime = now;
 
+            const t0 = performance.now();
             try {
                 const res = handLandmarker.detectForVideo(videoEl, now);
+                const infTime = performance.now() - t0;
+
+                // FIX: адаптивна частота — якщо інференс повільний, знижуємо частоту
+                if (infTime > 80) {
+                    slowFrameCount++;
+                    if (slowFrameCount > 10 && detectInterval < 200) {
+                        detectInterval = Math.min(200, detectInterval + 20);
+                        slowFrameCount = 0;
+                    }
+                } else {
+                    slowFrameCount = Math.max(0, slowFrameCount - 1);
+                    if (detectInterval > (isMobile ? 40 : 25)) detectInterval -= 5;
+                }
+
                 if (res.landmarks?.length > 0) {
                     const lm = res.landmarks[0];
                     const okD = Math.hypot(lm[4].x - lm[8].x, lm[4].y - lm[8].y);
@@ -640,18 +758,24 @@
                         showStep(1);
                     }
 
-                    // Рух голограми за рукою — завжди
+                    // FIX: швидший рух за рукою + dead zone
                     const mir = facingMode === 'user', dir = mir ? -1 : 1;
-                    hologramGroup.position.x += (dir * ((lm[0].x + lm[17].x) / 2 * 2 - 1) - hologramGroup.position.x) * 0.1;
-                    hologramGroup.position.y += ((0.5 - (lm[0].y + lm[17].y) / 2) * 1.5 + 0.35 - hologramGroup.position.y) * 0.1;
+                    const targetX = dir * ((lm[0].x + lm[17].x) / 2 * 2 - 1);
+                    const targetY = (0.5 - (lm[0].y + lm[17].y) / 2) * 1.5 + 0.35;
+
+                    const dx = targetX - hologramGroup.position.x;
+                    const dy = targetY - hologramGroup.position.y;
+                    if (Math.abs(dx) > 0.005) hologramGroup.position.x += dx * 0.35;
+                    if (Math.abs(dy) > 0.005) hologramGroup.position.y += dy * 0.35;
                 }
-            } catch (e) {}
+            } catch (e) {
+                if (DEBUG) console.warn('detect error', e);
+            }
         }
 
         function animate() {
             requestAnimationFrame(animate);
             if (hologramGroup.visible) {
-                // FIX: оновлюємо текстуру лише коли відео грає
                 if (!hVideo.paused && hVideo.readyState >= 2) vTex.needsUpdate = true;
                 if (hologramActive) {
                     const t = performance.now() / 1000;
