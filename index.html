@@ -19,7 +19,6 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <!-- FIX: QRCode з onerror для фолбеку -->
     <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js" onerror="window.__qrFailed=true"></script>
 
     <style>
@@ -126,7 +125,6 @@
         #unmute-btn { position: absolute; top: max(80px, calc(env(safe-area-inset-top, 0px) + 60px)); left: 50%; transform: translateX(-50%); z-index: 350; background: var(--accent-primary); color: #000; padding: 12px 24px; border-radius: 30px; border: none; font-weight: 700; font-size: 14px; cursor: pointer; box-shadow: 0 4px 15px rgba(0,0,0,0.5); display: none; text-transform: uppercase; }
         #unmute-btn.visible { display: block; animation: pulseSoft 2s infinite; }
 
-        /* FIX: банер для in-app browser */
         #inapp-banner { position: fixed; top: 0; left: 0; right: 0; background: #C9A96E; color: #0B0B12; padding: 12px 20px; z-index: 3000; font-size: 13px; text-align: center; font-weight: 500; display: none; }
         #inapp-banner.visible { display: block; }
         #inapp-banner button { background: #0B0B12; color: #E6D3B3; border: none; padding: 8px 16px; border-radius: 20px; margin-left: 10px; font-size: 12px; cursor: pointer; font-weight: 600; }
@@ -255,7 +253,13 @@
     const DEBUG = new URLSearchParams(window.location.search).get('debug') === '1';
     if (DEBUG) document.body.classList.add('debug');
 
-    // FIX: моніторинг помилок — власний endpoint через Worker
+    // FIX: safeStorage повернуто — без нього initSetup падав
+    const safeStorage = {
+        get(k) { try { return localStorage.getItem(k); } catch { return null; } },
+        set(k, v) { try { localStorage.setItem(k, v); } catch {} }
+    };
+
+    // FIX: logError повністю безпечний — не ламає потік, навіть якщо Worker не має /log
     function logError(type, payload = {}) {
         try {
             const data = JSON.stringify({ type, ...payload, ua: navigator.userAgent, ts: Date.now() });
@@ -268,7 +272,6 @@
         if (DEBUG) console.warn('[logError]', type, payload);
     }
 
-    // FIX: черга подій, якщо gtag ще не завантажився
     const eventQueue = [];
     function trackEvent(name, data = {}) {
         try { if (window.cfBeacon?.trackEvent) window.cfBeacon.trackEvent(name, data); } catch(e) {}
@@ -280,13 +283,11 @@
         }
     }
 
-    // FIX: визначення in-app browser
     function isInAppBrowser() {
         const ua = navigator.userAgent || '';
         return /FBAN|FBAV|Instagram|Line|Viber|WhatsApp|Twitter|Snapchat/i.test(ua);
     }
 
-    // FIX: sanitizeUrl приймає URL без протоколу
     function sanitizeUrl(str) {
         if (!str || typeof str !== 'string') return '';
         let s = str.trim();
@@ -328,7 +329,6 @@
         showToast._t = setTimeout(() => el.classList.remove('visible'), 3000);
     }
 
-    // FIX: банер для in-app browser
     if (isInAppBrowser()) {
         const banner = document.getElementById('inapp-banner');
         banner.classList.add('visible');
@@ -350,7 +350,6 @@
         const timeInput = document.getElementById('event-time');
         const qrWrapper = document.getElementById('qrcode-wrapper');
 
-        // FIX: фолбек CDN для QRCode
         if (typeof QRCode === 'undefined') {
             const s = document.createElement('script');
             s.src = 'https://unpkg.com/qrcodejs@1.0.0/qrcode.min.js';
@@ -577,7 +576,6 @@
             }
         }
 
-        // FIX: активація без камери — відео по центру
         function activateWithoutCamera(reason) {
             hologramActive = true;
             hologramGroup.visible = true;
@@ -675,7 +673,7 @@
             debugInfo.innerHTML = 'Звук увімкнено';
         };
 
-        // FIX: MediaPipe з подвійним CDN
+        // FIX: MediaPipe з таймаутом — не блокує назавжди, якщо CDN недоступний
         let handLandmarker = null;
         async function loadMediaPipe() {
             const cdns = [
@@ -688,20 +686,24 @@
             ];
             for (let i = 0; i < cdns.length; i++) {
                 try {
-                    const { FilesetResolver, HandLandmarker } = await import(cdns[i]);
-                    const vision = await FilesetResolver.forVisionTasks(wasmCDNs[i]);
-                    handLandmarker = await HandLandmarker.createFromOptions(vision, {
-                        baseOptions: { modelAssetPath: 'https://storage.googleapis.com/mediapipe-models/hand_landmarker/hand_landmarker/float16/1/hand_landmarker.task' },
-                        runningMode: 'VIDEO', numHands: 1
-                    });
+                    const timeout = new Promise((_, rej) => setTimeout(() => rej(new Error('timeout')), 8000));
+                    const load = (async () => {
+                        const { FilesetResolver, HandLandmarker } = await import(cdns[i]);
+                        const vision = await FilesetResolver.forVisionTasks(wasmCDNs[i]);
+                        handLandmarker = await HandLandmarker.createFromOptions(vision, {
+                            baseOptions: { modelAssetPath: 'https://storage.googleapis.com/mediapipe-models/hand_landmarker/hand_landmarker/float16/1/hand_landmarker.task' },
+                            runningMode: 'VIDEO', numHands: 1
+                        });
+                    })();
+                    await Promise.race([load, timeout]);
                     console.log('MediaPipe loaded from', cdns[i]);
                     return;
                 } catch (e) {
                     console.warn('MediaPipe CDN failed:', cdns[i], e);
-                    logError('mediapipe_fail', { cdn: cdns[i] });
+                    logError('mediapipe_fail', { cdn: cdns[i], msg: String(e) });
                 }
             }
-            console.warn('All MediaPipe CDNs failed');
+            console.warn('All MediaPipe CDNs failed — трекінг недоступний');
         }
         await loadMediaPipe();
 
@@ -719,7 +721,6 @@
         showStep(0);
 
         let lastDetectTime = 0;
-        // FIX: динамічна частота детекції
         let detectInterval = isMobile ? 40 : 25;
         let slowFrameCount = 0;
 
@@ -735,7 +736,6 @@
                 const res = handLandmarker.detectForVideo(videoEl, now);
                 const infTime = performance.now() - t0;
 
-                // FIX: адаптивна частота — якщо інференс повільний, знижуємо частоту
                 if (infTime > 80) {
                     slowFrameCount++;
                     if (slowFrameCount > 10 && detectInterval < 200) {
@@ -758,7 +758,6 @@
                         showStep(1);
                     }
 
-                    // FIX: швидший рух за рукою + dead zone
                     const mir = facingMode === 'user', dir = mir ? -1 : 1;
                     const targetX = dir * ((lm[0].x + lm[17].x) / 2 * 2 - 1);
                     const targetY = (0.5 - (lm[0].y + lm[17].y) / 2) * 1.5 + 0.35;
